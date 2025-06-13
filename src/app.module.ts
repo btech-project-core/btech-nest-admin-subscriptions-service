@@ -1,10 +1,24 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { RolesModule } from './roles/roles.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SubscriptionsDesigneSettingsModule } from './subscriptions-designe-settings/subscriptions-designe-settings.module';
+import { SubscriptionsTypeModule } from './subscriptions-type/subscriptions-type.module';
+import { CommonModule } from './common/common.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './config/typeorm.config';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    RolesModule,
+    SubscribersModule,
+    SubscriptionsModule,
+    SubscriptionsDesigneSettingsModule,
+    SubscriptionsTypeModule,
+    CommonModule,
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
