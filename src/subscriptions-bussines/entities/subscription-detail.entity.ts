@@ -1,17 +1,24 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { Subscription } from './subscription.entity';
+import { SubscriptionsBussine } from './subscriptions-bussine.entity';
 
-@Entity()
+@Entity({ name: 'subscriptionDetail' })
 export class SubscriptionDetail extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionDetailId: string;
 
   @ManyToOne(
-    () => Subscription,
+    () => SubscriptionsBussine,
     (subscription) => subscription.subscriptionDetail,
   )
-  subscription: Subscription;
+  @JoinColumn({ name: 'subscriptionsBussineId' })
+  subscriptionsBussine: SubscriptionsBussine;
 
   @Column({
     type: 'uuid',

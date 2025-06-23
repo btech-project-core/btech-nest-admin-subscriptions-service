@@ -1,15 +1,16 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { SubscriberRole } from './subscriber-role.entity';
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { Subscription } from 'src/subscriptions/entities/subscription.entity';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 
-@Entity()
+@Entity({ name: 'subscriber' })
 export class Subscriber extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriberId: string;
@@ -34,8 +35,12 @@ export class Subscriber extends Timestamped {
   })
   naturalPersonId: string;
 
-  @ManyToOne(() => Subscription, (subscription) => subscription.subscriber)
-  subscription: Subscription;
+  @ManyToOne(
+    () => SubscriptionsBussine,
+    (subscription) => subscription.subscriber,
+  )
+  @JoinColumn({ name: 'subscriptionsBussineId' })
+  subscriptionsBussine: SubscriptionsBussine;
 
   @Column({
     type: 'boolean',

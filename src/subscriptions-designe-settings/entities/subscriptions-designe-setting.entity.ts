@@ -1,5 +1,5 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { Subscription } from 'src/subscriptions/entities/subscription.entity';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import {
   Column,
   Entity,
@@ -8,17 +8,17 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'subscriptionsDesigneSetting' })
 export class SubscriptionsDesigneSetting extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscribersDesigneSettingId: string;
 
   @OneToOne(
-    () => Subscription,
+    () => SubscriptionsBussine,
     (subscription) => subscription.subscriptionsDesigneSetting,
   )
-  @JoinColumn()
-  subscription: Subscription;
+  @JoinColumn({ name: 'subscriptionsBussineId' })
+  subscriptionsBussine: SubscriptionsBussine;
 
   @Column({
     type: 'varchar',

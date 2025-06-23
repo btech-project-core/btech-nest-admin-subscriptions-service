@@ -7,7 +7,7 @@ import { SubscriptionsTypeModule } from './subscriptions-type/subscriptions-type
 import { CommonModule } from './common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
-
+import { SubscriptionsBussinesModule } from './subscriptions-bussines/subscriptions-bussines.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
@@ -17,6 +17,7 @@ import { typeOrmConfig } from './config/typeorm.config';
     SubscriptionsDesigneSettingsModule,
     SubscriptionsTypeModule,
     CommonModule,
+    SubscriptionsBussinesModule,
   ],
   controllers: [],
   providers: [],

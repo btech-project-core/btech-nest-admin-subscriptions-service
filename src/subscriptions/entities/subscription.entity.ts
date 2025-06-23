@@ -5,15 +5,13 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   OneToMany,
-  OneToOne,
+  JoinColumn,
 } from 'typeorm';
-import { SubscriptionsDesigneSetting } from '../../subscriptions-designe-settings/entities/subscriptions-designe-setting.entity';
-import { SubscriptionsType } from 'src/subscriptions-type/entities/subscriptions-type.entity';
-import { Subscriber } from 'src/subscribers/entities/subscriber.entity';
-import { SubscriptionDetail } from './subscriptionDetail.entity';
 import { StatusSubscription } from '../enums/status-subscription.enum';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
+import { SubscriptionsType } from 'src/subscriptions-type/entities/subscriptions-type.entity';
 
-@Entity()
+@Entity({ name: 'subscription' })
 export class Subscription extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionId: string;
@@ -37,6 +35,13 @@ export class Subscription extends Timestamped {
   contractSigningDate: Date;
 
   @Column({
+    type: 'varchar',
+    length: 55,
+    nullable: true,
+  })
+  url?: string;
+
+  @Column({
     type: 'uuid',
     nullable: false,
   })
@@ -46,22 +51,14 @@ export class Subscription extends Timestamped {
     () => SubscriptionsType,
     (subscriptionsType) => subscriptionsType.subscriptions,
   )
+  @JoinColumn({ name: 'subscriptionTypeId' })
   subscriptionType: SubscriptionsType;
 
-  @OneToMany(() => Subscriber, (subscriber) => subscriber.subscription)
-  subscriber: Subscriber[];
-
   @OneToMany(
-    () => SubscriptionDetail,
-    (subscriptionDetail) => subscriptionDetail.subscription,
+    () => SubscriptionsBussine,
+    (subscriptionsBussine) => subscriptionsBussine.subscription,
   )
-  subscriptionDetail: SubscriptionDetail[];
-
-  @OneToOne(
-    () => SubscriptionsDesigneSetting,
-    (subscriptionsDesigneSetting) => subscriptionsDesigneSetting.subscription,
-  )
-  subscriptionsDesigneSetting: SubscriptionsDesigneSetting;
+  subscriptionsBussine: SubscriptionsBussine[];
 
   @Column({
     type: 'enum',

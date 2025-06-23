@@ -2,7 +2,7 @@ import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { Subscription } from 'src/subscriptions/entities/subscription.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'subscriptionsType' })
 export class SubscriptionsType extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionTypeId: string;
