@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionsBussineDto } from './dto/create-subscriptions-bussine.dto';
-import { UpdateSubscriptionsBussineDto } from './dto/update-subscriptions-bussine.dto';
+import { CreateSubscriptionsBussineDto } from '../dto/create-subscriptions-bussine.dto';
+import { UpdateSubscriptionsBussineDto } from '../dto/update-subscriptions-bussine.dto';
 
 @Injectable()
 export class SubscriptionsBussinesService {

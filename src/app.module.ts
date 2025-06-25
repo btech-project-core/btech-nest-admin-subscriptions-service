@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { SubscriptionsBussinesModule } from './subscriptions-bussines/subscriptions-bussines.module';
+import { MessagingModule } from './messaging/messaging.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
@@ -18,6 +19,7 @@ import { SubscriptionsBussinesModule } from './subscriptions-bussines/subscripti
     SubscriptionsTypeModule,
     CommonModule,
     SubscriptionsBussinesModule,
+    MessagingModule.register(),
   ],
   controllers: [],
   providers: [],
