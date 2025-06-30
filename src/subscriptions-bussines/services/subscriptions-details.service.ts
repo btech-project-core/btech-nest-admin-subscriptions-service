@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SubscriptionDetail } from '../entities/subscription-detail.entity';
+import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+import { FindActiveSubscriptionDetailsByBussinesIdResponseDto } from '../dto/find-active-subscription-details-by-bussines-id.dto';
 
 @Injectable()
 export class SubscriptionsDetailsService {
@@ -18,5 +20,20 @@ export class SubscriptionsDetailsService {
       },
     });
     return subscriptionDetails;
+  }
+
+  async findActiveSubscriptionDetailsByBussinesId(
+    subscriptionBussineId: string,
+  ): Promise<FindActiveSubscriptionDetailsByBussinesIdResponseDto[]> {
+    return await this.subscriptionsDetailsRepository
+      .createQueryBuilder('sd')
+      .innerJoin('sd.subscriptionsBussine', 'sb')
+      .innerJoin('sb.subscription', 's')
+      .select(['sd.subscriptionDetailId', 'sd.serviceId'])
+      .where('sb.subscriptionBussineId = :subscriptionBussineId', {
+        subscriptionBussineId,
+      })
+      .andWhere('s.status = :status', { status: StatusSubscription.ACTIVE })
+      .getMany();
   }
 }

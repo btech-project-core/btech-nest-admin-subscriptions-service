@@ -2,6 +2,7 @@ import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SubscriptionsBussinesService } from './services/subscriptions-bussines.service';
 import { SubscriptionsDetailsService } from './services/subscriptions-details.service';
+import { FindActiveSubscriptionDetailsByBussinesIdDto } from './dto/find-active-subscription-details-by-bussines-id.dto';
 
 @Controller()
 export class SubscriptionsBussinesController {
@@ -17,6 +18,16 @@ export class SubscriptionsBussinesController {
   ) {
     return this.subscriptionsDetailsService.findBySubscriptionsBussineId(
       subscriptionBussineId,
+    );
+  }
+
+  @MessagePattern('findActiveSubscriptionDetailsByBussinesId')
+  async findActiveSubscriptionDetailsByBusinessId(
+    @Payload()
+    findActiveSubscriptionDetailsByBussinesIdDto: FindActiveSubscriptionDetailsByBussinesIdDto,
+  ) {
+    return await this.subscriptionsDetailsService.findActiveSubscriptionDetailsByBussinesId(
+      findActiveSubscriptionDetailsByBussinesIdDto.subscriptionBussineId,
     );
   }
 }
