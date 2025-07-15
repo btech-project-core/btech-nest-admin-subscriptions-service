@@ -1,10 +1,11 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
+import { DesignerMode } from 'src/designe-mode/entities/designe-mode.entity';
+import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscription-detail.entity';
 import {
   Column,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -13,19 +14,26 @@ export class SubscriptionsDesigneSetting extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscribersDesigneSettingId: string;
 
-  @OneToOne(
-    () => SubscriptionsBussine,
+  @ManyToOne(
+    () => SubscriptionDetail,
     (subscription) => subscription.subscriptionsDesigneSetting,
   )
-  @JoinColumn({ name: 'subscriptionsBussineId' })
-  subscriptionsBussine: SubscriptionsBussine;
+  @JoinColumn({ name: 'subscriptionDetailId' })
+  subscriptionDetail: SubscriptionDetail;
+
+  @ManyToOne(
+    () => DesignerMode,
+    (designerMode) => designerMode.subscriptionsDesigneSetting,
+  )
+  @JoinColumn({ name: 'designerModeId' })
+  designerMode: DesignerMode;
 
   @Column({
     type: 'varchar',
     length: 25,
     nullable: false,
   })
-  url: string;
+  url?: string;
 
   @Column({
     type: 'varchar',
@@ -109,14 +117,42 @@ export class SubscriptionsDesigneSetting extends Timestamped {
     length: 10,
     nullable: true,
   })
-  lightColor?: string;
+  backgroundColor?: string;
 
   @Column({
     type: 'varchar',
     length: 10,
     nullable: true,
   })
-  darkColor?: string;
+  surfaceColor?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  onPrimaryColor?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  onSecondaryColor?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  onBackgroundColor?: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+  })
+  onSurfaceColor?: string;
 
   @Column({
     type: 'varchar',

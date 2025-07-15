@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package adminSubscriptions;
+
+service AdminSubscriptionsService {
+  rpc FindUserByUsername(FindUserByUsernameRequest) returns (LoginUserResponse);
+  rpc FindUserById(FindUserByIdRequest) returns (TwoFactorUserResponse);
+  rpc FindUserProfile(FindUserByIdRequest) returns (UserProfileResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
+}
+
+// ===== REQUESTS =====
+message FindUserByUsernameRequest {
+  string username = 1;
+  optional string url = 2;
+  optional string twoFactorCode = 3;
+}
+
+message FindUserByIdRequest {
+  string subscriberId = 1;
+  string service = 2;
+}
+
+message UpdateUserRequest {
+  string subscriberId = 1;
+  optional string twoFactorSecret = 2;
+  optional bool isTwoFactorEnabled = 3;
+}
+
+// ===== RESPONSE PARA LOGIN =====
+message LoginSubscriptionData {
+  string subscriptionId = 1;
+  string subscriptionBussineId = 2;
+  string status = 3;
+}
+
+message LoginUserResponse {
+  string subscriberId = 1;
+  string username = 2;
+  bool isTwoFactorEnabled = 3;
+  repeated string services = 4;
+  repeated string roles = 5;
+  optional string twoFactorSecret = 6;
+  LoginSubscriptionData subscription = 7;
+}
+
+// ===== RESPONSE PARA 2FA =====
+message TwoFactorUserResponse {
+  string subscriberId = 1;
+  string username = 2;
+  string url = 3;
+  bool isTwoFactorEnabled = 4;
+  optional string twoFactorSecret = 5;
+}
+
+// ===== RESPONSE PARA USER PROFILE COMPLETO =====
+message PersonInformation {
+  string informationType = 1;
+  string description = 2;
+}
+
+message NaturalPerson {
+  string naturalPersonId = 1;
+  string personId = 2;
+  string fullName = 3;
+  string paternalSurname = 4;
+  string maternalSurname = 5;
+  string documentNumber = 6;
+  string documentType = 7;
+  repeated PersonInformation personInformation = 8;
+}
+
+message SubscriptionsDesigneSettings {
+  optional string subscriptionsDesigneSettingId = 1;
+  optional string mode = 2;
+  optional string url = 3;
+  optional string brandOne = 4;
+  optional string brandTwo = 5;
+  optional string brandThree = 6;
+  optional string brandFour = 7;
+  optional string primaryColor = 8;
+  optional string secondaryColor = 9;
+  optional string baseColor = 10;
+  optional string infoColor = 11;
+  optional string warningColor = 12;
+  optional string successColor = 13;
+  optional string errorColor = 14;
+  optional string backgroundColor = 15;
+  optional string surfaceColor = 16;
+  optional string onPrimaryColor = 17;
+  optional string onSecondaryColor = 18;
+  optional string onBackgroundColor = 19;
+  optional string onSurfaceColor = 20;
+  optional string letterFont = 21;
+}
+
+message PersonInfo {
+  string personId = 1;
+  string fullName = 2;
+}
+
+message SubscriptionInfo {
+  string subscriptionId = 1;
+  string subscriptionBussineId = 2;
+  string subscriptionDetailId = 3;
+  string status = 4;
+  string initialDate = 5;
+  string finalDate = 6;
+  optional string url = 7;
+  repeated SubscriptionsDesigneSettings subscriptionDesign = 8;
+  PersonInfo person = 9;
+}
+
+message UserProfileResponse {
+  string subscriberId = 1;
+  string username = 2;
+  bool isTwoFactorEnabled = 3;
+  repeated string roles = 4;
+  NaturalPerson naturalPerson = 5;
+  SubscriptionInfo subscription = 6;
+}

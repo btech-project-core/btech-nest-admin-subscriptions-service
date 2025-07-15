@@ -9,9 +9,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/typeorm.config';
 import { SubscriptionsBussinesModule } from './subscriptions-bussines/subscriptions-bussines.module';
 import { MessagingModule } from './messaging/messaging.module';
+import { SubscriptionsDetailModule } from './subscriptions-detail/subscriptions-detail.module';
+import { SubscriptionsFeaturesModule } from './subscriptions-features/subscriptions-features.module';
+import { SubscriptionsServicesModule } from './subscriptions-services/subscriptions-services.module';
+import { DesigneModeModule } from './designe-mode/designe-mode.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
+    MessagingModule.register(),
     RolesModule,
     SubscribersModule,
     SubscriptionsModule,
@@ -19,7 +24,10 @@ import { MessagingModule } from './messaging/messaging.module';
     SubscriptionsTypeModule,
     CommonModule,
     SubscriptionsBussinesModule,
-    MessagingModule.register(),
+    SubscriptionsDetailModule,
+    SubscriptionsFeaturesModule,
+    SubscriptionsServicesModule,
+    DesigneModeModule,
   ],
   controllers: [],
   providers: [],

@@ -1,11 +1,11 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { SubscriberRole } from 'src/subscribers/entities/subscriber-role.entity';
+import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscription-detail.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'role' })
-export class Role extends Timestamped {
+@Entity({ name: 'subscriptionsService' })
+export class SubscriptionsService extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
-  roleId: string;
+  subscriptionsServiceId: string;
 
   @Column({
     type: 'varchar',
@@ -17,17 +17,20 @@ export class Role extends Timestamped {
 
   @Column({
     type: 'varchar',
-    length: 25,
+    length: 65,
     nullable: false,
   })
   description: string;
+
+  @OneToMany(
+    () => SubscriptionDetail,
+    (subscriptionDetail) => subscriptionDetail.subscriptionsService,
+  )
+  subscriptionDetail: SubscriptionDetail[];
 
   @Column({
     type: 'boolean',
     default: true,
   })
   isActive: boolean;
-
-  @OneToMany(() => SubscriberRole, (subscriberRole) => subscriberRole.role)
-  subscriberRoles: SubscriberRole[];
 }

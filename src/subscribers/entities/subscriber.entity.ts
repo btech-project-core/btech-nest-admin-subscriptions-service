@@ -53,14 +53,13 @@ export class Subscriber extends Timestamped {
     length: 62,
     nullable: true,
   })
-  token?: string | null;
+  token?: string;
 
   @Column({
-    type: 'varchar',
-    length: 62,
+    type: 'int',
     nullable: true,
   })
-  refreshToken: string;
+  timeInactive?: number;
 
   @Column({
     type: 'json',

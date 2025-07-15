@@ -1,35 +1,53 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SubscribersService } from './subscribers.service';
-import { CreateSubscriberDto } from './dto/create-subscriber.dto';
-import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
+import { GrpcMethod } from '@nestjs/microservices';
+import {
+  FindUserByIdRequest,
+  FindUserByUsernameRequest,
+  UpdateUserRequest,
+} from 'src/common/dto/grpc-request.dto';
+import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
+import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
+import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 
 @Controller()
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
-  @MessagePattern('createSubscriber')
-  create(@Payload() createSubscriberDto: CreateSubscriberDto) {
-    return this.subscribersService.create(createSubscriberDto);
+  @GrpcMethod('AdminSubscriptionsService', 'FindUserByUsername')
+  async findUserByUsername(
+    data: FindUserByUsernameRequest,
+  ): Promise<FindOneUsernameResponseDto> {
+    return await this.subscribersService.findOneByUsername(
+      data.username,
+      data.url,
+    );
   }
 
-  @MessagePattern('findAllSubscribers')
-  findAll() {
-    return this.subscribersService.findAll();
+  @GrpcMethod('AdminSubscriptionsService', 'FindUserById')
+  async findUserById(
+    data: FindUserByIdRequest,
+  ): Promise<FindOneSubscriberByIdResponseDto> {
+    return await this.subscribersService.findOneBySubscriberId(
+      data.subscriberId,
+    );
   }
 
-  @MessagePattern('findOneSubscriber')
-  findOne(@Payload() id: number) {
-    return this.subscribersService.findOne(id);
+  @GrpcMethod('AdminSubscriptionsService', 'FindUserProfile')
+  async findUserProfile(
+    data: FindUserByIdRequest,
+  ): Promise<UserProfileResponseDto | null> {
+    return await this.subscribersService.findOneBySubscriberIdWithLogin(
+      data.subscriberId,
+      data.service,
+    );
   }
 
-  @MessagePattern('updateSubscriber')
-  update(@Payload() updateSubscriberDto: UpdateSubscriberDto) {
-    return this.subscribersService.update(updateSubscriberDto.id, updateSubscriberDto);
-  }
-
-  @MessagePattern('removeSubscriber')
-  remove(@Payload() id: number) {
-    return this.subscribersService.remove(id);
+  @GrpcMethod('AdminSubscriptionsService', 'UpdateUser')
+  async updateUser(data: UpdateUserRequest): Promise<UserProfileResponseDto> {
+    return await this.subscribersService.updateSubscriber(
+      data.subscriberId,
+      data,
+    );
   }
 }

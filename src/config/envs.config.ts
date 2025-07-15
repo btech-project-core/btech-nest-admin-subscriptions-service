@@ -14,6 +14,7 @@ if (process.env.NODE_ENV === 'local') {
 
 interface EnvsVars {
   SERVER_PORT: number;
+  GRPC_PORT: number;
   NATS_SERVERS: string[];
   DB_HOST: string;
   DB_PORT: number;
@@ -21,22 +22,21 @@ interface EnvsVars {
   DB_PASSWORD: string;
   DB_NAME: string;
   DB_SYNCHRONIZE: boolean;
-  ENCRYPTION_KEY: string;
-  ENCRYPTION_ENABLED: boolean;
+  DOMAIN_PRINCIPAL: string;
 }
 
 const envsSchema = joi
   .object({
-    PORT: joi.number().default(3000),
+    SERVER_PORT: joi.number().default(3000),
+    GRPC_PORT: joi.number().default(50053),
     DB_HOST: joi.string().required(),
     DB_PORT: joi.number().required(),
     DB_USERNAME: joi.string().required(),
     DB_PASSWORD: joi.string().required(),
     DB_NAME: joi.string().required(),
     DB_SYNCHRONIZE: joi.boolean().default(true),
-    ENCRYPTION_KEY: joi.string().required(),
-    ENCRYPTION_ENABLED: joi.boolean().required(),
     NATS_SERVERS: joi.array().items(joi.string()).required(),
+    DOMAIN_PRINCIPAL: joi.string().required(),
   })
   .unknown(true);
 
@@ -54,6 +54,9 @@ export const envs = {
   server: {
     port: envVars.SERVER_PORT,
   },
+  grpc: {
+    port: envVars.GRPC_PORT,
+  },
   db: {
     host: envVars.DB_HOST,
     port: envVars.DB_PORT,
@@ -65,8 +68,7 @@ export const envs = {
   messaging: {
     servers: envVars.NATS_SERVERS,
   },
-  encryption: {
-    key: envVars.ENCRYPTION_KEY,
-    enabled: envVars.ENCRYPTION_ENABLED,
+  domain: {
+    principal: envVars.DOMAIN_PRINCIPAL,
   },
 };

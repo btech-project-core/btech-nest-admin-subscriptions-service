@@ -6,14 +6,13 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SubscriptionsDesigneSetting } from 'src/subscriptions-designe-settings/entities/subscriptions-designe-setting.entity';
-import { SubscriptionDetail } from './subscription-detail.entity';
+import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscription-detail.entity';
+import { Timestamped } from 'src/common/entities/timestamped.entity';
 
 @Entity({ name: 'subscriptionsBussine' })
-export class SubscriptionsBussine {
+export class SubscriptionsBussine extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionBussineId: string;
 
@@ -39,10 +38,9 @@ export class SubscriptionsBussine {
   )
   subscriptionDetail: SubscriptionDetail[];
 
-  @OneToOne(
-    () => SubscriptionsDesigneSetting,
-    (subscriptionsDesigneSetting) =>
-      subscriptionsDesigneSetting.subscriptionsBussine,
-  )
-  subscriptionsDesigneSetting: SubscriptionsDesigneSetting;
+  @Column({
+    type: 'integer',
+    nullable: false,
+  })
+  numberAccounts: number;
 }
