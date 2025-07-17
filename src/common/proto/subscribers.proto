@@ -7,13 +7,14 @@ service AdminSubscriptionsService {
   rpc FindUserById(FindUserByIdRequest) returns (TwoFactorUserResponse);
   rpc FindUserProfile(FindUserByIdRequest) returns (UserProfileResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
+  rpc LoadServiceConfiguration(LoadServiceConfigurationRequest) returns (stream LoadServiceConfigurationResponse);
 }
 
 // ===== REQUESTS =====
 message FindUserByUsernameRequest {
   string username = 1;
-  optional string url = 2;
-  optional string twoFactorCode = 3;
+  string domain = 2;
+  string service = 3;
 }
 
 message FindUserByIdRequest {
@@ -38,7 +39,7 @@ message LoginUserResponse {
   string subscriberId = 1;
   string username = 2;
   bool isTwoFactorEnabled = 3;
-  repeated string services = 4;
+  string service = 4;
   repeated string roles = 5;
   optional string twoFactorSecret = 6;
   LoginSubscriptionData subscription = 7;
@@ -118,4 +119,36 @@ message UserProfileResponse {
   repeated string roles = 4;
   NaturalPerson naturalPerson = 5;
   SubscriptionInfo subscription = 6;
+}
+
+message LoadServiceConfigurationRequest {
+  string service = 1;
+}
+
+message ServiceConfigurationItem {
+  optional string subscriptionsDesigneSettingId = 1;
+  optional string mode = 2;
+  optional string url = 3;
+  optional string brandOne = 4;
+  optional string brandTwo = 5;
+  optional string brandThree = 6;
+  optional string brandFour = 7;
+  optional string primaryColor = 8;
+  optional string secondaryColor = 9;
+  optional string baseColor = 10;
+  optional string infoColor = 11;
+  optional string warningColor = 12;
+  optional string successColor = 13;
+  optional string errorColor = 14;
+  optional string backgroundColor = 15;
+  optional string surfaceColor = 16;
+  optional string onPrimaryColor = 17;
+  optional string onSecondaryColor = 18;
+  optional string onBackgroundColor = 19;
+  optional string onSurfaceColor = 20;
+  optional string letterFont = 21;
+}
+
+message LoadServiceConfigurationResponse {
+  repeated ServiceConfigurationItem configurations = 1;
 }

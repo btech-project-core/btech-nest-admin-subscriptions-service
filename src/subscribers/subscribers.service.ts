@@ -27,7 +27,8 @@ export class SubscribersService {
 
   async findOneByUsername(
     username: string,
-    url?: string,
+    domain: string,
+    service: CodeService,
   ): Promise<FindOneUsernameResponseDto> {
     const queryBuilder =
       this.subscriberRepository.createQueryBuilder('subscriber');
@@ -51,9 +52,10 @@ export class SubscribersService {
       )
       .leftJoinAndSelect('subscriber.subscriberRoles', 'subscriberRoles')
       .leftJoinAndSelect('subscriberRoles.role', 'role')
-      .where('subscriber.username = :username', { username });
+      .where('subscriber.username = :username', { username })
+      .andWhere('subscriptionsService.code = :service', { service });
 
-    if (url && url !== envs.domain.principal)
+    if (service === CodeService.VDI && domain !== envs.domain.principal)
       queryBuilder
         .leftJoinAndSelect(
           'subscriptionDetail.subscriptionDetailFeatures',
@@ -66,7 +68,7 @@ export class SubscribersService {
         .andWhere('subscriptionFeatures.code = :code', {
           code: CodeFeatures.DOM,
         })
-        .andWhere('subscriptionDetailFeatures.value = :url', { url });
+        .andWhere('subscriptionDetailFeatures.value = :domain', { domain });
 
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
@@ -96,7 +98,6 @@ export class SubscribersService {
   async findOneBySubscriberId(
     subscriberId: string,
   ): Promise<FindOneSubscriberByIdResponseDto> {
-    console.log(subscriberId);
     const queryBuilder =
       this.subscriberRepository.createQueryBuilder('subscriber');
     queryBuilder

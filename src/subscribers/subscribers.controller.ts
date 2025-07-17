@@ -20,7 +20,8 @@ export class SubscribersController {
   ): Promise<FindOneUsernameResponseDto> {
     return await this.subscribersService.findOneByUsername(
       data.username,
-      data.url,
+      data.domain,
+      data.service,
     );
   }
 

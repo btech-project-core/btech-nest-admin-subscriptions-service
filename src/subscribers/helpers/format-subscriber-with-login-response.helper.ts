@@ -12,7 +12,7 @@ export const formatSubscriberWithLoginResponse = (
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,
     isTwoFactorEnabled: subscriber.isTwoFactorEnabled,
-    roles: subscriber.subscriberRoles.map((role) => role.role.description),
+    roles: subscriber.subscriberRoles.map((role) => role.role.code),
   };
   const subscriptionDesigneSettings =
     subscriber.subscriptionsBussine.subscriptionDetail[0]

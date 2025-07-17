@@ -1,3 +1,4 @@
+import { CodeService } from 'src/common/enums/code-service.enum';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 
 export class FindOneUsernameResponseDto {
@@ -5,7 +6,7 @@ export class FindOneUsernameResponseDto {
   username: string;
   isTwoFactorEnabled: boolean;
   roles: string[];
-  services: string[];
+  service: CodeService;
   twoFactorSecret?: string;
   subscription: FindOneUsernameSubscriptionResponsDto;
 }

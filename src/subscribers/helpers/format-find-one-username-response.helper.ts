@@ -1,3 +1,4 @@
+import { CodeService } from 'src/common/enums/code-service.enum';
 import { FindOneUsernameResponseDto } from '../dto/find-one-username.dto';
 import { Subscriber } from '../entities/subscriber.entity';
 
@@ -8,9 +9,8 @@ export const formatFindOneUsernameResponse = (
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,
     isTwoFactorEnabled: subscriber.isTwoFactorEnabled,
-    services: subscriber.subscriptionsBussine.subscriptionDetail.map(
-      (subscriptionDetail) => subscriptionDetail.subscriptionsService.code,
-    ),
+    service: subscriber.subscriptionsBussine.subscriptionDetail[0]
+      .subscriptionsService.code as CodeService,
     roles: subscriber.subscriberRoles?.map((role) => role.role.code) || [],
     twoFactorSecret: subscriber.twoFactorSecret || undefined,
     subscription: {

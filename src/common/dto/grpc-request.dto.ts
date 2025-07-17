@@ -12,9 +12,13 @@ export class FindUserByUsernameRequest {
   @IsNotEmpty({ message: 'El campo username no puede estar vacío.' })
   username: string;
 
-  @IsString({ message: 'El campo url debe ser una cadena de caracteres.' })
-  @IsOptional()
-  url?: string;
+  @IsString({ message: 'El campo domain debe ser una cadena de caracteres.' })
+  @IsNotEmpty({ message: 'El campo domain no puede estar vacío.' })
+  domain: string;
+
+  @IsEnum(CodeService, { message: 'El campo service debe ser: VDI, STO, SUP' })
+  @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })
+  service: CodeService;
 }
 
 export class FindUserByIdRequest {
