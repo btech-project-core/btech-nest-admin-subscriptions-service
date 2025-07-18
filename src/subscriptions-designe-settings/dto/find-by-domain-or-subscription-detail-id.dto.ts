@@ -1,4 +1,18 @@
-export class SubscriptionsDesigneSettingsResponseDto {
+import { IsOptional, IsString } from 'class-validator';
+
+export class FindByDomainOrSubscriptionDetailIdDto {
+  @IsString({ message: 'El campo domain debe ser una cadena de caracteres' })
+  @IsOptional()
+  domain?: string;
+
+  @IsString({
+    message: 'El campo subscriptionDetailId debe ser una cadena de caracteres',
+  })
+  @IsOptional()
+  subscriptionDetailId?: string;
+}
+
+export class FindByDomainOrSubscriptionDetailIdResponseDtoItem {
   subscriptionsDesigneSettingId: string | undefined;
   mode: string | undefined;
   url: string | undefined;
@@ -20,4 +34,8 @@ export class SubscriptionsDesigneSettingsResponseDto {
   onBackgroundColor: string | undefined;
   onSurfaceColor: string | undefined;
   letterFont: string | undefined;
+}
+
+export class FindByDomainOrSubscriptionDetailIdResponseDto {
+  configurations: FindByDomainOrSubscriptionDetailIdResponseDtoItem[];
 }

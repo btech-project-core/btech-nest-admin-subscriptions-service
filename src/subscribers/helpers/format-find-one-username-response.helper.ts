@@ -18,6 +18,9 @@ export const formatFindOneUsernameResponse = (
         subscriber.subscriptionsBussine.subscription.subscriptionId,
       subscriptionBussineId:
         subscriber.subscriptionsBussine.subscriptionBussineId,
+      subscriptionDetailId:
+        subscriber.subscriptionsBussine.subscriptionDetail[0]
+          .subscriptionDetailId,
       status: subscriber.subscriptionsBussine.subscription.status,
     },
   };

@@ -14,5 +14,6 @@ export class FindOneUsernameResponseDto {
 export class FindOneUsernameSubscriptionResponsDto {
   subscriptionId: string;
   subscriptionBussineId: string;
+  subscriptionDetailId: string;
   status: StatusSubscription;
 }

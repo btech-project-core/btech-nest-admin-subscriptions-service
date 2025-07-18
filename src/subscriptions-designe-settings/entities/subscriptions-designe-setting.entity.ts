@@ -12,7 +12,7 @@ import {
 @Entity({ name: 'subscriptionsDesigneSetting' })
 export class SubscriptionsDesigneSetting extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
-  subscribersDesigneSettingId: string;
+  subscriptionsDesigneSettingId: string;
 
   @ManyToOne(
     () => SubscriptionDetail,

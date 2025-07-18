@@ -11,17 +11,6 @@ export class SubscriptionsDetailService {
     @InjectRepository(SubscriptionDetail)
     private readonly subscriptionsDetailsRepository: Repository<SubscriptionDetail>,
   ) {}
-  async findBySubscriptionsBussineId(
-    subscriptionBussineId: string,
-  ): Promise<SubscriptionDetail[]> {
-    const subscriptionDetails = await this.subscriptionsDetailsRepository.find({
-      where: {
-        subscriptionsBussine: { subscriptionBussineId },
-      },
-    });
-    return subscriptionDetails;
-  }
-
   async findActiveSubscriptionDetailsByBussinesId(
     subscriptionBussineId: string,
   ): Promise<FindActiveSubscriptionDetailsByBussinesIdResponseDto[]> {

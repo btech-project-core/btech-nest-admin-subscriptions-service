@@ -7,7 +7,7 @@ service AdminSubscriptionsService {
   rpc FindUserById(FindUserByIdRequest) returns (TwoFactorUserResponse);
   rpc FindUserProfile(FindUserByIdRequest) returns (UserProfileResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
-  rpc LoadServiceConfiguration(LoadServiceConfigurationRequest) returns (stream LoadServiceConfigurationResponse);
+  rpc FindByDomainOrSubscriptionDetailId(FindByDomainOrSubscriptionDetailIdRequest) returns (FindByDomainOrSubscriptionDetailIdResponse);
 }
 
 // ===== REQUESTS =====
@@ -32,7 +32,8 @@ message UpdateUserRequest {
 message LoginSubscriptionData {
   string subscriptionId = 1;
   string subscriptionBussineId = 2;
-  string status = 3;
+  string subscriptionDetailId = 3;
+  string status = 4;
 }
 
 message LoginUserResponse {
@@ -71,30 +72,6 @@ message NaturalPerson {
   repeated PersonInformation personInformation = 8;
 }
 
-message SubscriptionsDesigneSettings {
-  optional string subscriptionsDesigneSettingId = 1;
-  optional string mode = 2;
-  optional string url = 3;
-  optional string brandOne = 4;
-  optional string brandTwo = 5;
-  optional string brandThree = 6;
-  optional string brandFour = 7;
-  optional string primaryColor = 8;
-  optional string secondaryColor = 9;
-  optional string baseColor = 10;
-  optional string infoColor = 11;
-  optional string warningColor = 12;
-  optional string successColor = 13;
-  optional string errorColor = 14;
-  optional string backgroundColor = 15;
-  optional string surfaceColor = 16;
-  optional string onPrimaryColor = 17;
-  optional string onSecondaryColor = 18;
-  optional string onBackgroundColor = 19;
-  optional string onSurfaceColor = 20;
-  optional string letterFont = 21;
-}
-
 message PersonInfo {
   string personId = 1;
   string fullName = 2;
@@ -108,8 +85,7 @@ message SubscriptionInfo {
   string initialDate = 5;
   string finalDate = 6;
   optional string url = 7;
-  repeated SubscriptionsDesigneSettings subscriptionDesign = 8;
-  PersonInfo person = 9;
+  PersonInfo person = 8;
 }
 
 message UserProfileResponse {
@@ -121,11 +97,12 @@ message UserProfileResponse {
   SubscriptionInfo subscription = 6;
 }
 
-message LoadServiceConfigurationRequest {
-  string service = 1;
+message FindByDomainOrSubscriptionDetailIdRequest {
+  optional string domain = 1;
+  optional string subscriptionDetailId = 2;
 }
 
-message ServiceConfigurationItem {
+message FindByDomainOrSubscriptionDetailIdItem {
   optional string subscriptionsDesigneSettingId = 1;
   optional string mode = 2;
   optional string url = 3;
@@ -149,6 +126,6 @@ message ServiceConfigurationItem {
   optional string letterFont = 21;
 }
 
-message LoadServiceConfigurationResponse {
-  repeated ServiceConfigurationItem configurations = 1;
+message FindByDomainOrSubscriptionDetailIdResponse {
+  repeated FindByDomainOrSubscriptionDetailIdItem configurations = 1;
 }

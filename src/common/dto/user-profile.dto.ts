@@ -1,6 +1,5 @@
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 import { NaturalPersonResponseDto } from './natural-person.dto';
-import { SubscriptionsDesigneSettingsResponseDto } from './subscriptions-designe-settings.dto';
 import { PersonResponseDto } from './person.dto';
 
 export class UserProfileDto {
@@ -22,7 +21,6 @@ export class UserProfileResponseDto {
     initialDate: string;
     finalDate: string;
     url?: string | null;
-    subscriptionDesign: SubscriptionsDesigneSettingsResponseDto[];
     person: PersonResponseDto;
   };
 }
