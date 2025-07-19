@@ -15,18 +15,8 @@ export class SubscriptionsDesigneSettingsService {
     private readonly subscriptionsDesigneSettingRepository: Repository<SubscriptionsDesigneSetting>,
   ) {}
   async findByDomainOrSubscriptionDetailId(
-    domain?: string,
-    subscriptionDetailId?: string,
+    domain: string,
   ): Promise<FindByDomainOrSubscriptionDetailIdResponseDto> {
-    if (!domain && !subscriptionDetailId)
-      throw new RpcException({
-        code: GrpcStatus.INVALID_ARGUMENT,
-        details: JSON.stringify({
-          status: HttpStatus.BAD_REQUEST,
-          message: 'Debe proporcionar al menos un parámetro',
-          service: 'subscriptionsDesigneSettings',
-        }),
-      });
     const queryBuilder = this.subscriptionsDesigneSettingRepository
       .createQueryBuilder('subscriptionsDesigneSetting')
       .leftJoinAndSelect(
@@ -36,27 +26,32 @@ export class SubscriptionsDesigneSettingsService {
       .leftJoinAndSelect(
         'subscriptionsDesigneSetting.subscriptionDetail',
         'subscriptionDetail',
-      );
-    if (domain)
-      queryBuilder
-        .leftJoinAndSelect(
-          'subscriptionDetail.subscriptionDetailFeatures',
-          'subscriptionDetailFeatures',
-        )
-        .leftJoinAndSelect(
-          'subscriptionDetailFeatures.subscriptionFeatures',
-          'subscriptionFeatures',
-        )
-        .andWhere('subscriptionFeatures.code = :code', {
-          code: CodeFeatures.DOM,
-        })
-        .andWhere('subscriptionDetailFeatures.value = :domain', { domain });
-    if (subscriptionDetailId)
-      queryBuilder.andWhere(
-        'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
-        { subscriptionDetailId },
-      );
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionDetailFeatures',
+        'subscriptionDetailFeatures',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetailFeatures.subscriptionFeatures',
+        'subscriptionFeatures',
+      )
+      .andWhere('subscriptionFeatures.code = :code', {
+        code: CodeFeatures.DOM,
+      })
+      .andWhere('subscriptionDetailFeatures.value = :domain', { domain });
     const subscriptionsDesigneSetting = await queryBuilder.getMany();
+    if (
+      !subscriptionsDesigneSetting ||
+      subscriptionsDesigneSetting.length === 0
+    )
+      throw new RpcException({
+        code: GrpcStatus.NOT_FOUND,
+        details: JSON.stringify({
+          status: HttpStatus.NOT_FOUND,
+          message: `No se encontró la configuración de diseño para el dominio: ${domain}`,
+          service: 'admin-subscriptions-service',
+        }),
+      });
     return {
       configurations: subscriptionsDesigneSetting.map(
         formatFindByDomainOrSubscriptionDetailIdResponse,

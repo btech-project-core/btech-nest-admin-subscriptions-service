@@ -18,7 +18,6 @@ export class SubscriptionsDesigneSettingsController {
   ): Promise<FindByDomainOrSubscriptionDetailIdResponseDto> {
     return await this.subscriptionsDesigneSettingsService.findByDomainOrSubscriptionDetailId(
       data.domain,
-      data.subscriptionDetailId,
     );
   }
 }

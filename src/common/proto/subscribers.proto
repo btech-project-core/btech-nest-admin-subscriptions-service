@@ -98,8 +98,7 @@ message UserProfileResponse {
 }
 
 message FindByDomainOrSubscriptionDetailIdRequest {
-  optional string domain = 1;
-  optional string subscriptionDetailId = 2;
+  string domain = 1;
 }
 
 message FindByDomainOrSubscriptionDetailIdItem {

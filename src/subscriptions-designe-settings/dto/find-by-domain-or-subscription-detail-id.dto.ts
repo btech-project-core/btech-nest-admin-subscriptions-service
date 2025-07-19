@@ -1,15 +1,9 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class FindByDomainOrSubscriptionDetailIdDto {
   @IsString({ message: 'El campo domain debe ser una cadena de caracteres' })
-  @IsOptional()
-  domain?: string;
-
-  @IsString({
-    message: 'El campo subscriptionDetailId debe ser una cadena de caracteres',
-  })
-  @IsOptional()
-  subscriptionDetailId?: string;
+  @IsNotEmpty({ message: 'El campo domain no puede estar vacío' })
+  domain: string;
 }
 
 export class FindByDomainOrSubscriptionDetailIdResponseDtoItem {
