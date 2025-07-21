@@ -43,7 +43,8 @@ message LoginUserResponse {
   string service = 4;
   repeated string roles = 5;
   optional string twoFactorSecret = 6;
-  LoginSubscriptionData subscription = 7;
+  optional string password = 7;
+  LoginSubscriptionData subscription = 8;
 }
 
 // ===== RESPONSE PARA 2FA =====

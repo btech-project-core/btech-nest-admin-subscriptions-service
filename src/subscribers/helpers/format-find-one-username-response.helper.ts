@@ -12,6 +12,7 @@ export const formatFindOneUsernameResponse = (
     service: subscriber.subscriptionsBussine.subscriptionDetail[0]
       .subscriptionsService.code as CodeService,
     roles: subscriber.subscriberRoles?.map((role) => role.role.code) || [],
+    password: subscriber.password || undefined,
     twoFactorSecret: subscriber.twoFactorSecret || undefined,
     subscription: {
       subscriptionId:

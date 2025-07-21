@@ -8,6 +8,7 @@ export class FindOneUsernameResponseDto {
   roles: string[];
   service: CodeService;
   twoFactorSecret?: string;
+  password?: string;
   subscription: FindOneUsernameSubscriptionResponsDto;
 }
 
