@@ -11,8 +11,6 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const logger = new Logger('Admin-Subscriptions-Service');
-
-  // 1. NATS Microservice (tu configuración original)
   const natsApp = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -48,8 +46,14 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: 'adminSubscriptions',
-        protoPath: join(process.cwd(), 'src/common/proto/subscribers.proto'),
+        package: ['subscribers', 'subscriptionDetailFeatures'],
+        protoPath: [
+          join(process.cwd(), 'src/common/proto/subscribers.proto'),
+          join(
+            process.cwd(),
+            'src/common/proto/subscription-detail-features.proto',
+          ),
+        ],
         url: `0.0.0.0:${envs.grpc.port}`,
       },
     },

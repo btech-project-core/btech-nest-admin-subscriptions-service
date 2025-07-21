@@ -12,7 +12,7 @@ export class SubscriptionsDesigneSettingsController {
     private readonly subscriptionsDesigneSettingsService: SubscriptionsDesigneSettingsService,
   ) {}
 
-  @GrpcMethod('AdminSubscriptionsService', 'FindByDomainOrSubscriptionDetailId')
+  @GrpcMethod('SubscribersService', 'FindByDomainOrSubscriptionDetailId')
   async findByDomainOrSubscriptionDetailId(
     data: FindByDomainOrSubscriptionDetailIdDto,
   ): Promise<FindByDomainOrSubscriptionDetailIdResponseDto> {

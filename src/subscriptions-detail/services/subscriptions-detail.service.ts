@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SubscriptionDetail } from './entities/subscription-detail.entity';
 import { Repository } from 'typeorm';
-import { FindActiveSubscriptionDetailsByBussinesIdResponseDto } from './dto/find-active-subscription-details-by-bussines-id.dto';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+import { SubscriptionDetail } from '../entities/subscription-detail.entity';
+import { FindActiveSubscriptionDetailsByBussinesIdResponseDto } from '../dto/find-active-subscription-details-by-bussines-id.dto';
 
 @Injectable()
 export class SubscriptionsDetailService {

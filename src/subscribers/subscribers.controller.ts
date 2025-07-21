@@ -14,7 +14,7 @@ import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-i
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
-  @GrpcMethod('AdminSubscriptionsService', 'FindUserByUsername')
+  @GrpcMethod('SubscribersService', 'FindUserByUsername')
   async findUserByUsername(
     data: FindUserByUsernameRequest,
   ): Promise<FindOneUsernameResponseDto> {
@@ -25,7 +25,7 @@ export class SubscribersController {
     );
   }
 
-  @GrpcMethod('AdminSubscriptionsService', 'FindUserById')
+  @GrpcMethod('SubscribersService', 'FindUserById')
   async findUserById(
     data: FindUserByIdRequest,
   ): Promise<FindOneSubscriberByIdResponseDto> {
@@ -34,7 +34,7 @@ export class SubscribersController {
     );
   }
 
-  @GrpcMethod('AdminSubscriptionsService', 'FindUserProfile')
+  @GrpcMethod('SubscribersService', 'FindUserProfile')
   async findUserProfile(
     data: FindUserByIdRequest,
   ): Promise<UserProfileResponseDto | null> {
@@ -44,7 +44,7 @@ export class SubscribersController {
     );
   }
 
-  @GrpcMethod('AdminSubscriptionsService', 'UpdateUser')
+  @GrpcMethod('SubscribersService', 'UpdateUser')
   async updateUser(data: UpdateUserRequest): Promise<UserProfileResponseDto> {
     return await this.subscribersService.updateSubscriber(
       data.subscriberId,

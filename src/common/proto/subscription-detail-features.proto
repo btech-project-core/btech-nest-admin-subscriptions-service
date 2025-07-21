@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package subscriptionDetailFeatures;
+
+service SubscriptionDetailFeaturesService {
+  rpc FindDomains(FindDomainsRequest) returns (FindDomainsResponse);
+}
+
+// ===== REQUESTS =====
+message FindDomainsRequest {
+  optional string service = 1;
+}
+
+// ===== RESPONSE =====
+message FindDomainsResponse {
+  repeated string domains = 1;
+}
+
