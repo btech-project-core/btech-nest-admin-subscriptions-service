@@ -10,5 +10,4 @@ export class FindActiveSubscriptionDetailsByBussinesIdDto {
 
 export class FindActiveSubscriptionDetailsByBussinesIdResponseDto {
   subscriptionDetailId: string;
-  // serviceId: string;
 }
