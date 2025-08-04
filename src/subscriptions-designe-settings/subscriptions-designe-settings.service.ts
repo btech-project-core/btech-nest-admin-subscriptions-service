@@ -46,7 +46,7 @@ export class SubscriptionsDesigneSettingsService {
     )
       throw new RpcException({
         code: GrpcStatus.NOT_FOUND,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
           message: `No se encontró la configuración de diseño para el dominio: ${domain}`,
           service: 'admin-subscriptions-service',

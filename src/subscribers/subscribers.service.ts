@@ -74,7 +74,7 @@ export class SubscribersService {
     if (!subscriber)
       throw new RpcException({
         code: GrpcStatus.NOT_FOUND,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
           message: `No se encuentra el usuario con el código de acceso: ${username}`,
           service: SERVICE_NAME,
@@ -86,10 +86,9 @@ export class SubscribersService {
     )
       throw new RpcException({
         code: GrpcStatus.UNAUTHENTICATED,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.UNAUTHORIZED,
           message: 'El usuario se encuentra sin suscripción activa',
-          service: SERVICE_NAME,
         }),
       });
     return formatFindOneUsernameResponse(subscriber);
@@ -114,10 +113,9 @@ export class SubscribersService {
     if (!subscriber)
       throw new RpcException({
         code: GrpcStatus.NOT_FOUND,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
           message: `El usuario no se encuentra registrado`,
-          service: SERVICE_NAME,
         }),
       });
     if (
@@ -126,10 +124,9 @@ export class SubscribersService {
     )
       throw new RpcException({
         code: GrpcStatus.UNAUTHENTICATED,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.UNAUTHORIZED,
           message: 'El usuario se encuentra sin suscripción activa',
-          service: SERVICE_NAME,
         }),
       });
     return formatFindOneSubscriberIdResponse(subscriber);
@@ -176,10 +173,9 @@ export class SubscribersService {
     if (!subscriber)
       throw new RpcException({
         code: GrpcStatus.NOT_FOUND,
-        details: JSON.stringify({
+        message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
           message: `El usuario no se encuentra registrado`,
-          service: SERVICE_NAME,
         }),
       });
 

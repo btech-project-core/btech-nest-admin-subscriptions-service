@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionsServiceDto } from './dto/create-subscriptions-service.dto';
-import { UpdateSubscriptionsServiceDto } from './dto/update-subscriptions-service.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SubscriptionsService } from './entities/subscriptions-service.entity';
+import { Brackets, Repository } from 'typeorm';
+import {
+  FindAllSubscriptionsServiceDto,
+  FindAllSubscriptionsServiceResponseDto,
+} from './dto/find-all-subscription-service.dto';
+import { formatSubscriptionsServiceResponse } from './helpers/format-subscriptions-service-response.helper';
 
 @Injectable()
 export class SubscriptionsServicesService {
-  create(createSubscriptionsServiceDto: CreateSubscriptionsServiceDto) {
-    return 'This action adds a new subscriptionsService';
-  }
+  constructor(
+    @InjectRepository(SubscriptionsService)
+    private readonly subscriptionsServicesRepository: Repository<SubscriptionsService>,
+  ) {}
 
-  findAll() {
-    return `This action returns all subscriptionsServices`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} subscriptionsService`;
-  }
-
-  update(id: number, updateSubscriptionsServiceDto: UpdateSubscriptionsServiceDto) {
-    return `This action updates a #${id} subscriptionsService`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} subscriptionsService`;
+  async findAll(
+    findAllSubscriptionsServiceDto: FindAllSubscriptionsServiceDto,
+  ): Promise<FindAllSubscriptionsServiceResponseDto[]> {
+    const { term, isActive } = findAllSubscriptionsServiceDto;
+    const queryBuilder =
+      this.subscriptionsServicesRepository.createQueryBuilder(
+        'subscriptionsService',
+      );
+    if (term)
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('subscriptionsService.code LIKE :term', {
+            term: `%${term}%`,
+          }).orWhere('subscriptionsService.description LIKE :term', {
+            term: `%${term}%`,
+          });
+        }),
+      );
+    if (isActive)
+      queryBuilder.andWhere('subscriptionsService.isActive = :isActive', {
+        isActive,
+      });
+    const subscriptionsServices = await queryBuilder.getMany();
+    return subscriptionsServices.map(formatSubscriptionsServiceResponse);
   }
 }

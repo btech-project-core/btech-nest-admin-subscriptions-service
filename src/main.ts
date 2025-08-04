@@ -5,9 +5,9 @@ import { envs } from './config/envs.config';
 import { join } from 'path';
 import { createValidationExceptionFactory } from './common/factories/create-validation-exception.factory';
 import { SERVICE_NAME } from './config/constants';
-import { ServiceIdentifierInterceptor } from './common/interceptors/service-identifier.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ServiceExceptionFilter } from './common/filters/service-exception.filter';
 
 async function bootstrap() {
   const logger = new Logger('Admin-Subscriptions-Service');
@@ -35,10 +35,8 @@ async function bootstrap() {
     }),
   );
 
-  natsApp.useGlobalInterceptors(
-    new LoggingInterceptor(SERVICE_NAME),
-    new ServiceIdentifierInterceptor(SERVICE_NAME),
-  );
+  natsApp.useGlobalFilters(new ServiceExceptionFilter(SERVICE_NAME));
+  natsApp.useGlobalInterceptors(new LoggingInterceptor(SERVICE_NAME));
 
   // 2. gRPC Microservice (para auth-service y account-service)
   const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -68,10 +66,8 @@ async function bootstrap() {
     }),
   );
 
-  grpcApp.useGlobalInterceptors(
-    new LoggingInterceptor(SERVICE_NAME),
-    new ServiceIdentifierInterceptor(SERVICE_NAME),
-  );
+  grpcApp.useGlobalFilters(new ServiceExceptionFilter(SERVICE_NAME));
+  grpcApp.useGlobalInterceptors(new LoggingInterceptor(SERVICE_NAME));
 
   // Iniciar ambos microservicios
   await natsApp.listen();

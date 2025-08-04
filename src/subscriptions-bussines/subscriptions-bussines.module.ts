@@ -8,5 +8,6 @@ import { SubscriptionsBussinesService } from './subscriptions-bussines.service';
   imports: [TypeOrmModule.forFeature([SubscriptionsBussine])],
   controllers: [SubscriptionsBussinesController],
   providers: [SubscriptionsBussinesService],
+  exports: [SubscriptionsBussinesService],
 })
 export class SubscriptionsBussinesModule {}

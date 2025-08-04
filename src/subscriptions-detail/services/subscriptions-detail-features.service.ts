@@ -17,7 +17,6 @@ export class SubscriptionsDetailFeaturesService {
   async findActiveDomains(
     service?: CodeService,
   ): Promise<FindDomainsResponseDto> {
-    console.log('--------------------------------- service', service);
     const queryBuilder = this.subscriptionsDetailFeaturesRepository
       .createQueryBuilder('subscriptionDetailFeatures')
       .innerJoin(
