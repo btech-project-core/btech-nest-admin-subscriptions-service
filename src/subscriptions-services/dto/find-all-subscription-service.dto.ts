@@ -1,5 +1,4 @@
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
-import { CodeService } from 'src/common/enums/code-service.enum';
 
 export class FindAllSubscriptionsServiceDto {
   @IsOptional()
@@ -13,7 +12,7 @@ export class FindAllSubscriptionsServiceDto {
 
 export class FindAllSubscriptionsServiceResponseDto {
   subscriptionsServiceId: string;
-  code: CodeService;
+  code: string;
   description: string;
   isActive: boolean;
 }
