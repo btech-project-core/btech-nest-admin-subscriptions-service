@@ -55,3 +55,18 @@ export class UpdateUserRequest {
   })
   isTwoFactorEnabled?: boolean;
 }
+
+export class GetSubscriberCompleteInfoRequest {
+  @IsString({
+    message: 'El campo subscriberId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo subscriberId no puede estar vacío.' })
+  subscriberId: string;
+
+  @IsEnum(CodeService, {
+    message:
+      'El campo service debe ser un código de servicio válido: VDI, STO o SUP.',
+  })
+  @IsOptional()
+  service?: CodeService;
+}

@@ -8,6 +8,7 @@ service SubscribersService {
   rpc FindUserProfile(FindUserByIdRequest) returns (UserProfileResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
   rpc FindByDomainOrSubscriptionDetailId(FindByDomainOrSubscriptionDetailIdRequest) returns (FindByDomainOrSubscriptionDetailIdResponse);
+  rpc GetSubscriberCompleteInfo(GetSubscriberCompleteInfoRequest) returns (SubscriberCompleteInfoResponse);
 }
 
 // ===== REQUESTS =====
@@ -26,6 +27,11 @@ message UpdateUserRequest {
   string subscriberId = 1;
   optional string twoFactorSecret = 2;
   optional bool isTwoFactorEnabled = 3;
+}
+
+message GetSubscriberCompleteInfoRequest {
+  string subscriberId = 1;
+  string service = 2;
 }
 
 // ===== RESPONSE PARA LOGIN =====
@@ -128,4 +134,24 @@ message FindByDomainOrSubscriptionDetailIdItem {
 
 message FindByDomainOrSubscriptionDetailIdResponse {
   repeated FindByDomainOrSubscriptionDetailIdItem configurations = 1;
+}
+
+message NaturalPersonCompleteInfo {
+  string naturalPersonId = 1;
+  string personId = 2;
+  string fullName = 3;
+  string paternalSurname = 4;
+  string maternalSurname = 5;
+  string documentNumber = 6;
+  string documentType = 7;
+  repeated PersonInformation personInformation = 8;
+}
+
+message SubscriberCompleteInfoResponse {
+  string subscriberId = 1;
+  string username = 2;
+  bool isTwoFactorEnabled = 3;
+  repeated string roles = 4;
+  NaturalPersonCompleteInfo naturalPerson = 5;
+  SubscriptionInfo subscription = 6;
 }

@@ -4,11 +4,13 @@ import { GrpcMethod } from '@nestjs/microservices';
 import {
   FindUserByIdRequest,
   FindUserByUsernameRequest,
+  GetSubscriberCompleteInfoRequest,
   UpdateUserRequest,
 } from 'src/common/dto/grpc-request.dto';
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
+import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
 
 @Controller()
 export class SubscribersController {
@@ -49,6 +51,17 @@ export class SubscribersController {
     return await this.subscribersService.updateSubscriber(
       data.subscriberId,
       data,
+    );
+  }
+
+  @GrpcMethod('SubscribersService', 'GetSubscriberCompleteInfo')
+  async getSubscriberCompleteInfo(
+    data: GetSubscriberCompleteInfoRequest,
+  ): Promise<SubscriberCompleteInfoResponseDto> {
+    console.log('Datos recibidos en getSubscriberCompleteInfo:', data);
+    return await this.subscribersService.getSubscriberCompleteInfo(
+      data.subscriberId,
+      data.service,
     );
   }
 }

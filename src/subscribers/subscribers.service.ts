@@ -16,6 +16,8 @@ import { status as GrpcStatus } from '@grpc/grpc-js';
 import { envs } from 'src/config/envs.config';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { CodeService } from 'src/common/enums/code-service.enum';
+import { formatSubscriberCompleteInfoResponse } from './helpers/format-get-subscriber-complete-info.helper';
+import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
 
 @Injectable()
 export class SubscribersService {
@@ -216,5 +218,64 @@ export class SubscribersService {
         message: `El usuario con id ${subscriberId} no se encuentra registrado.`,
       });
     return updatedSubscriber;
+  }
+
+  async getSubscriberCompleteInfo(
+    subscriberId: string,
+    service?: CodeService,
+  ): Promise<SubscriberCompleteInfoResponseDto> {
+    const queryBuilder =
+      this.subscriberRepository.createQueryBuilder('subscriber');
+
+    queryBuilder
+      .leftJoinAndSelect(
+        'subscriber.subscriptionsBussine',
+        'subscriptionsBussine',
+      )
+      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .leftJoinAndSelect(
+        'subscriptionsBussine.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .leftJoinAndSelect('subscriber.subscriberRoles', 'subscriberRoles')
+      .leftJoinAndSelect('subscriberRoles.role', 'role')
+      .where('subscriber.subscriberId = :subscriberId', { subscriberId });
+
+    if (service)
+      queryBuilder.andWhere('subscriptionsService.code = :service', {
+        service,
+      });
+
+    const subscriber = await queryBuilder.getOne();
+
+    if (!subscriber)
+      throw new RpcException({
+        code: GrpcStatus.NOT_FOUND,
+        details: JSON.stringify({
+          status: HttpStatus.NOT_FOUND,
+          message: `El subscriber con id ${subscriberId} no se encuentra registrado`,
+          service: SERVICE_NAME,
+        }),
+      });
+
+    const subscriberNaturalPerson =
+      await this.adminPersonsService.findOneNaturalPersonBySubscriberId(
+        subscriber.naturalPersonId,
+      );
+
+    const subscriptionPersonData =
+      await this.adminPersonsService.findOneSubscriptionPersonData(
+        subscriber.subscriptionsBussine.personId,
+      );
+
+    return formatSubscriberCompleteInfoResponse(
+      subscriber,
+      subscriberNaturalPerson,
+      subscriptionPersonData,
+    );
   }
 }
