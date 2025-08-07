@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Subscriber } from './entities/subscriber.entity';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
@@ -57,7 +57,7 @@ export class SubscribersService {
       .where('subscriber.username = :username', { username })
       .andWhere('subscriptionsService.code = :service', { service });
 
-    if (service === CodeService.VDI && domain !== envs.domain.principal)
+    if (service === CodeService.VDI && domain !== envs.domain.principal) {
       queryBuilder
         .leftJoinAndSelect(
           'subscriptionDetail.subscriptionDetailFeatures',
@@ -66,11 +66,22 @@ export class SubscribersService {
         .leftJoinAndSelect(
           'subscriptionDetailFeatures.subscriptionFeatures',
           'subscriptionFeatures',
-        )
-        .andWhere('subscriptionFeatures.code = :code', {
-          code: CodeFeatures.DOM,
-        })
-        .andWhere('subscriptionDetailFeatures.value = :domain', { domain });
+        );
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where(
+            'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+            { subscriptionDetailId: domain },
+          ).orWhere(
+            'subscriptionFeatures.code = :code AND subscriptionDetailFeatures.value = :domain',
+            {
+              code: CodeFeatures.DOM,
+              domain: domain,
+            },
+          );
+        }),
+      );
+    }
 
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)

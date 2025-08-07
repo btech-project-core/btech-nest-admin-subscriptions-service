@@ -2,6 +2,7 @@ import { MessagingService } from 'src/messaging/messaging.service';
 import { NaturalPersonResponseDto } from '../dto/natural-person.dto';
 import { PersonResponseDto } from '../dto/person.dto';
 import { Injectable } from '@nestjs/common';
+import { FindSubscriptionMultiplePersonDataResponseDto } from '../dto/find-subscription-multiple-person-data.dto';
 
 @Injectable()
 export class AdminPersonsService {
@@ -20,6 +21,14 @@ export class AdminPersonsService {
   ): Promise<PersonResponseDto> {
     return this.client.send('person.findSubscriptionPersonData', {
       personId,
+    });
+  }
+
+  async findMultipleSubscriptionPersonData(
+    personIds: string[],
+  ): Promise<FindSubscriptionMultiplePersonDataResponseDto[]> {
+    return this.client.send('person.findMultipleSubscriptionPersonData', {
+      personIds,
     });
   }
 }

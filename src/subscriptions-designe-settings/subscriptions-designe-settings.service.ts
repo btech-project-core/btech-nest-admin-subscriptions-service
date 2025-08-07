@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { SubscriptionsDesigneSetting } from './entities/subscriptions-designe-setting.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { RpcException } from '@nestjs/microservices';
@@ -34,11 +34,20 @@ export class SubscriptionsDesigneSettingsService {
       .leftJoinAndSelect(
         'subscriptionDetailFeatures.subscriptionFeatures',
         'subscriptionFeatures',
-      )
-      .andWhere('subscriptionFeatures.code = :code', {
-        code: CodeFeatures.DOM,
-      })
-      .andWhere('subscriptionDetailFeatures.value = :domain', { domain });
+      );
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where('subscriptionDetail.subscriptionDetailId = :domain', {
+          domain,
+        }).orWhere(
+          'subscriptionFeatures.code = :code AND subscriptionDetailFeatures.value = :domain',
+          {
+            code: CodeFeatures.DOM,
+            domain: domain,
+          },
+        );
+      }),
+    );
     const subscriptionsDesigneSetting = await queryBuilder.getMany();
     if (
       !subscriptionsDesigneSetting ||
@@ -48,7 +57,7 @@ export class SubscriptionsDesigneSettingsService {
         code: GrpcStatus.NOT_FOUND,
         message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
-          message: `No se encontró la configuración de diseño para el dominio: ${domain}`,
+          message: `No se encontró la configuración de diseño para el identificador: ${domain}`,
           service: 'admin-subscriptions-service',
         }),
       });

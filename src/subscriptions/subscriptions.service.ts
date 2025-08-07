@@ -8,6 +8,14 @@ import { TransactionService } from 'src/common/services/transaction.service';
 import { SubscriptionsBussinesService } from 'src/subscriptions-bussines/subscriptions-bussines.service';
 import { ModalitySubscription } from './enums/modality-subscription.enum';
 import { RpcException } from '@nestjs/microservices';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import {
+  FindAllSubscriptionDto,
+  FindAllSubscriptionResponseDto,
+} from './dto/find-all-subscription.dto';
+import { AdminPersonsService } from 'src/common/services/admin-persons.service';
+import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
+import { formatSubscriptionResponse } from './helpers/format-subscription-response.helper';
 
 @Injectable()
 export class SubscriptionsService {
@@ -16,6 +24,7 @@ export class SubscriptionsService {
     private readonly subscriptionsRepository: Repository<Subscription>,
     private readonly transactionService: TransactionService,
     private readonly subscriptionsBussinesService: SubscriptionsBussinesService,
+    private readonly adminPersonsService: AdminPersonsService,
   ) {}
   create(createSubscriptionDto: CreateSubscriptionDto) {
     this.validateCorporateSubscription(createSubscriptionDto);
@@ -30,6 +39,39 @@ export class SubscriptionsService {
         qr,
       );
     });
+  }
+
+  async findAll(
+    findAllSubscriptionDto: FindAllSubscriptionDto,
+  ): Promise<PaginationResponseDto<FindAllSubscriptionResponseDto>> {
+    const { page, limit } = findAllSubscriptionDto;
+    const queryBuilder =
+      this.subscriptionsRepository.createQueryBuilder('subscription');
+    queryBuilder.orderBy('subscription.createdAt', 'DESC');
+    const subscriptionList = await paginateQueryBuilder(queryBuilder, {
+      page,
+      limit,
+    });
+    const personIds = subscriptionList.data.map(
+      (subscription) => subscription.personId,
+    );
+    const personsData =
+      await this.adminPersonsService.findMultipleSubscriptionPersonData(
+        personIds,
+      );
+    const personsMap = new Map(
+      personsData.map((person) => [person.personId, person]),
+    );
+    const subscriptionsWithPersonData = subscriptionList.data.map(
+      (subscription) => {
+        const person = personsMap.get(subscription.personId);
+        return formatSubscriptionResponse(subscription, person);
+      },
+    );
+    return {
+      ...subscriptionList,
+      data: subscriptionsWithPersonData,
+    };
   }
 
   private async createSubscription(
