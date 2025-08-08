@@ -16,6 +16,8 @@ import {
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { formatSubscriptionResponse } from './helpers/format-subscription-response.helper';
+import { DocumentUsersService } from 'src/common/services/document-users.service';
+import { UserValidationRresponseDto } from 'src/common/dto/user-validation.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -25,6 +27,7 @@ export class SubscriptionsService {
     private readonly transactionService: TransactionService,
     private readonly subscriptionsBussinesService: SubscriptionsBussinesService,
     private readonly adminPersonsService: AdminPersonsService,
+    private readonly documentUsersService: DocumentUsersService,
   ) {}
   create(createSubscriptionDto: CreateSubscriptionDto) {
     this.validateCorporateSubscription(createSubscriptionDto);
@@ -72,6 +75,12 @@ export class SubscriptionsService {
       ...subscriptionList,
       data: subscriptionsWithPersonData,
     };
+  }
+
+  async validateUsersWithSubscription(
+    file: Express.Multer.File,
+  ): Promise<UserValidationRresponseDto> {
+    return await this.documentUsersService.validateUserExcel(file);
   }
 
   private async createSubscription(
