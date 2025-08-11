@@ -90,7 +90,6 @@ export class SubscribersService {
         message: JSON.stringify({
           status: HttpStatus.NOT_FOUND,
           message: `No se encuentra el usuario con el código de acceso: ${username}`,
-          service: SERVICE_NAME,
         }),
       });
     if (

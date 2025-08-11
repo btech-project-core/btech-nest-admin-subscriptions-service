@@ -97,48 +97,48 @@ export class SubscriptionsServicesService {
   ): Promise<UpdateSubscriptionsServiceStatusResponseDto> {
     const { subscriptionsServiceId, isActive } =
       updateSubscriptionsServiceStatusDto;
-    const existingService = await this.subscriptionsServicesRepository
+    const existingService = await this.findOne(subscriptionsServiceId);
+    if (!isActive)
+      await this.validateActiveSubscriptions(subscriptionsServiceId);
+    await this.subscriptionsServicesRepository.update(subscriptionsServiceId, {
+      isActive,
+    });
+    const statusMessage = isActive ? 'activado' : 'desactivado';
+    return {
+      message: `Servicio de suscripción '${existingService.description}' ${statusMessage} exitosamente`,
+    };
+  }
+
+  // ✅ Método privado especializado y eficiente
+  private async validateActiveSubscriptions(
+    subscriptionsServiceId: string,
+  ): Promise<void> {
+    const activeSubscriptionsCount = await this.subscriptionsServicesRepository
       .createQueryBuilder('subscriptionsService')
-      .leftJoinAndSelect(
+      .innerJoin(
         'subscriptionsService.subscriptionDetail',
         'subscriptionDetail',
       )
-      .leftJoinAndSelect(
+      .innerJoin(
         'subscriptionDetail.subscriptionsBussine',
         'subscriptionsBussine',
       )
-      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .innerJoin('subscriptionsBussine.subscription', 'subscription')
       .where(
         'subscriptionsService.subscriptionsServiceId = :subscriptionsServiceId',
         {
           subscriptionsServiceId,
         },
       )
-      .getOne();
-
-    if (!existingService)
+      .andWhere('subscription.status = :status', {
+        status: StatusSubscription.ACTIVE,
+      })
+      .getCount();
+    if (activeSubscriptionsCount > 0)
       throw new RpcException({
-        status: HttpStatus.NOT_FOUND,
-        message: `Servicio de suscripción con ID '${subscriptionsServiceId}' no encontrado`,
+        status: HttpStatus.BAD_REQUEST,
+        message:
+          'No se puede desactivar el servicio porque tiene suscripciones activas asociadas',
       });
-    if (!isActive) {
-      const hasActiveSubscriptions = existingService.subscriptionDetail?.some(
-        (detail) =>
-          detail.subscriptionsBussine?.subscription?.status ===
-          StatusSubscription.ACTIVE,
-      );
-      if (hasActiveSubscriptions)
-        throw new RpcException({
-          status: HttpStatus.BAD_REQUEST,
-          message:
-            'No se puede desactivar el servicio porque tiene suscripciones activas asociadas',
-        });
-    }
-    await this.subscriptionsServicesRepository.update(subscriptionsServiceId, {
-      isActive,
-    });
-    return {
-      message: `Servicio de suscripción '${existingService.description}' ${isActive ? 'activado' : 'desactivado'} exitosamente`,
-    };
   }
 }

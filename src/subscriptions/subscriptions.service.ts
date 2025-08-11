@@ -80,7 +80,7 @@ export class SubscriptionsService {
   async validateUsersWithSubscription(
     file: Express.Multer.File,
   ): Promise<UserValidationRresponseDto> {
-    return await this.documentUsersService.validateUserExcel(file);
+    return await this.documentUsersService.validateUserDocument(file);
   }
 
   private async createSubscription(
