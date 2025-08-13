@@ -17,6 +17,7 @@ import {
   UpdateSubscriptionsServiceStatusDto,
   UpdateSubscriptionsServiceStatusResponseDto,
 } from './dto/update-subscriptions-service-status.dto';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 
 @Controller()
 export class SubscriptionsServicesController {
@@ -36,7 +37,10 @@ export class SubscriptionsServicesController {
   @MessagePattern('subscriptionsServices.findAll')
   async findAll(
     @Payload() findAllSubscriptionsServiceDto: FindAllSubscriptionsServiceDto,
-  ): Promise<FindAllSubscriptionsServiceResponseDto[]> {
+  ): Promise<
+    | FindAllSubscriptionsServiceResponseDto[]
+    | PaginationResponseDto<FindAllSubscriptionsServiceResponseDto>
+  > {
     return await this.subscriptionsServicesService.findAll(
       findAllSubscriptionsServiceDto,
     );

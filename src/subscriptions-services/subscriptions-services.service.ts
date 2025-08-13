@@ -21,6 +21,8 @@ import {
   UpdateSubscriptionsServiceStatusResponseDto,
 } from './dto/update-subscriptions-service-status.dto';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 
 @Injectable()
 export class SubscriptionsServicesService {
@@ -41,8 +43,16 @@ export class SubscriptionsServicesService {
 
   async findAll(
     findAllSubscriptionsServiceDto: FindAllSubscriptionsServiceDto,
-  ): Promise<FindAllSubscriptionsServiceResponseDto[]> {
-    const { term, isActive } = findAllSubscriptionsServiceDto;
+  ): Promise<
+    | FindAllSubscriptionsServiceResponseDto[]
+    | PaginationResponseDto<FindAllSubscriptionsServiceResponseDto>
+  > {
+    const {
+      term,
+      isActive,
+      hasPagination = true,
+      ...paginationDto
+    } = findAllSubscriptionsServiceDto;
     const queryBuilder =
       this.subscriptionsServicesRepository.createQueryBuilder(
         'subscriptionsService',
@@ -62,6 +72,18 @@ export class SubscriptionsServicesService {
         isActive,
       });
     queryBuilder.orderBy('subscriptionsService.createdAt', 'DESC');
+    if (hasPagination) {
+      const paginatedResult = await paginateQueryBuilder(
+        queryBuilder,
+        paginationDto,
+      );
+      return {
+        ...paginatedResult,
+        data: paginatedResult.data.map((data) =>
+          formatSubscriptionsServiceResponse(data),
+        ),
+      };
+    }
     const subscriptionsServices = await queryBuilder.getMany();
     return subscriptionsServices.map(formatSubscriptionsServiceResponse);
   }
