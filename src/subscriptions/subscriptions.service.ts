@@ -18,6 +18,7 @@ import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.
 import { formatSubscriptionResponse } from './helpers/format-subscription-response.helper';
 import { DocumentUsersService } from 'src/common/services/document-users.service';
 import { UserValidationRresponseDto } from 'src/common/dto/user-validation.dto';
+import { FindSubscriptionMultiplePersonDataResponseDto } from 'src/common/dto/find-subscription-multiple-person-data.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -47,9 +48,28 @@ export class SubscriptionsService {
   async findAll(
     findAllSubscriptionDto: FindAllSubscriptionDto,
   ): Promise<PaginationResponseDto<FindAllSubscriptionResponseDto>> {
-    const { page, limit } = findAllSubscriptionDto;
+    const {
+      page = 1,
+      limit = 8,
+      term,
+      status,
+      startDate,
+      endDate,
+    } = findAllSubscriptionDto;
     const queryBuilder =
       this.subscriptionsRepository.createQueryBuilder('subscription');
+    if (status)
+      queryBuilder.andWhere('subscription.status = :status', {
+        status,
+      });
+    if (startDate)
+      queryBuilder.andWhere('subscription.initialDate >= :startDate', {
+        startDate,
+      });
+    if (endDate)
+      queryBuilder.andWhere('subscription.initialDate <= :endDate', {
+        endDate,
+      });
     queryBuilder.orderBy('subscription.createdAt', 'DESC');
     const subscriptionList = await paginateQueryBuilder(queryBuilder, {
       page,
@@ -58,22 +78,30 @@ export class SubscriptionsService {
     const personIds = subscriptionList.data.map(
       (subscription) => subscription.personId,
     );
-    const personsData =
-      await this.adminPersonsService.findMultipleSubscriptionPersonData(
-        personIds,
-      );
+    let personsData: FindSubscriptionMultiplePersonDataResponseDto[] = [];
+    if (personIds.length > 0)
+      personsData =
+        await this.adminPersonsService.findMultipleSubscriptionPersonData({
+          personIds,
+        });
     const personsMap = new Map(
       personsData.map((person) => [person.personId, person]),
     );
-    const subscriptionsWithPersonData = subscriptionList.data.map(
-      (subscription) => {
+    const subscriptionsWithPersonData = subscriptionList.data
+      .map((subscription) => {
         const person = personsMap.get(subscription.personId);
-        return formatSubscriptionResponse(subscription, person);
-      },
-    );
+        return formatSubscriptionResponse(subscription, person, term);
+      })
+      .filter((item) => item !== null);
     return {
-      ...subscriptionList,
       data: subscriptionsWithPersonData,
+      total: term ? subscriptionsWithPersonData.length : subscriptionList.total,
+      page,
+      limit,
+      totalPages: Math.ceil(
+        (term ? subscriptionsWithPersonData.length : subscriptionList.total) /
+          limit,
+      ),
     };
   }
 

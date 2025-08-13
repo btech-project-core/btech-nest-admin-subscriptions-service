@@ -1,6 +1,6 @@
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { StatusSubscription } from '../enums/status-subscription.enum';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class FindAllSubscriptionDto extends PaginationDto {
   @IsOptional()
@@ -13,6 +13,20 @@ export class FindAllSubscriptionDto extends PaginationDto {
       'El estado debe ser un valor válido del enum: PENDIENTE, VIGENTE, CULMINADO, CANCELADO',
   })
   status?: StatusSubscription;
+
+  @IsOptional()
+  @IsDateString(
+    {},
+    { message: 'La fecha de inicio debe tener formato válido YYYY-MM-DD' },
+  )
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString(
+    {},
+    { message: 'La fecha de fin debe tener formato válido YYYY-MM-DD' },
+  )
+  endDate?: string;
 }
 
 export class FindAllSubscriptionResponseDto {
