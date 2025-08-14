@@ -19,6 +19,7 @@ import { formatSubscriptionResponse } from './helpers/format-subscription-respon
 import { DocumentUsersService } from 'src/common/services/document-users.service';
 import { UserValidationRresponseDto } from 'src/common/dto/user-validation.dto';
 import { FindSubscriptionMultiplePersonDataResponseDto } from 'src/common/dto/find-subscription-multiple-person-data.dto';
+import { StatusSubscription } from './enums/status-subscription.enum';
 
 @Injectable()
 export class SubscriptionsService {
@@ -123,6 +124,21 @@ export class SubscriptionsService {
     const subscription = repository.create(createSubscriptionDto);
     await repository.save(subscription);
     return subscription;
+  }
+
+  async checkActiveSubscriptionsByPersonId(personId: string): Promise<boolean> {
+    const activeSubscriptionsCount = await this.subscriptionsRepository.count({
+      where: {
+        personId,
+        status: StatusSubscription.ACTIVE,
+      },
+    });
+    if (activeSubscriptionsCount > 0)
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `No se puede proceder porque la persona tiene ${activeSubscriptionsCount} suscripción(es) activa(s)`,
+      });
+    return true;
   }
 
   private async createSubscriptionsBussine(

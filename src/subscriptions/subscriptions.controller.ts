@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
@@ -27,5 +27,14 @@ export class SubscriptionsController {
   ): Promise<UserValidationRresponseDto> {
     const fileData = createMulterFile(file);
     return this.subscriptionsService.validateUsersWithSubscription(fileData);
+  }
+
+  @MessagePattern('subscriptions.checkActiveSubscriptionsByPersonId')
+  checkActiveSubscriptionsByPersonId(
+    @Payload('personId', ParseUUIDPipe) personId: string,
+  ): Promise<boolean> {
+    return this.subscriptionsService.checkActiveSubscriptionsByPersonId(
+      personId,
+    );
   }
 }

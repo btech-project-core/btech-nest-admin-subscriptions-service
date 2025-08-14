@@ -1,6 +1,6 @@
-import { Controller } from '@nestjs/common';
+import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   FindUserByIdRequest,
   FindUserByUsernameRequest,
@@ -15,6 +15,15 @@ import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-com
 @Controller()
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
+
+  @MessagePattern('subscribers.checkActiveSubscriptionsByNaturalPersonId')
+  checkActiveSubscriptionsByNaturalPersonId(
+    @Payload('naturalPersonId', ParseUUIDPipe) naturalPersonId: string,
+  ): Promise<boolean> {
+    return this.subscribersService.checkActiveSubscriptionsByNaturalPersonId(
+      naturalPersonId,
+    );
+  }
 
   @GrpcMethod('SubscribersService', 'FindUserByUsername')
   async findUserByUsername(
@@ -58,7 +67,6 @@ export class SubscribersController {
   async getSubscriberCompleteInfo(
     data: GetSubscriberCompleteInfoRequest,
   ): Promise<SubscriberCompleteInfoResponseDto> {
-    console.log('Datos recibidos en getSubscriberCompleteInfo:', data);
     return await this.subscribersService.getSubscriberCompleteInfo(
       data.subscriberId,
       data.service,
