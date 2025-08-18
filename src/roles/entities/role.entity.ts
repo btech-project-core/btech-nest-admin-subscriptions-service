@@ -19,6 +19,7 @@ export class Role extends Timestamped {
     type: 'varchar',
     length: 25,
     nullable: false,
+    unique: true,
   })
   description: string;
 

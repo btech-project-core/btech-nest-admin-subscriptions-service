@@ -11,6 +11,7 @@ export class DesignerMode extends Timestamped {
     type: 'varchar',
     length: 65,
     nullable: false,
+    unique: true,
   })
   description: string;
 
