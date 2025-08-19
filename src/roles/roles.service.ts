@@ -117,7 +117,6 @@ export class RolesService {
       .where('role.roleId = :roleId', {
         roleId,
       })
-      .andWhere('subscriber.isActive = true')
       .andWhere('role.isActive = true')
       .getCount();
 
