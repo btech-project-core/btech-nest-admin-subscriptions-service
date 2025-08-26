@@ -20,6 +20,8 @@ import { DocumentUsersService } from 'src/common/services/document-users.service
 import { UserValidationRresponseDto } from 'src/common/dto/user-validation.dto';
 import { FindSubscriptionMultiplePersonDataResponseDto } from 'src/common/dto/find-subscription-multiple-person-data.dto';
 import { StatusSubscription } from './enums/status-subscription.enum';
+import { SubscriptionsServicesService } from 'src/subscriptions-services/subscriptions-services.service';
+import { CreateSubscriptionsBussineDto } from 'src/subscriptions-bussines/dto/create-subscriptions-bussine.dto';
 
 @Injectable()
 export class SubscriptionsService {
@@ -30,19 +32,25 @@ export class SubscriptionsService {
     private readonly subscriptionsBussinesService: SubscriptionsBussinesService,
     private readonly adminPersonsService: AdminPersonsService,
     private readonly documentUsersService: DocumentUsersService,
+    private readonly subscriptionsServicesService: SubscriptionsServicesService,
   ) {}
-  create(createSubscriptionDto: CreateSubscriptionDto) {
+  async create(createSubscriptionDto: CreateSubscriptionDto) {
     this.validateCorporateSubscription(createSubscriptionDto);
-    this.transactionService.runInTransaction(async (qr) => {
+    const validatedEntities = await this.validateAllRequiredEntities(
+      createSubscriptionDto,
+    );
+    return this.transactionService.runInTransaction(async (qr) => {
       const subscription = await this.createSubscription(
         createSubscriptionDto,
         qr,
       );
       await this.createSubscriptionsBussine(
         createSubscriptionDto,
-        subscription.subscriptionId,
+        subscription,
+        validatedEntities.subscriptionsServices,
         qr,
       );
+      return subscription;
     });
   }
 
@@ -143,40 +151,136 @@ export class SubscriptionsService {
 
   private async createSubscriptionsBussine(
     createSubscriptionDto: CreateSubscriptionDto,
-    subscriptionId: string,
+    subscription: Subscription,
+    subscriptionsServices: any[],
     queryRunner?: QueryRunner,
   ) {
-    const { modality, personId, createSubscriptionsBussineDto } =
-      createSubscriptionDto;
-    if (modality === ModalitySubscription.CORPORATE)
+    const { modality, personId, subscriptionsBussine } = createSubscriptionDto;
+    if (modality === ModalitySubscription.CORPORATE) {
       await Promise.all(
-        createSubscriptionsBussineDto!.map((dto) =>
-          this.subscriptionsBussinesService.create(dto, queryRunner),
+        subscriptionsBussine.map((dto) =>
+          this.subscriptionsBussinesService.create(
+            subscription,
+            dto,
+            subscriptionsServices,
+            queryRunner,
+          ),
         ),
       );
-    if (modality !== ModalitySubscription.CORPORATE)
+    } else {
+      const businessDto = subscriptionsBussine[0];
       await this.subscriptionsBussinesService.create(
+        subscription,
         {
-          subscriptionId,
           personId,
+          subscriptionDetails: businessDto.subscriptionDetails,
         },
+        subscriptionsServices,
         queryRunner,
       );
+    }
+  }
+
+  private async validateAllRequiredEntities(
+    createSubscriptionDto: CreateSubscriptionDto,
+  ): Promise<{ subscriptionsServices: any[] }> {
+    const { subscriptionsBussine } = createSubscriptionDto;
+
+    // 1. Validar que no haya IDs de servicios duplicados
+    this.validateUniqueSubscriptionServices(subscriptionsBussine);
+
+    // 2. Obtener todos los IDs únicos para validaciones
+    const allServiceIds = this.extractAllServiceIds(subscriptionsBussine);
+    const allPersonIds = this.extractAllPersonIds(createSubscriptionDto);
+
+    // 3. Validar que todos los servicios de suscripción existan y estén activos (retorna entidades)
+    const subscriptionsServices =
+      await this.subscriptionsServicesService.validateSubscriptionServicesExist(
+        allServiceIds,
+      );
+
+    // 4. Validar que todas las personas existan
+    if (allPersonIds.length > 0)
+      await this.adminPersonsService.validatePersonsExist(allPersonIds);
+
+    return { subscriptionsServices };
+  }
+
+  private validateUniqueSubscriptionServices(
+    subscriptionsBussine: CreateSubscriptionsBussineDto[],
+  ): void {
+    const allServiceIds: string[] = [];
+    subscriptionsBussine.forEach((business) => {
+      business.subscriptionDetails.forEach((detail) => {
+        allServiceIds.push(detail.subscriptionServiceId);
+      });
+    });
+
+    const duplicateIds = allServiceIds.filter(
+      (id, index) => allServiceIds.indexOf(id) !== index,
+    );
+
+    if (duplicateIds.length > 0)
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: `Servicios de suscripción duplicados encontrados: ${[...new Set(duplicateIds)].join(', ')}`,
+      });
+  }
+
+  private extractAllServiceIds(
+    subscriptionsBussine: CreateSubscriptionsBussineDto[],
+  ): string[] {
+    const serviceIds: string[] = [];
+    subscriptionsBussine.forEach((business) => {
+      business.subscriptionDetails.forEach((detail) => {
+        serviceIds.push(detail.subscriptionServiceId);
+      });
+    });
+    return [...new Set(serviceIds)];
+  }
+
+  private extractAllPersonIds(
+    createSubscriptionDto: CreateSubscriptionDto,
+  ): string[] {
+    const { modality, personId, subscriptionsBussine } = createSubscriptionDto;
+    const personIds: string[] = [personId]; // PersonId principal
+
+    if (modality === ModalitySubscription.CORPORATE) {
+      subscriptionsBussine.forEach((business) => {
+        if (business.personId) {
+          personIds.push(business.personId);
+        }
+      });
+    }
+
+    return [...new Set(personIds.filter(Boolean))];
   }
 
   private validateCorporateSubscription = (
     createSubscriptionDto: CreateSubscriptionDto,
   ): void => {
-    const { modality, createSubscriptionsBussineDto } = createSubscriptionDto;
+    const { modality, subscriptionsBussine } = createSubscriptionDto;
     if (modality === ModalitySubscription.CORPORATE) {
-      if (
-        !createSubscriptionsBussineDto ||
-        createSubscriptionsBussineDto.length === 0
-      )
+      if (!subscriptionsBussine || subscriptionsBussine.length === 0)
         throw new RpcException({
           status: HttpStatus.BAD_REQUEST,
           message:
             'Para modalidad corporativa se requiere al menos un subscription business',
+        });
+      subscriptionsBussine.forEach((business) => {
+        if (!business.personId)
+          throw new RpcException({
+            status: HttpStatus.BAD_REQUEST,
+            message:
+              'Para modalidad corporativa, cada subscription business debe tener un personId',
+          });
+      });
+    } else {
+      if (subscriptionsBussine.length !== 1)
+        throw new RpcException({
+          status: HttpStatus.BAD_REQUEST,
+          message:
+            'Para modalidad no corporativa se requiere exactamente un subscription business',
         });
     }
   };

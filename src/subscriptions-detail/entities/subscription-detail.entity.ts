@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -15,6 +16,18 @@ import { SubscriptionsDesigneSetting } from 'src/subscriptions-designe-settings/
 export class SubscriptionDetail extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionDetailId: string;
+
+  @Column({
+    type: 'datetime',
+    nullable: true,
+  })
+  initialDate: Date;
+
+  @Column({
+    type: 'datetime',
+    nullable: true,
+  })
+  finalDate: Date;
 
   @ManyToOne(
     () => SubscriptionsBussine,

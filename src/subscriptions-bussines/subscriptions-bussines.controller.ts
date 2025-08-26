@@ -18,4 +18,9 @@ export class SubscriptionsBussinesController {
       juridicalPersonId,
     );
   }
+
+  @MessagePattern('subscriptionBussines.getClientPersonIds')
+  async getClientPersonIds(): Promise<string[]> {
+    return this.subscriptionsBussinesService.getClientPersonIds();
+  }
 }

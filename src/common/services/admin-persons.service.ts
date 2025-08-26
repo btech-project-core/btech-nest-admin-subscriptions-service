@@ -36,4 +36,8 @@ export class AdminPersonsService {
       findSubscriptionMultiplePersonDataDto,
     );
   }
+
+  async validatePersonsExist(personIds: string[]): Promise<void> {
+    return this.client.send('person.validatePersonsExist', { personIds });
+  }
 }

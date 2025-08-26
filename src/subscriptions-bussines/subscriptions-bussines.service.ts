@@ -5,25 +5,41 @@ import { QueryRunner, Repository } from 'typeorm';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 import { RpcException } from '@nestjs/microservices';
+import { SubscriptionsDetailService } from 'src/subscriptions-detail/services/subscriptions-detail.service';
 
 @Injectable()
 export class SubscriptionsBussinesService {
   constructor(
     @InjectRepository(SubscriptionsBussine)
     private readonly subscriptionsBussinesRepository: Repository<SubscriptionsBussine>,
+    private readonly subscriptionsDetailService: SubscriptionsDetailService,
   ) {}
   async create(
+    subscription: any,
     createSubscriptionsBussineDto: CreateSubscriptionsBussineDto,
+    subscriptionsServices: any[],
     queryRunner?: QueryRunner,
   ) {
     const repository = queryRunner
       ? queryRunner.manager.getRepository(SubscriptionsBussine)
       : this.subscriptionsBussinesRepository;
-    const subscriptionsBussines = repository.create(
-      createSubscriptionsBussineDto,
+
+    const subscriptionsBussine = repository.create({
+      personId: createSubscriptionsBussineDto.personId,
+      subscription: subscription,
+      numberAccounts: createSubscriptionsBussineDto.subscriptionDetails.length,
+    });
+
+    const savedSubscriptionsBussine = await repository.save(subscriptionsBussine);
+
+    await this.subscriptionsDetailService.create(
+      savedSubscriptionsBussine,
+      createSubscriptionsBussineDto.subscriptionDetails,
+      subscriptionsServices,
+      queryRunner,
     );
-    await repository.save(subscriptionsBussines);
-    return subscriptionsBussines;
+
+    return savedSubscriptionsBussine;
   }
 
   async checkActiveSubscriptionsByJuridicalPersonId(
@@ -49,4 +65,13 @@ export class SubscriptionsBussinesService {
       });
     return true;
   }
+
+  async getClientPersonIds(): Promise<string[]> {
+    const result = await this.subscriptionsBussinesRepository
+      .createQueryBuilder('subscriptionBussine')
+      .select('subscriptionBussine.personId')
+      .getMany();
+    return result.map((row) => row.personId);
+  }
+
 }

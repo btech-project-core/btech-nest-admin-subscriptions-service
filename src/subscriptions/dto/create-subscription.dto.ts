@@ -69,12 +69,11 @@ export class CreateSubscriptionDto {
   })
   status?: StatusSubscription;
 
-  @IsOptional()
   @ValidateNested({
     each: true,
     message:
       'Cada elemento del array debe ser un objeto válido de CreateSubscriptionsBussineDto',
   })
   @Type(() => CreateSubscriptionsBussineDto)
-  createSubscriptionsBussineDto?: CreateSubscriptionsBussineDto[];
+  subscriptionsBussine: CreateSubscriptionsBussineDto[];
 }

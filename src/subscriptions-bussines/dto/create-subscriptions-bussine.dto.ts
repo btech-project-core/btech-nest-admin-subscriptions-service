@@ -1,19 +1,20 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateSubscriptionDetailDto } from 'src/subscriptions-detail/dto/create-subscription-detail.dto';
 
 export class CreateSubscriptionsBussineDto {
-  @IsNotEmpty({
-    message: 'El id de la subscripción es requerido',
-  })
+  @IsOptional()
   @IsString({
-    message: 'El id de la subscripción debe ser un string',
+    message: 'El id de la persona debe ser un string',
   })
-  subscriptionId: string;
+  personId?: string;
 
-  @IsNotEmpty({
-    message: 'El id de la empresa es requerida',
+  @IsArray({ message: 'Los detalles de suscripción deben ser un arreglo' })
+  @ValidateNested({
+    each: true,
+    message:
+      'Cada detalle debe ser un objeto válido de CreateSubscriptionDetailDto',
   })
-  @IsString({
-    message: 'El id de la empresa debe ser un string',
-  })
-  personId: string;
+  @Type(() => CreateSubscriptionDetailDto)
+  subscriptionDetails: CreateSubscriptionDetailDto[];
 }
