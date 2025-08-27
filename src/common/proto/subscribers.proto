@@ -9,6 +9,7 @@ service SubscribersService {
   rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
   rpc FindByDomainOrSubscriptionDetailId(FindByDomainOrSubscriptionDetailIdRequest) returns (FindByDomainOrSubscriptionDetailIdResponse);
   rpc GetSubscriberCompleteInfo(GetSubscriberCompleteInfoRequest) returns (SubscriberCompleteInfoResponse);
+  rpc FindSubscribersWithNaturalPersons(FindSubscribersWithNaturalPersonsRequest) returns (FindSubscribersWithNaturalPersonsResponse);
 }
 
 // ===== REQUESTS =====
@@ -32,6 +33,12 @@ message UpdateUserRequest {
 message GetSubscriberCompleteInfoRequest {
   string subscriberId = 1;
   string service = 2;
+}
+
+message FindSubscribersWithNaturalPersonsRequest {
+  string subscriptionDetailId = 1;
+  optional int32 page = 2;
+  optional int32 limit = 3;
 }
 
 // ===== RESPONSE PARA LOGIN =====
@@ -154,4 +161,18 @@ message SubscriberCompleteInfoResponse {
   repeated string roles = 4;
   NaturalPersonCompleteInfo naturalPerson = 5;
   SubscriptionInfo subscription = 6;
+}
+
+message SubscriberWithNaturalPersonData {
+  string subscriberId = 1;
+  string username = 2;
+  NaturalPersonCompleteInfo naturalPerson = 3;
+}
+
+message FindSubscribersWithNaturalPersonsResponse {
+  repeated SubscriberWithNaturalPersonData data = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+  int32 totalPages = 5;
 }

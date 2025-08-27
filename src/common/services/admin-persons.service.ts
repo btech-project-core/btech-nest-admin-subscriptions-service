@@ -6,6 +6,10 @@ import {
   FindSubscriptionMultiplePersonDataDto,
   FindSubscriptionMultiplePersonDataResponseDto,
 } from '../dto/find-subscription-multiple-person-data.dto';
+import {
+  FindMultipleNaturalPersonsDto,
+  FindMultipleNaturalPersonsResponseDto,
+} from '../dto/find-multiple-natural-persons.dto';
 
 @Injectable()
 export class AdminPersonsService {
@@ -39,5 +43,14 @@ export class AdminPersonsService {
 
   async validatePersonsExist(personIds: string[]): Promise<void> {
     return this.client.send('person.validatePersonsExist', { personIds });
+  }
+
+  async findMultipleNaturalPersonsByIds(
+    findMultipleDto: FindMultipleNaturalPersonsDto,
+  ): Promise<FindMultipleNaturalPersonsResponseDto[]> {
+    return this.client.send(
+      'naturalPersons.findMultipleByIds',
+      findMultipleDto,
+    );
   }
 }

@@ -1,11 +1,15 @@
 import {
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
+  Min,
 } from 'class-validator';
 import { CodeService } from '../enums/code-service.enum';
+import { Type } from 'class-transformer';
 
 export class FindUserByUsernameRequest {
   @IsString({ message: 'El campo username debe ser una cadena de caracteres.' })
@@ -69,4 +73,29 @@ export class GetSubscriberCompleteInfoRequest {
   })
   @IsOptional()
   service?: CodeService;
+}
+
+export class FindSubscribersWithNaturalPersonsRequest {
+  @IsString({
+    message: 'El campo subscriptionDetailId debe ser una cadena de caracteres.',
+  })
+  @IsUUID('4', {
+    message: 'El campo subscriptionDetailId debe ser un UUID válido.',
+  })
+  @IsNotEmpty({
+    message: 'El campo subscriptionDetailId no puede estar vacío.',
+  })
+  subscriptionDetailId: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El campo page debe ser un número entero.' })
+  @Min(1, { message: 'El campo page debe ser mayor que 0.' })
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El campo limit debe ser un número entero.' })
+  @Min(1, { message: 'El campo limit debe ser mayor que 0.' })
+  limit?: number;
 }

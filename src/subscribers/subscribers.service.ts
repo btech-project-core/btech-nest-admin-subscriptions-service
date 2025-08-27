@@ -18,6 +18,12 @@ import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { CodeService } from 'src/common/enums/code-service.enum';
 import { formatSubscriberCompleteInfoResponse } from './helpers/format-get-subscriber-complete-info.helper';
 import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
+import {
+  FindSubscribersWithNaturalPersonsDto,
+  SubscriberWithNaturalPersonDto,
+} from './dto/find-subscribers-with-natural-persons.dto';
+import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 
 @Injectable()
 export class SubscribersService {
@@ -310,5 +316,66 @@ export class SubscribersService {
         message: `No se puede proceder porque el usuario tiene ${activeSubscriptionsCount} suscripción(es) activa(s)`,
       });
     return true;
+  }
+
+  async findSubscribersWithNaturalPersons(
+    findDto: FindSubscribersWithNaturalPersonsDto,
+  ): Promise<PaginationResponseDto<SubscriberWithNaturalPersonDto>> {
+    const { subscriptionDetailId, ...paginationDto } = findDto;
+    const queryBuilder = this.subscriberRepository
+      .createQueryBuilder('subscriber')
+      .innerJoin('subscriber.subscriptionsBussine', 'subscriptionsBussine')
+      .innerJoin('subscriptionsBussine.subscription', 'subscription')
+      .innerJoin(
+        'subscriptionsBussine.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .where(
+        'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+        {
+          subscriptionDetailId,
+        },
+      )
+      .andWhere('subscription.status = :status', {
+        status: StatusSubscription.ACTIVE,
+      })
+      .select([
+        'subscriber.subscriberId',
+        'subscriber.username',
+        'subscriber.naturalPersonId',
+        'subscriber.createdAt',
+      ])
+      .orderBy('subscriber.createdAt', 'DESC');
+    const paginatedResult = await paginateQueryBuilder(
+      queryBuilder,
+      paginationDto,
+    );
+    if (paginatedResult.data.length === 0)
+      return {
+        ...paginatedResult,
+        data: [],
+      };
+
+    const naturalPersonsData =
+      await this.adminPersonsService.findMultipleNaturalPersonsByIds({
+        naturalPersonIds: paginatedResult.data.map((s) => s.naturalPersonId),
+      });
+
+    const naturalPersonsMap = new Map(
+      naturalPersonsData.map((np) => [np.naturalPersonId, np]),
+    );
+
+    const subscribersWithNaturalPersons = paginatedResult.data.map(
+      (subscriber) => ({
+        subscriberId: subscriber.subscriberId,
+        username: subscriber.username,
+        naturalPerson: naturalPersonsMap.get(subscriber.naturalPersonId)!,
+      }),
+    );
+
+    return {
+      ...paginatedResult,
+      data: subscribersWithNaturalPersons,
+    };
   }
 }

@@ -2,6 +2,7 @@ import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
+  FindSubscribersWithNaturalPersonsRequest,
   FindUserByIdRequest,
   FindUserByUsernameRequest,
   GetSubscriberCompleteInfoRequest,
@@ -11,6 +12,7 @@ import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
+import { FindSubscribersWithNaturalPersonsResponseDto } from 'src/common/dto/grpc-response.dto';
 
 @Controller()
 export class SubscribersController {
@@ -71,5 +73,16 @@ export class SubscribersController {
       data.subscriberId,
       data.service,
     );
+  }
+
+  @GrpcMethod('SubscribersService', 'FindSubscribersWithNaturalPersons')
+  async findSubscribersWithNaturalPersons(
+    data: FindSubscribersWithNaturalPersonsRequest,
+  ): Promise<FindSubscribersWithNaturalPersonsResponseDto> {
+    return await this.subscribersService.findSubscribersWithNaturalPersons({
+      subscriptionDetailId: data.subscriptionDetailId,
+      page: data.page,
+      limit: data.limit,
+    });
   }
 }
