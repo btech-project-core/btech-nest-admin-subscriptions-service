@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, Repository, QueryRunner } from 'typeorm';
 import { Subscriber } from './entities/subscriber.entity';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
@@ -24,6 +24,8 @@ import {
 } from './dto/find-subscribers-with-natural-persons.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
+import * as bcryptjs from 'bcryptjs';
 
 @Injectable()
 export class SubscribersService {
@@ -377,5 +379,44 @@ export class SubscribersService {
       ...paginatedResult,
       data: subscribersWithNaturalPersons,
     };
+  }
+
+  async createSubscribersForNaturalPersons(
+    naturalPersons: { naturalPersonId: string; documentNumber: string }[],
+    subscriptionsBussine: SubscriptionsBussine,
+    queryRunner?: QueryRunner,
+  ): Promise<Subscriber[]> {
+    const repository = queryRunner
+      ? queryRunner.manager.getRepository(Subscriber)
+      : this.subscriberRepository;
+
+    // 1. Verificar duplicados en el request actual (no debería haber naturalPersonIds duplicados)
+    const naturalPersonIds = naturalPersons.map((np) => np.naturalPersonId);
+    const uniqueIds = new Set(naturalPersonIds);
+    if (uniqueIds.size !== naturalPersonIds.length)
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message:
+          'No se pueden enviar naturalPersonIds duplicados en la misma solicitud',
+      });
+    const subscribersToCreate = await Promise.all(
+      naturalPersons.map(async (naturalPerson) => {
+        const { naturalPersonId, documentNumber } = naturalPerson;
+        const username = documentNumber;
+        const hashedPassword = await bcryptjs.hash(username, 10);
+
+        return repository.create({
+          username,
+          password: hashedPassword,
+          naturalPersonId,
+          subscriptionsBussine,
+          isConfirm: true,
+        });
+      }),
+    );
+
+    // 2. Guardar todos en una sola operación
+    const savedSubscribers = await repository.save(subscribersToCreate);
+    return savedSubscribers;
   }
 }

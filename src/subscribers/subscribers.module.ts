@@ -13,5 +13,6 @@ import { CommonModule } from 'src/common/common.module';
   ],
   controllers: [SubscribersController],
   providers: [SubscribersService],
+  exports: [SubscribersService],
 })
 export class SubscribersModule {}

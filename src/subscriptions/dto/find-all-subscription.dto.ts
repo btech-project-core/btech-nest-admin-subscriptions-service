@@ -31,6 +31,7 @@ export class FindAllSubscriptionDto extends PaginationDto {
 
 export class FindAllSubscriptionResponseDto {
   subscriptionId: string;
+  subscriptionBussineId: string;
   personId: string;
   documentNumber: string;
   fullName: string;

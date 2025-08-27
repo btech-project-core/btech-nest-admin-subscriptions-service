@@ -1,21 +1,24 @@
 import { FindSubscriptionMultiplePersonDataResponseDto } from 'src/common/dto/find-subscription-multiple-person-data.dto';
 import { FindAllSubscriptionResponseDto } from '../dto/find-all-subscription.dto';
-import { Subscription } from '../entities/subscription.entity';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 
-export const formatSubscriptionResponse = (
-  subscription: Subscription,
+export const formatSubscriptionBussineResponse = (
+  subscriptionBussine: SubscriptionsBussine,
   person: FindSubscriptionMultiplePersonDataResponseDto | undefined,
   term?: string,
 ): FindAllSubscriptionResponseDto | null => {
+  if (!person) return null;
+
   const response: FindAllSubscriptionResponseDto = {
-    subscriptionId: subscription.subscriptionId,
-    personId: subscription.personId,
-    documentNumber: person?.documentNumber || '',
-    fullName: person?.fullName || '',
-    initialDate: subscription.initialDate,
-    finalDate: subscription.finalDate,
-    contractSigningDate: subscription.contractSigningDate,
-    status: subscription.status,
+    subscriptionId: subscriptionBussine.subscription.subscriptionId,
+    subscriptionBussineId: subscriptionBussine.subscriptionBussineId,
+    personId: subscriptionBussine.personId,
+    documentNumber: person.documentNumber,
+    fullName: person.fullName,
+    initialDate: subscriptionBussine.subscription.initialDate,
+    finalDate: subscriptionBussine.subscription.finalDate,
+    contractSigningDate: subscriptionBussine.subscription.contractSigningDate,
+    status: subscriptionBussine.subscription.status,
   };
 
   if (term) {

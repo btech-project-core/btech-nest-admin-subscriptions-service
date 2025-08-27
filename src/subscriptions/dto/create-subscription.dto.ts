@@ -75,5 +75,5 @@ export class CreateSubscriptionDto {
       'Cada elemento del array debe ser un objeto válido de CreateSubscriptionsBussineDto',
   })
   @Type(() => CreateSubscriptionsBussineDto)
-  subscriptionsBussine: CreateSubscriptionsBussineDto[];
+  subscriptionsBusiness: CreateSubscriptionsBussineDto[];
 }

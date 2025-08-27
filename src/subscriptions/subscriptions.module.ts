@@ -6,6 +6,7 @@ import { Subscription } from './entities/subscription.entity';
 import { CommonModule } from 'src/common/common.module';
 import { SubscriptionsBussinesModule } from 'src/subscriptions-bussines/subscriptions-bussines.module';
 import { SubscriptionsServicesModule } from 'src/subscriptions-services/subscriptions-services.module';
+import { SubscribersModule } from 'src/subscribers/subscribers.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SubscriptionsServicesModule } from 'src/subscriptions-services/subscrip
     CommonModule,
     SubscriptionsBussinesModule,
     SubscriptionsServicesModule,
+    SubscribersModule,
   ],
   controllers: [SubscriptionsController],
   providers: [SubscriptionsService],
