@@ -80,6 +80,18 @@ export class RolesService {
     return role;
   }
 
+  async findOneByCode(code: string): Promise<Role> {
+    const role = await this.roleRepository.findOne({
+      where: { code: code.trim() },
+    });
+    if (!role)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `Rol con código '${code}' no encontrado`,
+      });
+    return role;
+  }
+
   async update(updateRoleDto: UpdateRoleDto): Promise<UpdateRoleResponseDto> {
     const { roleId, code, description } = updateRoleDto;
     const role = await this.findOne(roleId);

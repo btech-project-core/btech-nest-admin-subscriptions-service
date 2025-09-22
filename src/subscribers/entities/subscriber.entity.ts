@@ -12,7 +12,10 @@ import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 
 @Entity({ name: 'subscriber' })
-@Unique('UQ_subscriber_naturalperson_business', ['naturalPersonId', 'subscriptionsBussine'])
+@Unique('UQ_subscriber_naturalperson_business', [
+  'naturalPersonId',
+  'subscriptionsBussine',
+])
 export class Subscriber extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriberId: string;

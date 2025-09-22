@@ -10,9 +10,23 @@ service SubscribersService {
   rpc FindByDomainOrSubscriptionDetailId(FindByDomainOrSubscriptionDetailIdRequest) returns (FindByDomainOrSubscriptionDetailIdResponse);
   rpc GetSubscriberCompleteInfo(GetSubscriberCompleteInfoRequest) returns (SubscriberCompleteInfoResponse);
   rpc FindSubscribersWithNaturalPersons(FindSubscribersWithNaturalPersonsRequest) returns (FindSubscribersWithNaturalPersonsResponse);
+  rpc RegisterSubscriber(RegisterSubscriberRequest) returns (RegisterSubscriberResponse);
 }
 
 // ===== REQUESTS =====
+message RegisterSubscriberRequest {
+  string username = 1;
+  string password = 2;
+  string naturalPersonId = 3;
+  string domain = 4;
+}
+
+message RegisterSubscriberResponse {
+  string subscriberId = 1;
+  string username = 2;
+}
+
+
 message FindUserByUsernameRequest {
   string username = 1;
   string domain = 2;

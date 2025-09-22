@@ -1,6 +1,5 @@
 import { ValidationError } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { status as GrpcStatus } from '@grpc/grpc-js';
 
 export const createValidationExceptionFactory = (serviceName: string) => {
   return (errors: ValidationError[]) => {
@@ -13,12 +12,6 @@ export const createValidationExceptionFactory = (serviceName: string) => {
       status: 400,
       message: formattedErrors,
       service: serviceName,
-      code: GrpcStatus.INVALID_ARGUMENT,
-      details: JSON.stringify({
-        status: 400,
-        message: formattedErrors,
-        service: serviceName,
-      }),
     });
   };
 };

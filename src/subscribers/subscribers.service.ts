@@ -12,7 +12,6 @@ import { formatFindOneUsernameResponse } from './helpers/format-find-one-usernam
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 import { formatFindOneSubscriberIdResponse } from './helpers/format-find-one-subscriber-id-response.helper';
 import { SERVICE_NAME } from 'src/config/constants';
-import { status as GrpcStatus } from '@grpc/grpc-js';
 import { envs } from 'src/config/envs.config';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { CodeService } from 'src/common/enums/code-service.enum';
@@ -26,12 +25,20 @@ import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import * as bcryptjs from 'bcryptjs';
+import {
+  RegisterSubscriberDto,
+  RegisterSubscriberResponseDto,
+} from './dto/register-subscriber.dto';
+import { SubscriptionsBussinesService } from 'src/subscriptions-bussines/subscriptions-bussines.service';
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class SubscribersService {
   constructor(
     @InjectRepository(Subscriber)
     private readonly subscriberRepository: Repository<Subscriber>,
+    private readonly subscriptionsBussinesService: SubscriptionsBussinesService,
+    private readonly rolesService: RolesService,
     private readonly adminPersonsService: AdminPersonsService,
   ) {}
 
@@ -94,22 +101,16 @@ export class SubscribersService {
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
-        code: GrpcStatus.NOT_FOUND,
-        message: JSON.stringify({
-          status: HttpStatus.NOT_FOUND,
-          message: `No se encuentra el usuario con el código de acceso: ${username}`,
-        }),
+        status: HttpStatus.NOT_FOUND,
+        message: `No se encuentra el usuario con el código de acceso: ${username}`,
       });
     if (
       subscriber.subscriptionsBussine.subscription.status !==
       StatusSubscription.ACTIVE
     )
       throw new RpcException({
-        code: GrpcStatus.UNAUTHENTICATED,
-        message: JSON.stringify({
-          status: HttpStatus.UNAUTHORIZED,
-          message: 'El usuario se encuentra sin suscripción activa',
-        }),
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'El usuario se encuentra sin suscripción activa',
       });
     return formatFindOneUsernameResponse(subscriber);
   }
@@ -132,22 +133,16 @@ export class SubscribersService {
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
-        code: GrpcStatus.NOT_FOUND,
-        message: JSON.stringify({
-          status: HttpStatus.NOT_FOUND,
-          message: `El usuario no se encuentra registrado`,
-        }),
+        status: HttpStatus.NOT_FOUND,
+        message: `El usuario no se encuentra registrado`,
       });
     if (
       subscriber.subscriptionsBussine.subscription.status !==
       StatusSubscription.ACTIVE
     )
       throw new RpcException({
-        code: GrpcStatus.UNAUTHENTICATED,
-        message: JSON.stringify({
-          status: HttpStatus.UNAUTHORIZED,
-          message: 'El usuario se encuentra sin suscripción activa',
-        }),
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'El usuario se encuentra sin suscripción activa',
       });
     return formatFindOneSubscriberIdResponse(subscriber);
   }
@@ -192,11 +187,8 @@ export class SubscribersService {
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
-        code: GrpcStatus.NOT_FOUND,
-        message: JSON.stringify({
-          status: HttpStatus.NOT_FOUND,
-          message: `El usuario no se encuentra registrado`,
-        }),
+        status: HttpStatus.NOT_FOUND,
+        message: `El usuario no se encuentra registrado`,
       });
 
     const subscriberNaturalPerson =
@@ -272,12 +264,8 @@ export class SubscribersService {
 
     if (!subscriber)
       throw new RpcException({
-        code: GrpcStatus.NOT_FOUND,
-        details: JSON.stringify({
-          status: HttpStatus.NOT_FOUND,
-          message: `El subscriber con id ${subscriberId} no se encuentra registrado`,
-          service: SERVICE_NAME,
-        }),
+        message: `El subscriber con id ${subscriberId} no se encuentra registrado`,
+        service: SERVICE_NAME,
       });
 
     const subscriberNaturalPerson =
@@ -414,9 +402,31 @@ export class SubscribersService {
         });
       }),
     );
-
     // 2. Guardar todos en una sola operación
     const savedSubscribers = await repository.save(subscribersToCreate);
     return savedSubscribers;
+  }
+
+  async registerSubscriber(
+    registerSubscriberDto: RegisterSubscriberDto,
+  ): Promise<RegisterSubscriberResponseDto> {
+    const { username, password, naturalPersonId, domain } =
+      registerSubscriberDto;
+    const subscriptionsBussine =
+      await this.subscriptionsBussinesService.findOneByDomainOrTenantId(domain);
+    const role = await this.rolesService.findOneByCode('CLI');
+    const subscriber = this.subscriberRepository.create({
+      username,
+      password,
+      isConfirm: true,
+      naturalPersonId,
+      subscriptionsBussine,
+      subscriberRoles: [role],
+    });
+    const subscriberSaved = await this.subscriberRepository.save(subscriber);
+    return {
+      subscriberId: subscriberSaved.subscriberId,
+      username: subscriberSaved.username,
+    };
   }
 }

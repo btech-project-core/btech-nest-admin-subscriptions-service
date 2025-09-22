@@ -6,6 +6,7 @@ import {
   FindUserByIdRequest,
   FindUserByUsernameRequest,
   GetSubscriberCompleteInfoRequest,
+  RegisterSubscriberRequest,
   UpdateUserRequest,
 } from 'src/common/dto/grpc-request.dto';
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
@@ -13,6 +14,7 @@ import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
 import { FindSubscribersWithNaturalPersonsResponseDto } from 'src/common/dto/grpc-response.dto';
+import { RegisterSubscriberResponseDto } from './dto/register-subscriber.dto';
 
 @Controller()
 export class SubscribersController {
@@ -25,6 +27,13 @@ export class SubscribersController {
     return this.subscribersService.checkActiveSubscriptionsByNaturalPersonId(
       naturalPersonId,
     );
+  }
+
+  @GrpcMethod('SubscribersService', 'RegisterSubscriber')
+  async registerSubscriber(
+    data: RegisterSubscriberRequest,
+  ): Promise<RegisterSubscriberResponseDto> {
+    return await this.subscribersService.registerSubscriber(data);
   }
 
   @GrpcMethod('SubscribersService', 'FindUserByUsername')

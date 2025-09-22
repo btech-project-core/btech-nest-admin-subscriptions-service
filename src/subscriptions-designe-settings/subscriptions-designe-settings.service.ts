@@ -4,7 +4,6 @@ import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { RpcException } from '@nestjs/microservices';
-import { status as GrpcStatus } from '@grpc/grpc-js';
 import { FindByDomainOrSubscriptionDetailIdResponseDto } from './dto/find-by-domain-or-subscription-detail-id.dto';
 import { formatFindByDomainOrSubscriptionDetailIdResponse } from './helpers/format-find-by-domain-or-subscription-detail-id-response.helper';
 
@@ -54,12 +53,8 @@ export class SubscriptionsDesigneSettingsService {
       subscriptionsDesigneSetting.length === 0
     )
       throw new RpcException({
-        code: GrpcStatus.NOT_FOUND,
-        message: JSON.stringify({
-          status: HttpStatus.NOT_FOUND,
-          message: `No se encontró la configuración de diseño para el identificador: ${domain}`,
-          service: 'admin-subscriptions-service',
-        }),
+        status: HttpStatus.NOT_FOUND,
+        message: `No se encontró la configuración de diseño para el identificador: ${domain}`,
       });
     return {
       configurations: subscriptionsDesigneSetting.map(

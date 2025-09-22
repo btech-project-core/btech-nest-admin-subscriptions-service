@@ -6,6 +6,7 @@ import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscr
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 import { RpcException } from '@nestjs/microservices';
 import { SubscriptionsDetailService } from 'src/subscriptions-detail/services/subscriptions-detail.service';
+import { Subscription } from 'src/subscriptions/entities/subscription.entity';
 
 @Injectable()
 export class SubscriptionsBussinesService {
@@ -15,7 +16,7 @@ export class SubscriptionsBussinesService {
     private readonly subscriptionsDetailService: SubscriptionsDetailService,
   ) {}
   async create(
-    subscription: any,
+    subscription: Subscription,
     createSubscriptionsBussineDto: CreateSubscriptionsBussineDto,
     subscriptionsServices: any[],
     queryRunner?: QueryRunner,
@@ -30,7 +31,8 @@ export class SubscriptionsBussinesService {
       numberAccounts: createSubscriptionsBussineDto.subscriptionDetails.length,
     });
 
-    const savedSubscriptionsBussine = await repository.save(subscriptionsBussine);
+    const savedSubscriptionsBussine =
+      await repository.save(subscriptionsBussine);
 
     await this.subscriptionsDetailService.create(
       savedSubscriptionsBussine,
@@ -74,4 +76,30 @@ export class SubscriptionsBussinesService {
     return result.map((row) => row.personId);
   }
 
+  async findOneByDomainOrTenantId(
+    domain: string,
+  ): Promise<SubscriptionsBussine> {
+    const result = await this.subscriptionsBussinesRepository
+      .createQueryBuilder('subscriptionBussine')
+      .innerJoin('subscriptionBussine.subscriptionDetail', 'subscriptionDetail')
+      .innerJoin(
+        'subscriptionDetail.subscriptionDetailFeatures',
+        'subscriptionDetailFeatures',
+      )
+      .where(
+        'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+        { subscriptionDetailId: domain },
+      )
+      .orWhere(
+        'subscriptionDetailFeatures.code = :code AND subscriptionDetailFeatures.description = :domain',
+        { code: 'DOM', domain: domain },
+      )
+      .getOne();
+    if (!result)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `No se aprobó el registro para el dominio o tenantId: ${domain}`,
+      });
+    return result;
+  }
 }

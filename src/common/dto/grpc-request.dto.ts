@@ -99,3 +99,31 @@ export class FindSubscribersWithNaturalPersonsRequest {
   @Min(1, { message: 'El campo limit debe ser mayor que 0.' })
   limit?: number;
 }
+
+export class RegisterSubscriberRequest {
+  @IsString({
+    message: 'El campo username debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo username no puede estar vacío.' })
+  username: string;
+
+  @IsString({
+    message: 'El campo password debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo password no puede estar vacío.' })
+  password: string;
+
+  @IsString({
+    message: 'El campo naturalPersonId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({
+    message: 'El campo naturalPersonId no puede estar vacío.',
+  })
+  naturalPersonId: string;
+
+  @IsString({
+    message: 'El campo domain debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo domain no puede estar vacío.' })
+  domain: string;
+}
