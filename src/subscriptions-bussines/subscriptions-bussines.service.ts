@@ -86,12 +86,16 @@ export class SubscriptionsBussinesService {
         'subscriptionDetail.subscriptionDetailFeatures',
         'subscriptionDetailFeatures',
       )
+      .innerJoin(
+        'subscriptionDetailFeatures.subscriptionFeatures',
+        'subscriptionFeatures',
+      )
       .where(
         'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
         { subscriptionDetailId: domain },
       )
       .orWhere(
-        'subscriptionDetailFeatures.code = :code AND subscriptionDetailFeatures.description = :domain',
+        'subscriptionFeatures.code = :code AND subscriptionDetailFeatures.value = :domain',
         { code: 'DOM', domain: domain },
       )
       .getOne();
