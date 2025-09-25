@@ -152,10 +152,14 @@ export class SubscribersAuthService {
       })
       .andWhere('subscriberRoles.isActive = :roleActive', { roleActive: true });
 
-    if (service)
+    if (service) {
       queryBuilder.andWhere('subscriptionsService.code = :service', {
         service,
       });
+      queryBuilder.andWhere(
+        'subscribersSubscriptionDetails.subscriptionDetail = subscriptionDetail.subscriptionDetailId',
+      );
+    }
 
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
