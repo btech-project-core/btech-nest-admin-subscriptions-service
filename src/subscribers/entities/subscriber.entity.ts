@@ -7,9 +7,9 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { SubscriberRole } from './subscriber-role.entity';
 import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
+import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-detail/entities/subscribers-subscription-detail.entity';
 
 @Entity({ name: 'subscriber' })
 @Unique('UQ_subscriber_naturalperson_business', [
@@ -79,8 +79,8 @@ export class Subscriber extends Timestamped {
   isTwoFactorEnabled: boolean;
 
   @OneToMany(
-    () => SubscriberRole,
-    (subscriberRole) => subscriberRole.subscriber,
+    () => SubscribersSubscriptionDetail,
+    (subscribersSubscriptionDetail) => subscribersSubscriptionDetail.subscriber,
   )
-  subscriberRoles: SubscriberRole[];
+  subscribersSubscriptionDetails: SubscribersSubscriptionDetail[];
 }

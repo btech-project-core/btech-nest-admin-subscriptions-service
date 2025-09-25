@@ -7,6 +7,8 @@ import { SubscriptionsDetailService } from './services/subscriptions-detail.serv
 import { SubscriptionsDetailFeaturesService } from './services/subscriptions-detail-features.service';
 import { SubscriptionsBussinesModule } from 'src/subscriptions-bussines/subscriptions-bussines.module';
 import { SubscriptionsServicesModule } from 'src/subscriptions-services/subscriptions-services.module';
+import { SubscriptionsDetailCoreService } from './services/subscriptions-detail-core.service';
+import { SubscriptionsDetailCustomService } from './services/subscriptions-detail-custom.service';
 
 @Module({
   imports: [
@@ -15,7 +17,12 @@ import { SubscriptionsServicesModule } from 'src/subscriptions-services/subscrip
     SubscriptionsServicesModule,
   ],
   controllers: [SubscriptionsDetailController],
-  providers: [SubscriptionsDetailService, SubscriptionsDetailFeaturesService],
-  exports: [SubscriptionsDetailService],
+  providers: [
+    SubscriptionsDetailService,
+    SubscriptionsDetailFeaturesService,
+    SubscriptionsDetailCoreService,
+    SubscriptionsDetailCustomService,
+  ],
+  exports: [SubscriptionsDetailService, SubscriptionsDetailCustomService],
 })
 export class SubscriptionsDetailModule {}

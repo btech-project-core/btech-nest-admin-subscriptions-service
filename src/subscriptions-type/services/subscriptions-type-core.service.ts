@@ -2,36 +2,38 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
-import { SubscriptionsType } from './entities/subscriptions-type.entity';
+import { SubscriptionsType } from '../entities/subscriptions-type.entity';
 import {
   CreateSubscriptionsTypeDto,
   CreateSubscriptionsTypeResponseDto,
-} from './dto/create-subscriptions-type.dto';
+} from '../dto/create-subscriptions-type.dto';
 import {
   UpdateSubscriptionsTypeDto,
   UpdateSubscriptionsTypeResponseDto,
-} from './dto/update-subscriptions-type.dto';
+} from '../dto/update-subscriptions-type.dto';
 import {
   FindAllSubscriptionsTypeDto,
   FindAllSubscriptionsTypeResponseDto,
-} from './dto/find-all-subscriptions-type.dto';
+} from '../dto/find-all-subscriptions-type.dto';
 import {
   UpdateSubscriptionsTypeStatusDto,
   UpdateSubscriptionsTypeStatusResponseDto,
-} from './dto/update-subscriptions-type-status.dto';
+} from '../dto/update-subscriptions-type-status.dto';
 import {
   FindOneSubscriptionsTypeDto,
   FindOneSubscriptionsTypeResponseDto,
-} from './dto/find-one-subscriptions-type.dto';
-import { formatSubscriptionsTypeResponse } from './helpers/format-subscriptions-type-response.helper';
+} from '../dto/find-one-subscriptions-type.dto';
+import { formatSubscriptionsTypeResponse } from '../helpers/format-subscriptions-type-response.helper';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { SubscriptionsTypeCustomService } from './subscriptions-type-custom.service';
 
 @Injectable()
-export class SubscriptionsTypeService {
+export class SubscriptionsTypeCoreService {
   constructor(
     @InjectRepository(SubscriptionsType)
     private readonly subscriptionsTypeRepository: Repository<SubscriptionsType>,
+    private readonly subscriptionsTypeCustomService: SubscriptionsTypeCustomService,
   ) {}
 
   async create(
@@ -127,7 +129,10 @@ export class SubscriptionsTypeService {
     const { subscriptionTypeId, isActive } = updateSubscriptionsTypeStatusDto;
     const existingSubscriptionsType = await this.findOne(subscriptionTypeId);
 
-    if (!isActive) await this.relatedSubscriptions(subscriptionTypeId);
+    if (!isActive)
+      await this.subscriptionsTypeCustomService.relatedSubscriptions(
+        subscriptionTypeId,
+      );
 
     await this.subscriptionsTypeRepository.update(subscriptionTypeId, {
       isActive,
@@ -137,38 +142,5 @@ export class SubscriptionsTypeService {
     return {
       message: `Tipo de suscripción '${existingSubscriptionsType.description}' ${statusMessage} exitosamente`,
     };
-  }
-
-  private async relatedSubscriptions(
-    subscriptionTypeId: string,
-  ): Promise<void> {
-    const relatedSubscriptionsCount = await this.subscriptionsTypeRepository
-      .createQueryBuilder('subscriptionsType')
-      .innerJoin('subscriptionsType.subscriptions', 'subscription')
-      .where('subscriptionsType.subscriptionTypeId = :subscriptionTypeId', {
-        subscriptionTypeId,
-      })
-      .andWhere('subscription.isActive = true')
-      .andWhere('subscriptionsType.isActive = true')
-      .getCount();
-
-    if (relatedSubscriptionsCount > 0)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message:
-          'No se puede desactivar el tipo de suscripción porque tiene suscripciones asociadas',
-      });
-  }
-
-  async isValidSubscriptionsType(subscriptionTypeId: string) {
-    const subscriptionsType = await this.subscriptionsTypeRepository.findOne({
-      where: { subscriptionTypeId, isActive: true },
-    });
-    if (!subscriptionsType)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: `Tipo de suscripción con ID ${subscriptionTypeId} no encontrado o inactivo`,
-      });
-    return subscriptionsType;
   }
 }

@@ -12,7 +12,11 @@ export const formatSubscriberCompleteInfoResponse = (
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,
     isTwoFactorEnabled: subscriber.isTwoFactorEnabled,
-    roles: subscriber.subscriberRoles.map((role) => role.role.code),
+    roles:
+      subscriber.subscribersSubscriptionDetails?.flatMap(
+        (subDetail) =>
+          subDetail.subscriberRoles?.map((role) => role.role.code) || [],
+      ) || [],
     naturalPerson: {
       naturalPersonId: naturalPerson.naturalPersonId,
       personId: naturalPerson.personId,

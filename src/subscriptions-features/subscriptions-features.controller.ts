@@ -1,6 +1,5 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SubscriptionsFeaturesService } from './subscriptions-features.service';
 import {
   CreateSubscriptionFeaturesDto,
   CreateSubscriptionFeaturesResponseDto,
@@ -19,6 +18,7 @@ import {
 } from './dto/update-subscription-features-status.dto';
 import { FindOneSubscriptionFeaturesResponseDto } from './dto/find-one-subscription-features.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { SubscriptionsFeaturesService } from './services/subscriptions-features.service';
 
 @Controller()
 export class SubscriptionsFeaturesController {

@@ -1,5 +1,5 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
-import { SubscriptionsBussinesService } from './subscriptions-bussines.service';
+import { SubscriptionsBussinesService } from './services/subscriptions-bussines.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()

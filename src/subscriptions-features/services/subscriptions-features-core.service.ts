@@ -1,33 +1,35 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SubscriptionFeatures } from './entities/subscription-features.entity';
 import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import {
   CreateSubscriptionFeaturesDto,
   CreateSubscriptionFeaturesResponseDto,
-} from './dto/create-subscription-features.dto';
+} from '../dto/create-subscription-features.dto';
 import {
   UpdateSubscriptionFeaturesDto,
   UpdateSubscriptionFeaturesResponseDto,
-} from './dto/update-subscription-features.dto';
+} from '../dto/update-subscription-features.dto';
 import {
   FindAllSubscriptionFeaturesDto,
   FindAllSubscriptionFeaturesResponseDto,
-} from './dto/find-all-subscription-features.dto';
+} from '../dto/find-all-subscription-features.dto';
 import {
   UpdateSubscriptionFeaturesStatusDto,
   UpdateSubscriptionFeaturesStatusResponseDto,
-} from './dto/update-subscription-features-status.dto';
-import { formatSubscriptionFeaturesResponse } from './helpers/format-subscription-features-response.helper';
+} from '../dto/update-subscription-features-status.dto';
+import { formatSubscriptionFeaturesResponse } from '../helpers/format-subscription-features-response.helper';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { SubscriptionFeatures } from '../entities/subscription-features.entity';
+import { SubscriptionsFeaturesCustomService } from './subscriptions-features-custom.service';
 
 @Injectable()
-export class SubscriptionsFeaturesService {
+export class SubscriptionsFeaturesCoreService {
   constructor(
     @InjectRepository(SubscriptionFeatures)
     private readonly subscriptionFeaturesRepository: Repository<SubscriptionFeatures>,
+    private readonly subscriptionsFeaturesCustomService: SubscriptionsFeaturesCustomService,
   ) {}
 
   async create(
@@ -126,61 +128,16 @@ export class SubscriptionsFeaturesService {
     const existingSubscriptionFeatures = await this.findOne(
       subscriptionFeaturesId,
     );
-
     if (!isActive)
-      await this.relatedSubscriptionDetails(subscriptionFeaturesId);
-
+      await this.subscriptionsFeaturesCustomService.relatedSubscriptionDetails(
+        subscriptionFeaturesId,
+      );
     await this.subscriptionFeaturesRepository.update(subscriptionFeaturesId, {
       isActive,
     });
-
     const statusMessage = isActive ? 'activada' : 'desactivada';
     return {
       message: `Característica '${existingSubscriptionFeatures.description}' ${statusMessage} exitosamente`,
     };
-  }
-
-  private async relatedSubscriptionDetails(
-    subscriptionFeaturesId: string,
-  ): Promise<void> {
-    const relatedDetailsCount = await this.subscriptionFeaturesRepository
-      .createQueryBuilder('subscriptionFeatures')
-      .innerJoin(
-        'subscriptionFeatures.subscriptionDetailFeatures',
-        'subscriptionDetailFeatures',
-      )
-      .innerJoin(
-        'subscriptionDetailFeatures.subscriptionDetail',
-        'subscriptionDetail',
-      )
-      .where(
-        'subscriptionFeatures.subscriptionFeaturesId = :subscriptionFeaturesId',
-        {
-          subscriptionFeaturesId,
-        },
-      )
-      .andWhere('subscriptionDetail.isActive = true')
-      .andWhere('subscriptionFeatures.isActive = true')
-      .getCount();
-
-    if (relatedDetailsCount > 0)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message:
-          'No se puede desactivar la característica porque tiene detalles de suscripción asociados',
-      });
-  }
-
-  async isValidSubscriptionFeatures(subscriptionFeaturesId: string) {
-    const subscriptionFeatures =
-      await this.subscriptionFeaturesRepository.findOne({
-        where: { subscriptionFeaturesId, isActive: true },
-      });
-    if (!subscriptionFeatures)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: `Característica de suscripción con ID ${subscriptionFeaturesId} no encontrada o inactiva`,
-      });
-    return subscriptionFeatures;
   }
 }

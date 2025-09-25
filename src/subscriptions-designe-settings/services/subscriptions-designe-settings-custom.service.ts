@@ -1,14 +1,14 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { SubscriptionsDesigneSetting } from './entities/subscriptions-designe-setting.entity';
 import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { RpcException } from '@nestjs/microservices';
-import { FindByDomainOrSubscriptionDetailIdResponseDto } from './dto/find-by-domain-or-subscription-detail-id.dto';
-import { formatFindByDomainOrSubscriptionDetailIdResponse } from './helpers/format-find-by-domain-or-subscription-detail-id-response.helper';
+import { SubscriptionsDesigneSetting } from '../entities/subscriptions-designe-setting.entity';
+import { FindByDomainOrSubscriptionDetailIdResponseDto } from '../dto/find-by-domain-or-subscription-detail-id.dto';
+import { formatFindByDomainOrSubscriptionDetailIdResponse } from '../helpers/format-find-by-domain-or-subscription-detail-id-response.helper';
 
 @Injectable()
-export class SubscriptionsDesigneSettingsService {
+export class SubscriptionsDesigneSettingsCustomService {
   constructor(
     @InjectRepository(SubscriptionsDesigneSetting)
     private readonly subscriptionsDesigneSettingRepository: Repository<SubscriptionsDesigneSetting>,

@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
-import { SubscriptionsService } from './subscriptions.service';
+import { SubscriptionsService } from './services/subscriptions.service';
+import { SubscriptionsCoreService } from './services/subscriptions-core.service';
+import { SubscriptionsValidateService } from './services/subscriptions-validate.service';
+import { SubscriptionsCustomService } from './services/subscriptions-custom.service';
+import { SubscriptionsBulkService } from './services/subscriptions-bulk.service';
 import { SubscriptionsController } from './subscriptions.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subscription } from './entities/subscription.entity';
@@ -17,7 +21,13 @@ import { SubscribersModule } from 'src/subscribers/subscribers.module';
     SubscribersModule,
   ],
   controllers: [SubscriptionsController],
-  providers: [SubscriptionsService],
-  exports: [SubscriptionsService],
+  providers: [
+    SubscriptionsService,
+    SubscriptionsCoreService,
+    SubscriptionsValidateService,
+    SubscriptionsCustomService,
+    SubscriptionsBulkService,
+  ],
+  exports: [SubscriptionsService, SubscriptionsValidateService],
 })
 export class SubscriptionsModule {}

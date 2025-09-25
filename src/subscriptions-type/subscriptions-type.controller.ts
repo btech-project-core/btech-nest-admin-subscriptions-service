@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SubscriptionsTypeService } from './subscriptions-type.service';
+import { SubscriptionsTypeService } from './services/subscriptions-type.service';
 import {
   CreateSubscriptionsTypeDto,
   CreateSubscriptionsTypeResponseDto,

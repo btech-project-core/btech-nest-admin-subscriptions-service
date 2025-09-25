@@ -1,34 +1,35 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SubscriptionsService } from './entities/subscriptions-service.entity';
-import { Brackets, Repository, In } from 'typeorm';
+import { SubscriptionsService } from '../entities/subscriptions-service.entity';
+import { Brackets, Repository } from 'typeorm';
 import {
   FindAllSubscriptionsServiceDto,
   FindAllSubscriptionsServiceResponseDto,
-} from './dto/find-all-subscription-service.dto';
-import { formatSubscriptionsServiceResponse } from './helpers/format-subscriptions-service-response.helper';
+} from '../dto/find-all-subscription-service.dto';
+import { formatSubscriptionsServiceResponse } from '../helpers/format-subscriptions-service-response.helper';
 import { RpcException } from '@nestjs/microservices';
 import {
   CreateSubscriptionsServiceDto,
   CreateSubscriptionsServiceResponseDto,
-} from './dto/create-subscriptions-service.dto';
+} from '../dto/create-subscriptions-service.dto';
 import {
   UpdateSubscriptionsServiceDto,
   UpdateSubscriptionsServiceResponseDto,
-} from './dto/update-subscriptions-service.dto';
+} from '../dto/update-subscriptions-service.dto';
 import {
   UpdateSubscriptionsServiceStatusDto,
   UpdateSubscriptionsServiceStatusResponseDto,
-} from './dto/update-subscriptions-service-status.dto';
-import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+} from '../dto/update-subscriptions-service-status.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
+import { SubscriptionsServicesCustomService } from './subscriptions-services-custom.service';
 
 @Injectable()
-export class SubscriptionsServicesService {
+export class SubscriptionsServicesCoreService {
   constructor(
     @InjectRepository(SubscriptionsService)
     private readonly subscriptionsServicesRepository: Repository<SubscriptionsService>,
+    private readonly subscriptionsServicesCustomService: SubscriptionsServicesCustomService,
   ) {}
 
   async create(
@@ -121,7 +122,9 @@ export class SubscriptionsServicesService {
       updateSubscriptionsServiceStatusDto;
     const existingService = await this.findOne(subscriptionsServiceId);
     if (!isActive)
-      await this.validateActiveSubscriptions(subscriptionsServiceId);
+      await this.subscriptionsServicesCustomService.relatedSubscriptionServices(
+        subscriptionsServiceId,
+      );
     await this.subscriptionsServicesRepository.update(subscriptionsServiceId, {
       isActive,
     });
@@ -129,81 +132,5 @@ export class SubscriptionsServicesService {
     return {
       message: `Servicio de suscripción '${existingService.description}' ${statusMessage} exitosamente`,
     };
-  }
-
-  // ✅ Método privado especializado y eficiente
-  private async validateActiveSubscriptions(
-    subscriptionsServiceId: string,
-  ): Promise<void> {
-    const activeSubscriptionsCount = await this.subscriptionsServicesRepository
-      .createQueryBuilder('subscriptionsService')
-      .innerJoin(
-        'subscriptionsService.subscriptionDetail',
-        'subscriptionDetail',
-      )
-      .innerJoin(
-        'subscriptionDetail.subscriptionsBussine',
-        'subscriptionsBussine',
-      )
-      .innerJoin('subscriptionsBussine.subscription', 'subscription')
-      .where(
-        'subscriptionsService.subscriptionsServiceId = :subscriptionsServiceId',
-        {
-          subscriptionsServiceId,
-        },
-      )
-      .andWhere('subscription.status = :status', {
-        status: StatusSubscription.ACTIVE,
-      })
-      .getCount();
-    if (activeSubscriptionsCount > 0)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message:
-          'No se puede desactivar el servicio porque tiene suscripciones activas asociadas',
-      });
-  }
-
-  async isValidSubscriptionService(
-    subscriptionsServiceId: string,
-  ): Promise<SubscriptionsService> {
-    const subscriptionsService =
-      await this.subscriptionsServicesRepository.findOne({
-        where: {
-          subscriptionsServiceId: subscriptionsServiceId.trim(),
-          isActive: true,
-        },
-      });
-    if (!subscriptionsService)
-      throw new RpcException({
-        status: HttpStatus.NOT_FOUND,
-        message: `Servicio de suscripción con ID '${subscriptionsServiceId}' no encontrado o inactivo`,
-      });
-    return subscriptionsService;
-  }
-
-  async validateSubscriptionServicesExist(
-    subscriptionServiceIds: string[],
-  ): Promise<SubscriptionsService[]> {
-    const uniqueServiceIds = [...new Set(subscriptionServiceIds)];
-    const existingServices = await this.subscriptionsServicesRepository.find({
-      where: {
-        subscriptionsServiceId: In(uniqueServiceIds),
-        isActive: true,
-      },
-    });
-
-    const existingIds = new Set(
-      existingServices.map((s) => s.subscriptionsServiceId),
-    );
-    const missingIds = uniqueServiceIds.filter((id) => !existingIds.has(id));
-
-    if (missingIds.length > 0)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: `Servicios de suscripción no encontrados o inactivos: ${missingIds.join(', ')}`,
-      });
-
-    return existingServices;
   }
 }

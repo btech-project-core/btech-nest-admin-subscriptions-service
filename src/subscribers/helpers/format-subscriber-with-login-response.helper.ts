@@ -11,7 +11,11 @@ export const formatSubscriberWithLoginResponse = (
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,
     isTwoFactorEnabled: subscriber.isTwoFactorEnabled,
-    roles: subscriber.subscriberRoles.map((role) => role.role.code),
+    roles:
+      subscriber.subscribersSubscriptionDetails?.flatMap(
+        (subDetail) =>
+          subDetail.subscriberRoles?.map((role) => role.role.code) || [],
+      ) || [],
   };
   return {
     ...baseResponse,

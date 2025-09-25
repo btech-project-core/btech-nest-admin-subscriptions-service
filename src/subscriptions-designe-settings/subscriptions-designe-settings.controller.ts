@@ -1,10 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { SubscriptionsDesigneSettingsService } from './subscriptions-designe-settings.service';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
   FindByDomainOrSubscriptionDetailIdDto,
   FindByDomainOrSubscriptionDetailIdResponseDto,
 } from './dto/find-by-domain-or-subscription-detail-id.dto';
+import { SubscriptionsDesigneSettingsService } from './services/subscriptions-designe-settings.service';
 
 @Controller()
 export class SubscriptionsDesigneSettingsController {

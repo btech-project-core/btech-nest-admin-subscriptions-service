@@ -1,5 +1,5 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
-import { SubscribersService } from './subscribers.service';
+import { SubscribersService } from './services/subscribers.service';
 import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   FindSubscribersWithNaturalPersonsRequest,
@@ -14,7 +14,7 @@ import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
 import { FindSubscribersWithNaturalPersonsResponseDto } from 'src/common/dto/grpc-response.dto';
-import { RegisterSubscriberResponseDto } from './dto/register-subscriber.dto';
+import { CreateSubscriberResponseDto } from './dto/create-subscriber.dto';
 
 @Controller()
 export class SubscribersController {
@@ -32,8 +32,8 @@ export class SubscribersController {
   @GrpcMethod('SubscribersService', 'RegisterSubscriber')
   async registerSubscriber(
     data: RegisterSubscriberRequest,
-  ): Promise<RegisterSubscriberResponseDto> {
-    return await this.subscribersService.registerSubscriber(data);
+  ): Promise<CreateSubscriberResponseDto> {
+    return await this.subscribersService.create(data);
   }
 
   @GrpcMethod('SubscribersService', 'FindUserByUsername')
@@ -68,10 +68,7 @@ export class SubscribersController {
 
   @GrpcMethod('SubscribersService', 'UpdateUser')
   async updateUser(data: UpdateUserRequest): Promise<UserProfileResponseDto> {
-    return await this.subscribersService.updateSubscriber(
-      data.subscriberId,
-      data,
-    );
+    return await this.subscribersService.update(data.subscriberId, data);
   }
 
   @GrpcMethod('SubscribersService', 'GetSubscriberCompleteInfo')

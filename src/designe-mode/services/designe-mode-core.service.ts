@@ -1,33 +1,35 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DesignerMode } from './entities/designe-mode.entity';
 import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
+import { DesignerMode } from '../entities/designe-mode.entity';
 import {
   CreateDesigneModeDto,
   CreateDesigneModeResponseDto,
-} from './dto/create-designe-mode.dto';
+} from '../dto/create-designe-mode.dto';
 import {
   UpdateDesigneModeDto,
   UpdateDesigneModeResponseDto,
-} from './dto/update-designe-mode.dto';
+} from '../dto/update-designe-mode.dto';
 import {
   FindAllDesigneModeDto,
   FindAllDesigneModeResponseDto,
-} from './dto/find-all-designe-mode.dto';
+} from '../dto/find-all-designe-mode.dto';
 import {
   UpdateDesigneModeStatusDto,
   UpdateDesigneModeStatusResponseDto,
-} from './dto/update-designe-mode-status.dto';
-import { formatDesigneModeResponse } from './helpers/format-designe-mode-response.helper';
+} from '../dto/update-designe-mode-status.dto';
+import { formatDesigneModeResponse } from '../helpers/format-designe-mode-response.helper';
 import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
+import { DesigneModeCustomService } from './designe-mode-custom.service';
 
 @Injectable()
-export class DesigneModeService {
+export class DesigneModeCoreService {
   constructor(
     @InjectRepository(DesignerMode)
     private readonly designerModeRepository: Repository<DesignerMode>,
+    private readonly designeModeCustomService: DesigneModeCustomService,
   ) {}
 
   async create(
@@ -111,50 +113,16 @@ export class DesigneModeService {
   ): Promise<UpdateDesigneModeStatusResponseDto> {
     const { designerModeId, isActive } = updateDesigneModeStatusDto;
     const existingDesignerMode = await this.findOne(designerModeId);
-
-    if (!isActive) await this.relatedDesigneSettings(designerModeId);
-
+    if (!isActive)
+      await this.designeModeCustomService.relatedDesigneSettings(
+        designerModeId,
+      );
     await this.designerModeRepository.update(designerModeId, {
       isActive,
     });
-
     const statusMessage = isActive ? 'activado' : 'desactivado';
     return {
       message: `Modo de diseño '${existingDesignerMode.description}' ${statusMessage} exitosamente`,
     };
-  }
-
-  private async relatedDesigneSettings(designerModeId: string): Promise<void> {
-    const relatedSettingsCount = await this.designerModeRepository
-      .createQueryBuilder('designerMode')
-      .innerJoin(
-        'designerMode.subscriptionsDesigneSetting',
-        'subscriptionsDesigneSetting',
-      )
-      .where('designerMode.designerModeId = :designerModeId', {
-        designerModeId,
-      })
-      .andWhere('subscriptionsDesigneSetting.isActive = true')
-      .andWhere('designerMode.isActive = true')
-      .getCount();
-
-    if (relatedSettingsCount > 0)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message:
-          'No se puede desactivar el modo de diseño porque tiene configuraciones asociadas',
-      });
-  }
-
-  async isValidDesignerMode(designerModeId: string) {
-    const designerMode = await this.designerModeRepository.findOne({
-      where: { designerModeId, isActive: true },
-    });
-    if (!designerMode)
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: `Modo de diseño con ID ${designerModeId} no encontrado o inactivo`,
-      });
-    return designerMode;
   }
 }

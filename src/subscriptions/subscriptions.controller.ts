@@ -1,6 +1,6 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SubscriptionsService } from './subscriptions.service';
+import { SubscriptionsService } from './services/subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { FindAllSubscriptionDto } from './dto/find-all-subscription.dto';
 import { UserValidationRresponseDto } from 'src/common/dto/user-validation.dto';
