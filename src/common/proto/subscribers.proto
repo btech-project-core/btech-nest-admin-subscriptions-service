@@ -19,6 +19,7 @@ message RegisterSubscriberRequest {
   string password = 2;
   string naturalPersonId = 3;
   string domain = 4;
+  string service = 5;
 }
 
 message RegisterSubscriberResponse {

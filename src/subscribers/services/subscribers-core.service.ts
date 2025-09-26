@@ -10,17 +10,17 @@ import {
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { RolesCustomService } from 'src/roles/services/roles-custom.service';
 import { SubscribersAuthService } from './subscribers-auth.service';
-import { SubscriptionsBussinesCoreService } from 'src/subscriptions-bussines/services/subscriptions-bussines-core.service';
 import { SubscriberRoleCoreService } from './subscriber-role-core.service';
 import { SubscriptionsDetailCustomService } from '../../subscriptions-detail/services/subscriptions-detail-custom.service';
 import { SubscribersSubscriptionDetailCoreService } from '../../subscribers-subscription-detail/services/subscribers-subscription-detail-core.service';
+import { SubscriptionsBussinesCustomService } from 'src/subscriptions-bussines/services/subscriptions-bussines-custom.service';
 
 @Injectable()
 export class SubscribersCoreService {
   constructor(
     @InjectRepository(Subscriber)
     private readonly subscriberRepository: Repository<Subscriber>,
-    private readonly subscriptionsBussinesCoreService: SubscriptionsBussinesCoreService,
+    private readonly subscriptionsBussinesCustomService: SubscriptionsBussinesCustomService,
     private readonly subscriberRoleCoreService: SubscriberRoleCoreService,
     private readonly subscriptionsDetailCustomService: SubscriptionsDetailCustomService,
     private readonly subscribersSubscriptionDetailCoreService: SubscribersSubscriptionDetailCoreService,
@@ -31,21 +31,16 @@ export class SubscribersCoreService {
   async create(
     createSubscriberDto: CreateSubscriberDto,
   ): Promise<CreateSubscriberResponseDto> {
-    const {
-      username,
-      password,
-      naturalPersonId,
-      subscriptionBussineId,
-      service,
-    } = createSubscriberDto;
+    const { username, password, naturalPersonId, domain, service } =
+      createSubscriberDto;
     const subscriptionsBussine =
-      await this.subscriptionsBussinesCoreService.findOne(
-        subscriptionBussineId,
+      await this.subscriptionsBussinesCustomService.findOneByDomainOrTenantId(
+        domain,
       );
     // Encontrar y validar el subscriptionDetail específico por subscriptionBussineId y service
     const targetSubscriptionDetail =
       await this.subscriptionsDetailCustomService.findOneByBussineIdAndService(
-        subscriptionBussineId,
+        subscriptionsBussine.subscriptionBussineId,
         service,
       );
     const role = await this.rolesCustomService.findOneByCode('CLI');

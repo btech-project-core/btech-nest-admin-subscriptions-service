@@ -24,10 +24,6 @@ export class CreateSubscriberDto {
   })
   domain: string;
 
-  @IsNotEmpty({ message: 'El subscriptionBussineId es requerido' })
-  @IsString({ message: 'El subscriptionBussineId debe ser un texto válido' })
-  subscriptionBussineId: string;
-
   @IsEnum(CodeService, { message: 'El campo service debe ser: VDI, STO, SUP' })
   @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })
   service: CodeService;

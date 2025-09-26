@@ -2,11 +2,11 @@ import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { SubscribersService } from './services/subscribers.service';
 import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
+  CreateSubscriberRequest,
   FindSubscribersWithNaturalPersonsRequest,
   FindUserByIdRequest,
   FindUserByUsernameRequest,
   GetSubscriberCompleteInfoRequest,
-  RegisterSubscriberRequest,
   UpdateUserRequest,
 } from 'src/common/dto/grpc-request.dto';
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
@@ -31,7 +31,7 @@ export class SubscribersController {
 
   @GrpcMethod('SubscribersService', 'RegisterSubscriber')
   async registerSubscriber(
-    data: RegisterSubscriberRequest,
+    data: CreateSubscriberRequest,
   ): Promise<CreateSubscriberResponseDto> {
     return await this.subscribersService.create(data);
   }

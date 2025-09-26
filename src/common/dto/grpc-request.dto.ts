@@ -100,7 +100,7 @@ export class FindSubscribersWithNaturalPersonsRequest {
   limit?: number;
 }
 
-export class RegisterSubscriberRequest {
+export class CreateSubscriberRequest {
   @IsString({
     message: 'El campo username debe ser una cadena de caracteres.',
   })
@@ -126,12 +126,6 @@ export class RegisterSubscriberRequest {
   })
   @IsNotEmpty({ message: 'El campo domain no puede estar vacío.' })
   domain: string;
-
-  @IsString({
-    message: 'El campo subscriptionBussineId debe ser una cadena de caracteres.',
-  })
-  @IsNotEmpty({ message: 'El campo subscriptionBussineId no puede estar vacío.' })
-  subscriptionBussineId: string;
 
   @IsEnum(CodeService, { message: 'El campo service debe ser: VDI, STO, SUP' })
   @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })

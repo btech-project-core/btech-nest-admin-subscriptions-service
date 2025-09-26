@@ -13,9 +13,10 @@ import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-deta
 
 @Entity({ name: 'subscriber' })
 @Unique('UQ_subscriber_naturalperson_business', [
-  'naturalPersonId',
   'subscriptionsBussine',
+  'naturalPersonId',
 ])
+@Unique('UQ_subscriber_username_business', ['subscriptionsBussine', 'username'])
 export class Subscriber extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriberId: string;

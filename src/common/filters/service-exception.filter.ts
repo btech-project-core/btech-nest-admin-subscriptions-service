@@ -140,8 +140,14 @@ export class ServiceExceptionFilter implements ExceptionFilter {
         /Duplicate entry '(.+?)' for key '(.+?)'/,
       );
       if (match) {
-        const duplicateValue = match[1];
+        let duplicateValue = match[1];
         const keyName = match[2];
+        // Si el valor duplicado contiene un UUID (36 caracteres + guiones)
+        // lo removemos asumiendo que es el tenantId
+        const uuidRegex =
+          /^(.+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const cleanMatch = duplicateValue.match(uuidRegex);
+        if (cleanMatch) duplicateValue = cleanMatch[1];
         message = [
           `El valor '${duplicateValue}' ya existe. No se permiten duplicados.`,
         ];

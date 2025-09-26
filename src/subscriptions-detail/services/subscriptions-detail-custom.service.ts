@@ -45,14 +45,11 @@ export class SubscriptionsDetailCustomService {
       .andWhere('ss.code = :serviceCode', { serviceCode })
       .andWhere('s.status = :status', { status: StatusSubscription.ACTIVE })
       .getOne();
-
-    if (!subscriptionDetail) {
+    if (!subscriptionDetail)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: `No se encontró configuración activa para el servicio ${serviceCode} en la suscripción ${subscriptionBussineId}`,
       });
-    }
-
     return subscriptionDetail;
   }
 }
