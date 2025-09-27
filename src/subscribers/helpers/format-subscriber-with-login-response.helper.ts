@@ -1,12 +1,14 @@
 import { NaturalPersonResponseDto } from 'src/common/dto/natural-person.dto';
 import { Subscriber } from '../entities/subscriber.entity';
 import { PersonResponseDto } from 'src/common/dto/person.dto';
+import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 
 export const formatSubscriberWithLoginResponse = (
   subscriber: Subscriber,
   naturalPerson: NaturalPersonResponseDto,
   subscriptionPersonData: PersonResponseDto,
-) => {
+  autoLogin: boolean,
+): UserProfileResponseDto => {
   const baseResponse = {
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,
@@ -16,6 +18,7 @@ export const formatSubscriberWithLoginResponse = (
         (subDetail) =>
           subDetail.subscriberRoles?.map((role) => role.role.code) || [],
       ) || [],
+    autoLogin,
   };
   return {
     ...baseResponse,

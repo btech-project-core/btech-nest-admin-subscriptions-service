@@ -12,6 +12,7 @@ import { CodeService } from 'src/common/enums/code-service.enum';
 import { CodeFeatures } from 'src/common/enums/code-features.enum';
 import { envs } from 'src/config/envs.config';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
+import { SubscriptionsDetailFeaturesService } from 'src/subscriptions-detail/services/subscriptions-detail-features.service';
 
 @Injectable()
 export class SubscribersAuthService {
@@ -19,6 +20,7 @@ export class SubscribersAuthService {
     @InjectRepository(Subscriber)
     private readonly subscriberRepository: Repository<Subscriber>,
     private readonly adminPersonsService: AdminPersonsService,
+    private readonly subscriptionsDetailFeaturesService: SubscriptionsDetailFeaturesService,
   ) {}
 
   async findOneByUsername(
@@ -168,6 +170,13 @@ export class SubscribersAuthService {
         message: `El usuario no se encuentra registrado`,
       });
 
+    const autoLogin = await this.subscriptionsDetailFeaturesService.isAutoLogin(
+      subscriber.subscriberId,
+      subscriber.subscriptionsBussine.subscriptionDetail[0]
+        .subscriptionDetailId,
+      subscriber.subscriptionsBussine.subscriptionBussineId,
+    );
+
     const subscriberNaturalPerson =
       await this.adminPersonsService.findOneNaturalPersonBySubscriberId(
         subscriber.naturalPersonId,
@@ -181,6 +190,7 @@ export class SubscribersAuthService {
       subscriber,
       subscriberNaturalPerson,
       subscriptionPersonData,
+      autoLogin,
     );
   }
 }

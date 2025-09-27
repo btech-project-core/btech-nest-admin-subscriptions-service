@@ -122,8 +122,9 @@ message UserProfileResponse {
   string username = 2;
   bool isTwoFactorEnabled = 3;
   repeated string roles = 4;
-  NaturalPerson naturalPerson = 5;
-  SubscriptionInfo subscription = 6;
+  bool autoLogin = 5;
+  NaturalPerson naturalPerson = 6;
+  SubscriptionInfo subscription = 7;
 }
 
 message FindByDomainOrSubscriptionDetailIdRequest {

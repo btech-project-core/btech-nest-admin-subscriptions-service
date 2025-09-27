@@ -23,6 +23,10 @@ import { SubscriptionsDetailCustomService } from './services/subscriptions-detai
     SubscriptionsDetailCoreService,
     SubscriptionsDetailCustomService,
   ],
-  exports: [SubscriptionsDetailService, SubscriptionsDetailCustomService],
+  exports: [
+    SubscriptionsDetailService,
+    SubscriptionsDetailCustomService,
+    SubscriptionsDetailFeaturesService,
+  ],
 })
 export class SubscriptionsDetailModule {}

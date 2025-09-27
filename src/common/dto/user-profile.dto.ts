@@ -23,4 +23,5 @@ export class UserProfileResponseDto {
     url?: string | null;
     person: PersonResponseDto;
   };
+  autoLogin: boolean;
 }

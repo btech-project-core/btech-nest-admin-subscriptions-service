@@ -51,4 +51,51 @@ export class SubscriptionsDetailFeaturesService {
     const domains = subscriptionDetailFeatures.map((data) => data.value);
     return { domains };
   }
+
+  async isAutoLogin(
+    subscriberId: string,
+    subscriptionDetailId: string,
+    subscriptionBussineId: string,
+  ): Promise<boolean> {
+    const item = await this.subscriptionsDetailFeaturesRepository
+      .createQueryBuilder('subscriptionDetailFeatures')
+      .innerJoin(
+        'subscriptionDetailFeatures.subscriptionFeatures',
+        'subscriptionFeatures',
+      )
+      .innerJoin(
+        'subscriptionDetailFeatures.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .innerJoin(
+        'subscriptionDetail.subscriptionsBussine',
+        'subscriptionsBussine',
+      )
+      .innerJoin('subscriptionsBussine.subscriber', 'subscriber')
+      .innerJoin('subscriptionsBussine.subscription', 'subscription')
+      .where('subscription.status = :status', {
+        status: StatusSubscription.ACTIVE,
+      })
+      .andWhere(
+        'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+        {
+          subscriptionDetailId,
+        },
+      )
+      .andWhere(
+        'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
+        {
+          subscriptionBussineId,
+        },
+      )
+      .andWhere('subscriber.subscriberId = :subscriberId', {
+        subscriberId,
+      })
+      .andWhere('subscriptionFeatures.code= :codeFeature', {
+        codeFeature: CodeFeatures.AULOG,
+      })
+      .getOne();
+    if (item && item.value === '1') return true;
+    return false;
+  }
 }

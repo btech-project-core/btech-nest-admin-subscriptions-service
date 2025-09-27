@@ -24,6 +24,7 @@ import { SubscribersSubscriptionDetailModule } from 'src/subscribers-subscriptio
     SubscriptionsDetailModule,
     SubscribersSubscriptionDetailModule,
     RolesModule,
+    SubscriptionsDetailModule,
   ],
   controllers: [SubscribersController],
   providers: [
