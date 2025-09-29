@@ -27,6 +27,7 @@ import { SubscriptionsDetailCustomService } from './services/subscriptions-detai
     SubscriptionsDetailService,
     SubscriptionsDetailCustomService,
     SubscriptionsDetailFeaturesService,
+    SubscriptionsDetailFeaturesService,
   ],
 })
 export class SubscriptionsDetailModule {}
