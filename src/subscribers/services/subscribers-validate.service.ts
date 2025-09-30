@@ -34,4 +34,16 @@ export class SubscribersValidateService {
       });
     return true;
   }
+
+  async isValidByNaturalPersonId(naturalPersonId: string): Promise<string> {
+    const subscriber = await this.subscriberRepository.findOne({
+      where: { naturalPersonId },
+    });
+    if (!subscriber)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `No se encuentra el usuario con el código de acceso: ${naturalPersonId}`,
+      });
+    return subscriber.username;
+  }
 }

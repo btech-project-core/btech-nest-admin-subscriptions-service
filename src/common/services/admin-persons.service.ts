@@ -53,4 +53,12 @@ export class AdminPersonsService {
       findMultipleDto,
     );
   }
+
+  async isValidDocumentNumberForUser(
+    documentNumber: string,
+  ): Promise<{ naturalPersonId: string }> {
+    return this.client.send('person.isValidDocumentNumberForUser', {
+      documentNumber,
+    });
+  }
 }

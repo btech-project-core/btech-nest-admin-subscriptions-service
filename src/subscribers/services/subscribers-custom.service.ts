@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { Subscriber } from '../entities/subscriber.entity';
 import { FindOneSubscriberByIdResponseDto } from '../dto/find-one-subscriber-by-id.dto';
@@ -11,6 +11,8 @@ import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.
 import { CodeService } from 'src/common/enums/code-service.enum';
 import { SERVICE_NAME } from 'src/config/constants';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
+import { envs } from 'src/config/envs.config';
+import { CodeFeatures } from 'src/common/enums/code-features.enum';
 
 @Injectable()
 export class SubscribersCustomService {
@@ -116,5 +118,77 @@ export class SubscribersCustomService {
       subscriberNaturalPerson,
       subscriptionPersonData,
     );
+  }
+
+  async querySubscriberByUsername(
+    username: string,
+    domain: string,
+    service: CodeService,
+  ): Promise<Subscriber | null> {
+    const queryBuilder =
+      this.subscriberRepository.createQueryBuilder('subscriber');
+    queryBuilder
+      .leftJoinAndSelect(
+        'subscriber.subscriptionsBussine',
+        'subscriptionsBussine',
+      )
+      .leftJoinAndSelect(
+        'subscriptionsBussine.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionsDesigneSetting',
+        'subscriptionsDesigneSetting',
+      )
+      .leftJoinAndSelect(
+        'subscriber.subscribersSubscriptionDetails',
+        'subscribersSubscriptionDetails',
+      )
+      .leftJoinAndSelect(
+        'subscribersSubscriptionDetails.subscriberRoles',
+        'subscriberRoles',
+      )
+      .leftJoinAndSelect('subscriberRoles.role', 'role')
+      .where('subscriber.username = :username', { username })
+      .andWhere('subscriptionsService.code = :service', { service })
+      .andWhere(
+        'subscribersSubscriptionDetails.subscriptionDetail = subscriptionDetail.subscriptionDetailId',
+      )
+      .andWhere('subscribersSubscriptionDetails.isActive = :isActive', {
+        isActive: true,
+      })
+      .andWhere('subscriberRoles.isActive = :roleActive', { roleActive: true });
+
+    if (service === CodeService.VDI && domain !== envs.domain.principal) {
+      queryBuilder
+        .leftJoinAndSelect(
+          'subscriptionDetail.subscriptionDetailFeatures',
+          'subscriptionDetailFeatures',
+        )
+        .leftJoinAndSelect(
+          'subscriptionDetailFeatures.subscriptionFeatures',
+          'subscriptionFeatures',
+        );
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where(
+            'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+            { subscriptionDetailId: domain },
+          ).orWhere(
+            'subscriptionFeatures.code = :code AND subscriptionDetailFeatures.value = :domain',
+            {
+              code: CodeFeatures.DOM,
+              domain: domain,
+            },
+          );
+        }),
+      );
+    }
+    return await queryBuilder.getOne();
   }
 }

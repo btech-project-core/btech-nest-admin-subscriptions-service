@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { Subscriber } from '../entities/subscriber.entity';
 import { FindOneUsernameResponseDto } from '../dto/find-one-username.dto';
@@ -9,10 +9,10 @@ import { formatSubscriberWithLoginResponse } from '../helpers/format-subscriber-
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 import { CodeService } from 'src/common/enums/code-service.enum';
-import { CodeFeatures } from 'src/common/enums/code-features.enum';
-import { envs } from 'src/config/envs.config';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
 import { SubscriptionsDetailFeaturesService } from 'src/subscriptions-detail/services/subscriptions-detail-features.service';
+import { SubscribersCustomService } from './subscribers-custom.service';
+import { SubscribersValidateService } from './subscribers-validate.service';
 
 @Injectable()
 export class SubscribersAuthService {
@@ -21,6 +21,8 @@ export class SubscribersAuthService {
     private readonly subscriberRepository: Repository<Subscriber>,
     private readonly adminPersonsService: AdminPersonsService,
     private readonly subscriptionsDetailFeaturesService: SubscriptionsDetailFeaturesService,
+    private readonly subscribersCustomService: SubscribersCustomService,
+    private readonly subscribersValidateService: SubscribersValidateService,
   ) {}
 
   async findOneByUsername(
@@ -28,76 +30,31 @@ export class SubscribersAuthService {
     domain: string,
     service: CodeService,
   ): Promise<FindOneUsernameResponseDto> {
-    const queryBuilder =
-      this.subscriberRepository.createQueryBuilder('subscriber');
-    queryBuilder
-      .leftJoinAndSelect(
-        'subscriber.subscriptionsBussine',
-        'subscriptionsBussine',
-      )
-      .leftJoinAndSelect(
-        'subscriptionsBussine.subscriptionDetail',
-        'subscriptionDetail',
-      )
-      .leftJoinAndSelect(
-        'subscriptionDetail.subscriptionsService',
-        'subscriptionsService',
-      )
-      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
-      .leftJoinAndSelect(
-        'subscriptionDetail.subscriptionsDesigneSetting',
-        'subscriptionsDesigneSetting',
-      )
-      .leftJoinAndSelect(
-        'subscriber.subscribersSubscriptionDetails',
-        'subscribersSubscriptionDetails',
-      )
-      .leftJoinAndSelect(
-        'subscribersSubscriptionDetails.subscriberRoles',
-        'subscriberRoles',
-      )
-      .leftJoinAndSelect('subscriberRoles.role', 'role')
-      .where('subscriber.username = :username', { username })
-      .andWhere('subscriptionsService.code = :service', { service })
-      .andWhere(
-        'subscribersSubscriptionDetails.subscriptionDetail = subscriptionDetail.subscriptionDetailId',
-      )
-      .andWhere('subscribersSubscriptionDetails.isActive = :isActive', {
-        isActive: true,
-      })
-      .andWhere('subscriberRoles.isActive = :roleActive', { roleActive: true });
-
-    if (service === CodeService.VDI && domain !== envs.domain.principal) {
-      queryBuilder
-        .leftJoinAndSelect(
-          'subscriptionDetail.subscriptionDetailFeatures',
-          'subscriptionDetailFeatures',
-        )
-        .leftJoinAndSelect(
-          'subscriptionDetailFeatures.subscriptionFeatures',
-          'subscriptionFeatures',
-        );
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where(
-            'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
-            { subscriptionDetailId: domain },
-          ).orWhere(
-            'subscriptionFeatures.code = :code AND subscriptionDetailFeatures.value = :domain',
-            {
-              code: CodeFeatures.DOM,
-              domain: domain,
-            },
-          );
-        }),
+    let subscriber =
+      await this.subscribersCustomService.querySubscriberByUsername(
+        username,
+        domain,
+        service,
       );
+    if (!subscriber) {
+      const isValidWithDocumentNumber =
+        await this.adminPersonsService.isValidDocumentNumberForUser(username);
+      const newUsername =
+        await this.subscribersValidateService.isValidByNaturalPersonId(
+          isValidWithDocumentNumber.naturalPersonId,
+        );
+      console.log(`newUsername: ${newUsername}`);
+      subscriber =
+        await this.subscribersCustomService.querySubscriberByUsername(
+          newUsername,
+          domain,
+          service,
+        );
     }
-
-    const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `No se encuentra el usuario con el código de acceso: ${username}`,
+        message: `El usuario con el código de acceso: ${username} no existe`,
       });
     if (
       subscriber.subscriptionsBussine.subscription.status !==
@@ -107,6 +64,7 @@ export class SubscribersAuthService {
         status: HttpStatus.UNAUTHORIZED,
         message: 'El usuario se encuentra sin suscripción activa',
       });
+
     return formatFindOneUsernameResponse(subscriber);
   }
 
