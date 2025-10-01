@@ -201,7 +201,7 @@ export class SubscribersCustomService {
 
     const subscribersSince30Sep = await this.subscriberRepository
       .createQueryBuilder('subscriber')
-      .select(['subscriber.subscriberId', 'subscriber.createdAt'])
+      .select(['subscriber.username', 'subscriber.createdAt'])
       .where('subscriber.createdAt >= :startDate', {
         startDate: '2025-09-30 00:00:00',
       })
@@ -218,9 +218,9 @@ export class SubscribersCustomService {
       };
     }
 
-    console.log('[MAPEO] Extrayendo IDs...');
-    const subscriberIds = subscribersSince30Sep.map((sub) => sub.subscriberId);
-    console.log(`[MAPEO COMPLETADO] ${subscriberIds.length} IDs`);
+    console.log('[MAPEO] Extrayendo usernames...');
+    const usernames = subscribersSince30Sep.map((sub) => sub.username);
+    console.log(`[MAPEO COMPLETADO] ${usernames.length} usernames`);
 
     // Guardar el JSON
     console.log('[GUARDANDO JSON] Escribiendo archivo...');
@@ -232,13 +232,13 @@ export class SubscribersCustomService {
       'subscribers-since-sept-30.json',
     );
 
-    await fs.writeFile(outputPath, JSON.stringify(subscriberIds, null, 2));
+    await fs.writeFile(outputPath, JSON.stringify(usernames, null, 2));
     console.log(
       `[JSON GUARDADO] Archivo guardado en ${outputPath} (${Date.now() - startFile}ms)`,
     );
 
     return {
-      message: `Se encontraron ${subscribersSince30Sep.length} subscribers registrados desde el 30 de septiembre. IDs guardados en: ${outputPath}`,
+      message: `Se encontraron ${subscribersSince30Sep.length} subscribers registrados desde el 30 de septiembre. Usernames guardados en: ${outputPath}`,
     };
   }
 }
