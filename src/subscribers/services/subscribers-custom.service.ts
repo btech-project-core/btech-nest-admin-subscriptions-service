@@ -193,12 +193,21 @@ export class SubscribersCustomService {
   }
 
   async deleteSubscribersAlternal(): Promise<{ message: string }> {
-    console.log('[INICIO] Obteniendo IDs de naturalPersons válidos...');
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    console.log('[INICIO] Cargando IDs de naturalPersons desde JSON...');
     const startNP = Date.now();
-    const validNaturalPersonIds =
-      await this.adminPersonsService.findAllNaturalPersonIds();
+    const jsonPath = path.join(
+      process.cwd(),
+      'src',
+      'json-backups',
+      'natural-person-ids-export.json',
+    );
+    const jsonContent = await fs.readFile(jsonPath, 'utf-8');
+    const validNaturalPersonIds: string[] = JSON.parse(jsonContent);
     console.log(
-      `[NATURAL_PERSONS] ${validNaturalPersonIds.length} IDs válidos obtenidos en ${Date.now() - startNP}ms`,
+      `[NATURAL_PERSONS] ${validNaturalPersonIds.length} IDs cargados desde JSON en ${Date.now() - startNP}ms`,
     );
 
     console.log('[QUERY] Obteniendo todos los subscribers...');
@@ -235,8 +244,6 @@ export class SubscribersCustomService {
     // Guardar el JSON ANTES de eliminar
     console.log('[GUARDANDO JSON] Escribiendo archivo...');
     const startFile = Date.now();
-    const fs = await import('fs/promises');
-    const path = await import('path');
     const outputPath = path.join(
       process.cwd(),
       'deleted-subscribers-alternal.json',
