@@ -196,85 +196,49 @@ export class SubscribersCustomService {
     const fs = await import('fs/promises');
     const path = await import('path');
 
-    console.log('[INICIO] Cargando IDs de naturalPersons desde JSON...');
-    const startNP = Date.now();
-    const jsonPath = path.join(
-      process.cwd(),
-      'src',
-      'json-backups',
-      'natural-person-ids-export.json',
-    );
-    const jsonContent = await fs.readFile(jsonPath, 'utf-8');
-    const validNaturalPersonIds: string[] = JSON.parse(jsonContent);
-    console.log(
-      `[NATURAL_PERSONS] ${validNaturalPersonIds.length} IDs cargados desde JSON en ${Date.now() - startNP}ms`,
-    );
-
-    console.log('[QUERY] Obteniendo todos los subscribers...');
+    console.log('[INICIO] Obteniendo subscribers desde el 30 de septiembre...');
     const startQuery = Date.now();
-    const allSubscribers = await this.subscriberRepository.find({
-      select: ['subscriberId', 'naturalPersonId'],
-    });
+
+    const subscribersSince30Sep = await this.subscriberRepository
+      .createQueryBuilder('subscriber')
+      .select(['subscriber.subscriberId', 'subscriber.createdAt'])
+      .where('subscriber.createdAt >= :startDate', {
+        startDate: '2025-09-30 00:00:00',
+      })
+      .orderBy('subscriber.createdAt', 'ASC')
+      .getMany();
+
     console.log(
-      `[QUERY COMPLETADO] ${allSubscribers.length} subscribers obtenidos en ${Date.now() - startQuery}ms`,
+      `[QUERY COMPLETADO] ${subscribersSince30Sep.length} subscribers encontrados en ${Date.now() - startQuery}ms`,
     );
 
-    console.log('[FILTRADO] Buscando subscribers huérfanos...');
-    const startFilter = Date.now();
-    const validNaturalPersonIdsSet = new Set(validNaturalPersonIds);
-    const orphanedSubscribers = allSubscribers.filter(
-      (subscriber) => !validNaturalPersonIdsSet.has(subscriber.naturalPersonId),
-    );
-    console.log(
-      `[FILTRADO COMPLETADO] ${orphanedSubscribers.length} huérfanos encontrados en ${Date.now() - startFilter}ms`,
-    );
-
-    if (orphanedSubscribers.length === 0) {
+    if (subscribersSince30Sep.length === 0) {
       return {
-        message: 'No se encontraron subscribers huérfanos para eliminar',
+        message: 'No se encontraron subscribers desde el 30 de septiembre',
       };
     }
 
     console.log('[MAPEO] Extrayendo IDs...');
-    const orphanedSubscriberIds = orphanedSubscribers.map(
-      (sub) => sub.subscriberId,
-    );
-    console.log(`[MAPEO COMPLETADO] ${orphanedSubscriberIds.length} IDs`);
+    const subscriberIds = subscribersSince30Sep.map((sub) => sub.subscriberId);
+    console.log(`[MAPEO COMPLETADO] ${subscriberIds.length} IDs`);
 
-    // Guardar el JSON ANTES de eliminar
+    // Guardar el JSON
     console.log('[GUARDANDO JSON] Escribiendo archivo...');
     const startFile = Date.now();
     const outputPath = path.join(
       process.cwd(),
-      'deleted-subscribers-alternal.json',
+      'src',
+      'json-backups',
+      'subscribers-since-sept-30.json',
     );
 
-    await fs.writeFile(
-      outputPath,
-      JSON.stringify(orphanedSubscriberIds, null, 2),
-    );
+    await fs.writeFile(outputPath, JSON.stringify(subscriberIds, null, 2));
     console.log(
       `[JSON GUARDADO] Archivo guardado en ${outputPath} (${Date.now() - startFile}ms)`,
     );
 
-    // Eliminar en batches para evitar problemas con queries muy grandes
-    console.log('[ELIMINACIÓN] Iniciando eliminación en batches...');
-    const startDelete = Date.now();
-    const batchSize = 1000;
-    for (let i = 0; i < orphanedSubscriberIds.length; i += batchSize) {
-      const batchStart = Date.now();
-      const batch = orphanedSubscriberIds.slice(i, i + batchSize);
-      await this.subscriberRepository.delete(batch);
-      console.log(
-        `[BATCH ${Math.floor(i / batchSize) + 1}] Eliminados ${Math.min(i + batchSize, orphanedSubscriberIds.length)}/${orphanedSubscriberIds.length} subscribers (${Date.now() - batchStart}ms)`,
-      );
-    }
-    console.log(
-      `[ELIMINACIÓN COMPLETADA] Total: ${Date.now() - startDelete}ms`,
-    );
-
     return {
-      message: `Se eliminaron ${orphanedSubscribers.length} subscribers huérfanos (sin naturalPerson válido). IDs guardados en: ${outputPath}`,
+      message: `Se encontraron ${subscribersSince30Sep.length} subscribers registrados desde el 30 de septiembre. IDs guardados en: ${outputPath}`,
     };
   }
 }
