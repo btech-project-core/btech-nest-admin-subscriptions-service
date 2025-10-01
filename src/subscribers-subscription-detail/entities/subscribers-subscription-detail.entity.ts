@@ -24,6 +24,7 @@ export class SubscribersSubscriptionDetail extends Timestamped {
   @ManyToOne(
     () => Subscriber,
     (subscriber) => subscriber.subscribersSubscriptionDetails,
+    { onDelete: 'CASCADE' },
   )
   @JoinColumn({ name: 'subscriberId' })
   subscriber: Subscriber;
@@ -44,6 +45,7 @@ export class SubscribersSubscriptionDetail extends Timestamped {
   @OneToMany(
     () => SubscriberRole,
     (subscriberRole) => subscriberRole.subscribersSubscriptionDetail,
+    { onDelete: 'CASCADE' },
   )
   subscriberRoles: SubscriberRole[];
 }

@@ -91,4 +91,9 @@ export class SubscribersController {
       limit: data.limit,
     });
   }
+
+  @MessagePattern('subscribers.deleteSubscribersAlternal')
+  async deleteSubscribersAlternal(): Promise<{ message: string }> {
+    return await this.subscribersService.deleteSubscribersAlternal();
+  }
 }

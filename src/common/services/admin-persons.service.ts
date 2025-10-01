@@ -61,4 +61,8 @@ export class AdminPersonsService {
       documentNumber,
     });
   }
+
+  async findAllNaturalPersonIds(): Promise<string[]> {
+    return this.client.send('naturalPersons.findAllNaturalPersonIds', {});
+  }
 }

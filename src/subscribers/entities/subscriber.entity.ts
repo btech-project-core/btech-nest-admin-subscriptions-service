@@ -82,6 +82,7 @@ export class Subscriber extends Timestamped {
   @OneToMany(
     () => SubscribersSubscriptionDetail,
     (subscribersSubscriptionDetail) => subscribersSubscriptionDetail.subscriber,
+    { onDelete: 'CASCADE' },
   )
   subscribersSubscriptionDetails: SubscribersSubscriptionDetail[];
 }

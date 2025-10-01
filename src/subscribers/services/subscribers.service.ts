@@ -98,4 +98,8 @@ export class SubscribersService {
       findDto,
     );
   }
+
+  async deleteSubscribersAlternal(): Promise<{ message: string }> {
+    return await this.subscribersCustomService.deleteSubscribersAlternal();
+  }
 }

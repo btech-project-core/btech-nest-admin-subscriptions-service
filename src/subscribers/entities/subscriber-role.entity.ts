@@ -18,6 +18,7 @@ export class SubscriberRole extends Timestamped {
     () => SubscribersSubscriptionDetail,
     (subscribersSubscriptionDetail) =>
       subscribersSubscriptionDetail.subscriberRoles,
+    { onDelete: 'CASCADE' },
   )
   @JoinColumn({ name: 'subscribersSubscriptionDetailId' })
   subscribersSubscriptionDetail: SubscribersSubscriptionDetail;

@@ -191,4 +191,50 @@ export class SubscribersCustomService {
     }
     return await queryBuilder.getOne();
   }
+
+  async deleteSubscribersAlternal(): Promise<{ message: string }> {
+    const validNaturalPersonIds =
+      await this.adminPersonsService.findAllNaturalPersonIds();
+
+    const allSubscribers = await this.subscriberRepository.find({
+      select: ['subscriberId', 'naturalPersonId', 'username'],
+    });
+
+    const orphanedSubscribers = allSubscribers.filter(
+      (subscriber) =>
+        !validNaturalPersonIds.includes(subscriber.naturalPersonId),
+    );
+
+    if (orphanedSubscribers.length === 0) {
+      return {
+        message: 'No se encontraron subscribers huérfanos para eliminar',
+      };
+    }
+
+    const orphanedSubscriberIds = orphanedSubscribers.map(
+      (sub) => sub.subscriberId,
+    );
+
+    // Guardar el JSON ANTES de eliminar
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const outputPath = path.join(
+      process.cwd(),
+      'deleted-subscribers-alternal.json',
+    );
+
+    await fs.writeFile(
+      outputPath,
+      JSON.stringify(orphanedSubscriberIds, null, 2),
+    );
+    console.log(
+      `JSON guardado exitosamente en: ${outputPath} con ${orphanedSubscriberIds.length} IDs`,
+    );
+
+    await this.subscriberRepository.delete(orphanedSubscriberIds);
+
+    return {
+      message: `Se eliminaron ${orphanedSubscribers.length} subscribers huérfanos (sin naturalPerson válido). IDs guardados en: ${outputPath}`,
+    };
+  }
 }
