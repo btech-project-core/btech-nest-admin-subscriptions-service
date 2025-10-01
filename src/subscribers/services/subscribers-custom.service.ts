@@ -193,16 +193,23 @@ export class SubscribersCustomService {
   }
 
   async deleteSubscribersAlternal(): Promise<{ message: string }> {
-    const validNaturalPersonIds =
-      await this.adminPersonsService.findAllNaturalPersonIds();
+    console.log('[INICIO] Buscando subscribers huérfanos...');
+    const startQuery = Date.now();
 
-    const allSubscribers = await this.subscriberRepository.find({
-      select: ['subscriberId', 'naturalPersonId', 'username'],
-    });
+    // Query optimizado: encuentra subscribers huérfanos directamente en la DB
+    const orphanedSubscribers = await this.subscriberRepository
+      .createQueryBuilder('subscriber')
+      .select('subscriber.subscriberId')
+      .where(
+        `subscriber.naturalPersonId NOT IN (
+        SELECT np.naturalPersonId
+        FROM natural_person np
+      )`,
+      )
+      .getMany();
 
-    const orphanedSubscribers = allSubscribers.filter(
-      (subscriber) =>
-        !validNaturalPersonIds.includes(subscriber.naturalPersonId),
+    console.log(
+      `[QUERY COMPLETADO] Encontrados ${orphanedSubscribers.length} subscribers huérfanos en ${Date.now() - startQuery}ms`,
     );
 
     if (orphanedSubscribers.length === 0) {
@@ -211,11 +218,15 @@ export class SubscribersCustomService {
       };
     }
 
+    console.log('[MAPEO] Extrayendo IDs...');
     const orphanedSubscriberIds = orphanedSubscribers.map(
       (sub) => sub.subscriberId,
     );
+    console.log(`[MAPEO COMPLETADO] ${orphanedSubscriberIds.length} IDs`);
 
     // Guardar el JSON ANTES de eliminar
+    console.log('[GUARDANDO JSON] Escribiendo archivo...');
+    const startFile = Date.now();
     const fs = await import('fs/promises');
     const path = await import('path');
     const outputPath = path.join(
@@ -228,10 +239,24 @@ export class SubscribersCustomService {
       JSON.stringify(orphanedSubscriberIds, null, 2),
     );
     console.log(
-      `JSON guardado exitosamente en: ${outputPath} con ${orphanedSubscriberIds.length} IDs`,
+      `[JSON GUARDADO] Archivo guardado en ${outputPath} (${Date.now() - startFile}ms)`,
     );
 
-    await this.subscriberRepository.delete(orphanedSubscriberIds);
+    // Eliminar en batches para evitar problemas con queries muy grandes
+    console.log('[ELIMINACIÓN] Iniciando eliminación en batches...');
+    const startDelete = Date.now();
+    const batchSize = 1000;
+    for (let i = 0; i < orphanedSubscriberIds.length; i += batchSize) {
+      const batchStart = Date.now();
+      const batch = orphanedSubscriberIds.slice(i, i + batchSize);
+      await this.subscriberRepository.delete(batch);
+      console.log(
+        `[BATCH ${Math.floor(i / batchSize) + 1}] Eliminados ${Math.min(i + batchSize, orphanedSubscriberIds.length)}/${orphanedSubscriberIds.length} subscribers (${Date.now() - batchStart}ms)`,
+      );
+    }
+    console.log(
+      `[ELIMINACIÓN COMPLETADA] Total: ${Date.now() - startDelete}ms`,
+    );
 
     return {
       message: `Se eliminaron ${orphanedSubscribers.length} subscribers huérfanos (sin naturalPerson válido). IDs guardados en: ${outputPath}`,
