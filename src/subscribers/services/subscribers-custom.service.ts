@@ -193,23 +193,31 @@ export class SubscribersCustomService {
   }
 
   async deleteSubscribersAlternal(): Promise<{ message: string }> {
-    console.log('[INICIO] Buscando subscribers huérfanos...');
-    const startQuery = Date.now();
-
-    // Query optimizado: encuentra subscribers huérfanos directamente en la DB
-    const orphanedSubscribers = await this.subscriberRepository
-      .createQueryBuilder('subscriber')
-      .select('subscriber.subscriberId')
-      .where(
-        `subscriber.naturalPersonId NOT IN (
-        SELECT np.naturalPersonId
-        FROM natural_person np
-      )`,
-      )
-      .getMany();
-
+    console.log('[INICIO] Obteniendo IDs de naturalPersons válidos...');
+    const startNP = Date.now();
+    const validNaturalPersonIds =
+      await this.adminPersonsService.findAllNaturalPersonIds();
     console.log(
-      `[QUERY COMPLETADO] Encontrados ${orphanedSubscribers.length} subscribers huérfanos en ${Date.now() - startQuery}ms`,
+      `[NATURAL_PERSONS] ${validNaturalPersonIds.length} IDs válidos obtenidos en ${Date.now() - startNP}ms`,
+    );
+
+    console.log('[QUERY] Obteniendo todos los subscribers...');
+    const startQuery = Date.now();
+    const allSubscribers = await this.subscriberRepository.find({
+      select: ['subscriberId', 'naturalPersonId'],
+    });
+    console.log(
+      `[QUERY COMPLETADO] ${allSubscribers.length} subscribers obtenidos en ${Date.now() - startQuery}ms`,
+    );
+
+    console.log('[FILTRADO] Buscando subscribers huérfanos...');
+    const startFilter = Date.now();
+    const validNaturalPersonIdsSet = new Set(validNaturalPersonIds);
+    const orphanedSubscribers = allSubscribers.filter(
+      (subscriber) => !validNaturalPersonIdsSet.has(subscriber.naturalPersonId),
+    );
+    console.log(
+      `[FILTRADO COMPLETADO] ${orphanedSubscribers.length} huérfanos encontrados en ${Date.now() - startFilter}ms`,
     );
 
     if (orphanedSubscribers.length === 0) {
