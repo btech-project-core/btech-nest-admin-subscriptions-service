@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  Index
 } from 'typeorm';
 import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
@@ -17,6 +18,7 @@ import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-deta
   'naturalPersonId',
 ])
 @Unique('UQ_subscriber_username_business', ['subscriptionsBussine', 'username'])
+@Index('IDX_subscriber_created_at', ['createdAt'])
 export class Subscriber extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriberId: string;
