@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
@@ -98,6 +99,24 @@ export class FindSubscribersWithNaturalPersonsRequest {
   @IsInt({ message: 'El campo limit debe ser un número entero.' })
   @Min(1, { message: 'El campo limit debe ser mayor que 0.' })
   limit?: number;
+
+  @IsOptional()
+  @IsString({
+    message: 'El campo term debe ser una cadena de caracteres.',
+  })
+  term?: string;
+
+  @IsArray({
+    message: 'El campo subscriberIds debe ser un array.',
+  })
+  @IsString({
+    each: true,
+    message: 'Cada subscriberId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({
+    message: 'El campo subscriberIds no puede estar vacío.',
+  })
+  subscriberIds: string[];
 }
 
 export class CreateSubscriberRequest {

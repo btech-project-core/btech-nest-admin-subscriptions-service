@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID, IsArray } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsArray,
+} from 'class-validator';
 import { FindMultipleNaturalPersonsResponseDto } from 'src/common/dto/find-multiple-natural-persons.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -23,7 +29,10 @@ export class FindSubscribersWithNaturalPersonsDto extends PaginationDto {
   @IsArray({
     message: 'El campo subscriberIds debe ser un array.',
   })
-  @IsString({ each: true, message: 'Cada subscriberId debe ser una cadena de caracteres.' })
+  @IsString({
+    each: true,
+    message: 'Cada subscriberId debe ser una cadena de caracteres.',
+  })
   @IsNotEmpty({
     message: 'El campo subscriberIds no puede estar vacío.',
   })

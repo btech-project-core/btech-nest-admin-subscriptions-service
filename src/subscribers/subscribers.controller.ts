@@ -89,6 +89,8 @@ export class SubscribersController {
       subscriptionDetailId: data.subscriptionDetailId,
       page: data.page,
       limit: data.limit,
+      term: data.term,
+      subscriberIds: data.subscriberIds,
     });
   }
 
