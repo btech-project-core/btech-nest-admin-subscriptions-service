@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -17,6 +18,7 @@ import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-deta
   'naturalPersonId',
 ])
 @Unique('UQ_subscriber_username_business', ['subscriptionsBussine', 'username'])
+@Index('IDX_subscriber_created_at', ['createdAt'])
 export class Subscriber extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriberId: string;

@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -17,6 +18,7 @@ import { SubscriberRole } from 'src/subscribers/entities/subscriber-role.entity'
   'subscriber',
   'subscriptionDetail',
 ])
+@Index('IDX_subscription_detail_active', ['subscriptionDetail', 'isActive'])
 export class SubscribersSubscriptionDetail extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscribersSubscriptionDetailId: string;

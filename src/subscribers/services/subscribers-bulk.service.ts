@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, QueryRunner } from 'typeorm';
+import { Repository, QueryRunner, SelectQueryBuilder } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { Subscriber } from '../entities/subscriber.entity';
 import {
@@ -8,7 +8,6 @@ import {
   SubscriberWithNaturalPersonDto,
 } from '../dto/find-subscribers-with-natural-persons.dto';
 import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
-import { paginateQueryBuilder } from 'src/common/helpers/paginate-query-builder.helper';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
 import { AdminPersonsService } from 'src/common/services/admin-persons.service';
@@ -20,6 +19,10 @@ import * as bcryptjs from 'bcryptjs';
 
 @Injectable()
 export class SubscribersBulkService {
+  // Cache para el count de subscribers por subscriptionDetailId
+  private countCache = new Map<string, { count: number; timestamp: number }>();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+
   constructor(
     @InjectRepository(Subscriber)
     private readonly subscriberRepository: Repository<Subscriber>,
@@ -32,7 +35,12 @@ export class SubscribersBulkService {
   async findSubscribersWithNaturalPersons(
     findDto: FindSubscribersWithNaturalPersonsDto,
   ): Promise<PaginationResponseDto<SubscriberWithNaturalPersonDto>> {
-    const { subscriptionDetailId, ...paginationDto } = findDto;
+    const { subscriptionDetailId, term, subscriberIds, ...paginationDto } =
+      findDto;
+    const { page = 1, limit = 8 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    // Crear query base
     const queryBuilder = this.subscriberRepository
       .createQueryBuilder('subscriber')
       .innerJoin('subscriber.subscriptionsBussine', 'subscriptionsBussine')
@@ -57,6 +65,10 @@ export class SubscribersBulkService {
       .andWhere('subscribersSubscriptionDetails.isActive = :isActive', {
         isActive: true,
       })
+      .andWhere('subscriber.subscriberId IN (:...subscriberIds)', {
+        subscriberIds,
+      });
+    queryBuilder
       .select([
         'subscriber.subscriberId',
         'subscriber.username',
@@ -64,37 +76,65 @@ export class SubscribersBulkService {
         'subscriber.createdAt',
       ])
       .orderBy('subscriber.createdAt', 'DESC');
-    const paginatedResult = await paginateQueryBuilder(
-      queryBuilder,
-      paginationDto,
-    );
-    if (paginatedResult.data.length === 0)
+
+    const data = await queryBuilder.skip(skip).take(limit).getMany();
+
+    if (data.length === 0)
       return {
-        ...paginatedResult,
         data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
       };
 
+    // Obtener el count con cache
+    const total = await this.getCachedCount(subscriptionDetailId, queryBuilder);
+    // Pasar el term al servicio de natural persons
     const naturalPersonsData =
       await this.adminPersonsService.findMultipleNaturalPersonsByIds({
-        naturalPersonIds: paginatedResult.data.map((s) => s.naturalPersonId),
+        naturalPersonIds: data.map((s) => s.naturalPersonId),
+        term,
       });
-
     const naturalPersonsMap = new Map(
       naturalPersonsData.map((np) => [np.naturalPersonId, np]),
     );
-
-    const subscribersWithNaturalPersons = paginatedResult.data.map(
-      (subscriber) => ({
-        subscriberId: subscriber.subscriberId,
-        username: subscriber.username,
-        naturalPerson: naturalPersonsMap.get(subscriber.naturalPersonId)!,
-      }),
-    );
-
+    const subscribersWithNaturalPersons = data.map((subscriber) => ({
+      subscriberId: subscriber.subscriberId,
+      username: subscriber.username,
+      naturalPerson: naturalPersonsMap.get(subscriber.naturalPersonId)!,
+    }));
     return {
-      ...paginatedResult,
       data: subscribersWithNaturalPersons,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
+  }
+
+  /**
+   * Obtiene el count con cache para evitar queries lentos en cada paginación
+   */
+  private async getCachedCount(
+    subscriptionDetailId: string,
+    queryBuilder: SelectQueryBuilder<Subscriber>,
+  ): Promise<number> {
+    const cacheKey = `count_${subscriptionDetailId}`;
+    const cached = this.countCache.get(cacheKey);
+    const now = Date.now();
+
+    // Si existe en cache y no ha expirado, retornar
+    if (cached && now - cached.timestamp < this.CACHE_TTL) return cached.count;
+    // Ejecutar count y guardar en cache
+    const count = await queryBuilder.getCount();
+    this.countCache.set(cacheKey, { count, timestamp: now });
+    return count;
+  }
+
+  invalidateCountCache(subscriptionDetailId: string): void {
+    const cacheKey = `count_${subscriptionDetailId}`;
+    this.countCache.delete(cacheKey);
   }
 
   async createSubscribersForNaturalPersons(
