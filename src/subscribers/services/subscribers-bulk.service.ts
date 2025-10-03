@@ -68,6 +68,15 @@ export class SubscribersBulkService {
       .andWhere('subscriber.subscriberId IN (:...subscriberIds)', {
         subscriberIds,
       });
+
+    // Aplicar filtro por term en username si existe
+    if (term && term.trim() !== '') {
+      const searchTerm = `%${term.toLowerCase().trim()}%`;
+      queryBuilder.andWhere('LOWER(subscriber.username) LIKE :searchTerm', {
+        searchTerm,
+      });
+    }
+
     queryBuilder
       .select([
         'subscriber.subscriberId',
