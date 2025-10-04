@@ -102,4 +102,14 @@ export class SubscribersService {
   async deleteSubscribersAlternal(): Promise<{ message: string }> {
     return await this.subscribersCustomService.deleteSubscribersAlternal();
   }
+
+  async setPassword(
+    subscriberId: string,
+    hashedPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return await this.subscribersAuthService.setPassword(
+      subscriberId,
+      hashedPassword,
+    );
+  }
 }

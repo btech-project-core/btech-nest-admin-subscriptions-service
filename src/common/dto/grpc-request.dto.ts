@@ -150,3 +150,17 @@ export class CreateSubscriberRequest {
   @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })
   service: CodeService;
 }
+
+export class SetPasswordRequest {
+  @IsString({
+    message: 'El campo subscriberId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo subscriberId no puede estar vacío.' })
+  subscriberId: string;
+
+  @IsString({
+    message: 'El campo hashedPassword debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo hashedPassword no puede estar vacío.' })
+  hashedPassword: string;
+}

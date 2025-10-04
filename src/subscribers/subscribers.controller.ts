@@ -8,6 +8,7 @@ import {
   FindUserByUsernameRequest,
   GetSubscriberCompleteInfoRequest,
   UpdateUserRequest,
+  SetPasswordRequest,
 } from 'src/common/dto/grpc-request.dto';
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
@@ -97,5 +98,15 @@ export class SubscribersController {
   @MessagePattern('subscribers.deleteSubscribersAlternal')
   async deleteSubscribersAlternal(): Promise<{ message: string }> {
     return await this.subscribersService.deleteSubscribersAlternal();
+  }
+
+  @GrpcMethod('SubscribersService', 'SetPassword')
+  async setPassword(
+    data: SetPasswordRequest,
+  ): Promise<{ success: boolean; message: string }> {
+    return await this.subscribersService.setPassword(
+      data.subscriberId,
+      data.hashedPassword,
+    );
   }
 }

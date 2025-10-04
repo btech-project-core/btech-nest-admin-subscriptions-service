@@ -151,4 +151,24 @@ export class SubscribersAuthService {
       autoLogin,
     );
   }
+
+  async setPassword(
+    subscriberId: string,
+    hashedPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
+    const subscriber = await this.subscriberRepository.findOne({
+      where: { subscriberId },
+    });
+    if (!subscriber)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `El subscriber con ID ${subscriberId} no existe`,
+      });
+    subscriber.password = hashedPassword;
+    await this.subscriberRepository.save(subscriber);
+    return {
+      success: true,
+      message: 'Contraseña actualizada correctamente',
+    };
+  }
 }

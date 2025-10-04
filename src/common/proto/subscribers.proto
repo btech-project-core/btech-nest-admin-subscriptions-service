@@ -11,6 +11,7 @@ service SubscribersService {
   rpc GetSubscriberCompleteInfo(GetSubscriberCompleteInfoRequest) returns (SubscriberCompleteInfoResponse);
   rpc FindSubscribersWithNaturalPersons(FindSubscribersWithNaturalPersonsRequest) returns (FindSubscribersWithNaturalPersonsResponse);
   rpc RegisterSubscriber(RegisterSubscriberRequest) returns (RegisterSubscriberResponse);
+  rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
 }
 
 // ===== REQUESTS =====
@@ -193,4 +194,14 @@ message FindSubscribersWithNaturalPersonsResponse {
   int32 page = 3;
   int32 limit = 4;
   int32 totalPages = 5;
+}
+
+message SetPasswordRequest {
+  string subscriberId = 1;
+  string hashedPassword = 2;
+}
+
+message SetPasswordResponse {
+  bool success = 1;
+  string message = 2;
 }
