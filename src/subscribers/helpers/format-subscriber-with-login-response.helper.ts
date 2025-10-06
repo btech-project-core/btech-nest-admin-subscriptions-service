@@ -7,7 +7,6 @@ export const formatSubscriberWithLoginResponse = (
   subscriber: Subscriber,
   naturalPerson: NaturalPersonResponseDto,
   subscriptionPersonData: PersonResponseDto,
-  autoLogin: boolean,
 ): UserProfileResponseDto => {
   const baseResponse = {
     subscriberId: subscriber.subscriberId,
@@ -18,7 +17,7 @@ export const formatSubscriberWithLoginResponse = (
         (subDetail) =>
           subDetail.subscriberRoles?.map((role) => role.role.code) || [],
       ) || [],
-    autoLogin,
+    hasPassword: subscriber.password !== null,
   };
   return {
     ...baseResponse,

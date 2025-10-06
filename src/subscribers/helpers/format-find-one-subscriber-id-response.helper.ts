@@ -10,5 +10,6 @@ export const formatFindOneSubscriberIdResponse = (
     url: 'BTECH',
     isTwoFactorEnabled: subscriber.isTwoFactorEnabled,
     twoFactorSecret: subscriber.twoFactorSecret || undefined,
+    hashedPassword: subscriber.password || null,
   };
 };

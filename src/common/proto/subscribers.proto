@@ -85,6 +85,7 @@ message TwoFactorUserResponse {
   string url = 3;
   bool isTwoFactorEnabled = 4;
   optional string twoFactorSecret = 5;
+  optional string hashedPassword = 6;
 }
 
 // ===== RESPONSE PARA USER PROFILE COMPLETO =====
@@ -125,7 +126,7 @@ message UserProfileResponse {
   string username = 2;
   bool isTwoFactorEnabled = 3;
   repeated string roles = 4;
-  bool autoLogin = 5;
+  bool hasPassword = 5;
   NaturalPerson naturalPerson = 6;
   SubscriptionInfo subscription = 7;
 }

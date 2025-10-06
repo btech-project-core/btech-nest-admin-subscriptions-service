@@ -4,4 +4,5 @@ export class FindOneSubscriberByIdResponseDto {
   url?: string;
   isTwoFactorEnabled: boolean;
   twoFactorSecret?: string | undefined;
+  hashedPassword?: string | null;
 }

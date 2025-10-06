@@ -128,13 +128,6 @@ export class SubscribersAuthService {
         message: `El usuario no se encuentra registrado`,
       });
 
-    const autoLogin = await this.subscriptionsDetailFeaturesService.isAutoLogin(
-      subscriber.subscriberId,
-      subscriber.subscriptionsBussine.subscriptionDetail[0]
-        .subscriptionDetailId,
-      subscriber.subscriptionsBussine.subscriptionBussineId,
-    );
-
     const subscriberNaturalPerson =
       await this.adminPersonsService.findOneNaturalPersonBySubscriberId(
         subscriber.naturalPersonId,
@@ -148,7 +141,6 @@ export class SubscribersAuthService {
       subscriber,
       subscriberNaturalPerson,
       subscriptionPersonData,
-      autoLogin,
     );
   }
 
