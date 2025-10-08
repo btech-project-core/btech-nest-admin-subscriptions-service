@@ -19,6 +19,7 @@ import { SubscribersAuthService } from './subscribers-auth.service';
 import { SubscribersValidateService } from './subscribers-validate.service';
 import { SubscribersCustomService } from './subscribers-custom.service';
 import { SubscribersBulkService } from './subscribers-bulk.service';
+import { SubscriberAlertLevelValidation } from '../interfaces/subscriber-alert-level.interface';
 
 @Injectable()
 export class SubscribersService {
@@ -111,5 +112,19 @@ export class SubscribersService {
       subscriberId,
       hashedPassword,
     );
+  }
+
+  async validateSubscriberAlertLevel(
+    subscriberIds: string[],
+    levelAlertCode: string,
+  ): Promise<SubscriberAlertLevelValidation[]> {
+    return await this.subscribersValidateService.validateSubscriberAlertLevel(
+      subscriberIds,
+      levelAlertCode,
+    );
+  }
+
+  async deleteSubscriber(subscriberId: string): Promise<{ message: string }> {
+    return await this.subscribersCoreService.delete(subscriberId);
   }
 }

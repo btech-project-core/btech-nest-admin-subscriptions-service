@@ -97,4 +97,19 @@ export class SubscribersCoreService {
       });
     return updatedSubscriber;
   }
+
+  async delete(subscriberId: string): Promise<{ message: string }> {
+    const subscriber = await this.subscriberRepository.findOne({
+      where: { subscriberId },
+    });
+    if (!subscriber)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `El suscriptor con id ${subscriberId} no se encuentra registrado.`,
+      });
+    await this.subscriberRepository.remove(subscriber);
+    return {
+      message: 'Suscriptor eliminado correctamente',
+    };
+  }
 }

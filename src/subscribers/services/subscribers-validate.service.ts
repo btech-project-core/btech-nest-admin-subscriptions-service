@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { Subscriber } from '../entities/subscriber.entity';
 import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+import {
+  SubscriberAlertLevelValidation,
+  SubscriberAlertLevelRaw,
+} from '../interfaces/subscriber-alert-level.interface';
 
 @Injectable()
 export class SubscribersValidateService {
@@ -45,5 +49,56 @@ export class SubscribersValidateService {
         message: `No se encuentra el usuario con el código de acceso: ${naturalPersonId}`,
       });
     return subscriber.username;
+  }
+
+  async validateSubscriberAlertLevel(
+    subscriberIds: string[],
+    levelAlertCode: string,
+  ): Promise<SubscriberAlertLevelValidation[]> {
+    const results: SubscriberAlertLevelRaw[] = await this.subscriberRepository
+      .createQueryBuilder('subscriber')
+      .leftJoin(
+        'subscriber.subscribersSubscriptionDetails',
+        'subscribersSubscriptionDetail',
+      )
+      .leftJoin(
+        'subscribersSubscriptionDetail.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .leftJoin(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .leftJoin(
+        'subscriptionDetail.subscriptionDetailFeatures',
+        'subscriptionDetailFeatures',
+      )
+      .leftJoin(
+        'subscriptionDetailFeatures.subscriptionFeatures',
+        'subscriptionFeatures',
+      )
+      .select('subscriber.subscriberId', 'subscriberId')
+      .addSelect('subscriptionDetailFeatures.value', 'value')
+      .addSelect(
+        'subscriptionDetail.subscriptionDetailId',
+        'subscriptionDetailId',
+      )
+      .where('subscriber.subscriberId IN (:...subscriberIds)', {
+        subscriberIds,
+      })
+      .andWhere('subscriptionFeatures.code = :levelAlertCode', {
+        levelAlertCode,
+      })
+      .andWhere('subscriptionsService.code = :serviceCode', {
+        serviceCode: 'VDI',
+      })
+      .getRawMany();
+
+    return results.map((row) => ({
+      subscriberId: row.subscriberId,
+      hasAlertLevel: true,
+      alertMinutesBefore: row.value ? parseInt(row.value, 10) : undefined,
+      subscriptionDetailId: row.subscriptionDetailId,
+    }));
   }
 }

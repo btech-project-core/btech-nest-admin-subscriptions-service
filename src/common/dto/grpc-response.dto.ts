@@ -13,3 +13,14 @@ export class FindSubscribersWithNaturalPersonsResponseDto {
   limit: number;
   totalPages: number;
 }
+
+export class SubscriberAlertLevelValidationDto {
+  subscriberId: string;
+  hasAlertLevel: boolean;
+  alertMinutesBefore?: number;
+  subscriptionDetailId?: string;
+}
+
+export class ValidateSubscriberAlertLevelResponseDto {
+  data: SubscriberAlertLevelValidationDto[];
+}

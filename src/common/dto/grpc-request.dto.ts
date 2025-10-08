@@ -164,3 +164,31 @@ export class SetPasswordRequest {
   @IsNotEmpty({ message: 'El campo hashedPassword no puede estar vacío.' })
   hashedPassword: string;
 }
+
+export class ValidateSubscriberAlertLevelRequest {
+  @IsArray({
+    message: 'El campo subscriberIds debe ser un array.',
+  })
+  @IsString({
+    each: true,
+    message: 'Cada subscriberId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({
+    message: 'El campo subscriberIds no puede estar vacío.',
+  })
+  subscriberIds: string[];
+
+  @IsString({
+    message: 'El campo levelAlertCode debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo levelAlertCode no puede estar vacío.' })
+  levelAlertCode: string;
+}
+
+export class DeleteSubscriberRequest {
+  @IsString({
+    message: 'El campo subscriberId debe ser una cadena de caracteres.',
+  })
+  @IsNotEmpty({ message: 'El campo subscriberId no puede estar vacío.' })
+  subscriberId: string;
+}

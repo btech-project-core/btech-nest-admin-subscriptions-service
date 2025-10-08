@@ -12,6 +12,8 @@ service SubscribersService {
   rpc FindSubscribersWithNaturalPersons(FindSubscribersWithNaturalPersonsRequest) returns (FindSubscribersWithNaturalPersonsResponse);
   rpc RegisterSubscriber(RegisterSubscriberRequest) returns (RegisterSubscriberResponse);
   rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
+  rpc ValidateSubscriberAlertLevel(ValidateSubscriberAlertLevelRequest) returns (ValidateSubscriberAlertLevelResponse);
+  rpc DeleteSubscriber(DeleteSubscriberRequest) returns (DeleteSubscriberResponse);
 }
 
 // ===== REQUESTS =====
@@ -205,4 +207,28 @@ message SetPasswordRequest {
 message SetPasswordResponse {
   bool success = 1;
   string message = 2;
+}
+
+message ValidateSubscriberAlertLevelRequest {
+  repeated string subscriberIds = 1;
+  string levelAlertCode = 2;
+}
+
+message SubscriberAlertLevelValidation {
+  string subscriberId = 1;
+  bool hasAlertLevel = 2;
+  optional int32 alertMinutesBefore = 3;
+  optional string subscriptionDetailId = 4;
+}
+
+message ValidateSubscriberAlertLevelResponse {
+  repeated SubscriberAlertLevelValidation data = 1;
+}
+
+message DeleteSubscriberRequest {
+  string subscriberId = 1;
+}
+
+message DeleteSubscriberResponse {
+  string message = 1;
 }

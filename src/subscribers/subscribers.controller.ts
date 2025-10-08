@@ -9,12 +9,17 @@ import {
   GetSubscriberCompleteInfoRequest,
   UpdateUserRequest,
   SetPasswordRequest,
+  ValidateSubscriberAlertLevelRequest,
+  DeleteSubscriberRequest,
 } from 'src/common/dto/grpc-request.dto';
 import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
 import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
 import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
 import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
-import { FindSubscribersWithNaturalPersonsResponseDto } from 'src/common/dto/grpc-response.dto';
+import {
+  FindSubscribersWithNaturalPersonsResponseDto,
+  ValidateSubscriberAlertLevelResponseDto,
+} from 'src/common/dto/grpc-response.dto';
 import { CreateSubscriberResponseDto } from './dto/create-subscriber.dto';
 
 @Controller()
@@ -108,5 +113,23 @@ export class SubscribersController {
       data.subscriberId,
       data.hashedPassword,
     );
+  }
+
+  @GrpcMethod('SubscribersService', 'ValidateSubscriberAlertLevel')
+  async validateSubscriberAlertLevel(
+    data: ValidateSubscriberAlertLevelRequest,
+  ): Promise<ValidateSubscriberAlertLevelResponseDto> {
+    const result = await this.subscribersService.validateSubscriberAlertLevel(
+      data.subscriberIds,
+      data.levelAlertCode,
+    );
+    return { data: result };
+  }
+
+  @GrpcMethod('SubscribersService', 'DeleteSubscriber')
+  async deleteSubscriber(
+    data: DeleteSubscriberRequest,
+  ): Promise<{ message: string }> {
+    return await this.subscribersService.deleteSubscriber(data.subscriberId);
   }
 }
