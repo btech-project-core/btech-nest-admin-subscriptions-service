@@ -33,7 +33,7 @@ export class Subscriber extends Timestamped {
   @Column({
     type: 'varchar',
     length: 62,
-    nullable: false,
+    nullable: true,
   })
   password: string;
 
