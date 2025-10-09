@@ -1,11 +1,10 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { DesignerMode } from 'src/designe-mode/entities/designe-mode.entity';
-import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscription-detail.entity';
+import { SubscriptionDetailDesigneMode } from 'src/subscription-detail-designe-mode/entities/subscription-detail-designe-mode.entity';
 import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -14,19 +13,13 @@ export class SubscriptionsDesigneSetting extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionsDesigneSettingId: string;
 
-  @ManyToOne(
-    () => SubscriptionDetail,
-    (subscription) => subscription.subscriptionsDesigneSetting,
+  @OneToOne(
+    () => SubscriptionDetailDesigneMode,
+    (subscriptionDetailDesigneMode) =>
+      subscriptionDetailDesigneMode.subscriptionsDesigneSetting,
   )
-  @JoinColumn({ name: 'subscriptionDetailId' })
-  subscriptionDetail: SubscriptionDetail;
-
-  @ManyToOne(
-    () => DesignerMode,
-    (designerMode) => designerMode.subscriptionsDesigneSetting,
-  )
-  @JoinColumn({ name: 'designerModeId' })
-  designerMode: DesignerMode;
+  @JoinColumn({ name: 'subscriptionDetailDesigneModeId' })
+  subscriptionDetailDesigneMode: SubscriptionDetailDesigneMode;
 
   @Column({
     type: 'varchar',

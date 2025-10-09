@@ -44,12 +44,20 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: ['subscribers', 'subscriptionDetailFeatures'],
+        package: [
+          'subscribers',
+          'subscriptionDetailFeatures',
+          'subscriberDesignePreference',
+        ],
         protoPath: [
           join(process.cwd(), 'src/common/proto/subscribers.proto'),
           join(
             process.cwd(),
             'src/common/proto/subscription-detail-features.proto',
+          ),
+          join(
+            process.cwd(),
+            'src/common/proto/subscriber-designe-preference.proto',
           ),
         ],
         url: `0.0.0.0:${envs.grpc.port}`,

@@ -16,6 +16,18 @@ export class SubscribersValidateService {
     private readonly subscriberRepository: Repository<Subscriber>,
   ) {}
 
+  async validateExists(subscriberId: string): Promise<Subscriber> {
+    const subscriber = await this.subscriberRepository.findOne({
+      where: { subscriberId: subscriberId.trim() },
+    });
+    if (!subscriber)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `Suscriptor con ID '${subscriberId}' no encontrado`,
+      });
+    return subscriber;
+  }
+
   async checkActiveSubscriptionsByNaturalPersonId(
     naturalPersonId: string,
   ): Promise<boolean> {

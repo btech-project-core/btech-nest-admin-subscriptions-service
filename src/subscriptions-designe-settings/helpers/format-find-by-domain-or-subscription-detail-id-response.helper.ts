@@ -7,7 +7,10 @@ export const formatFindByDomainOrSubscriptionDetailIdResponse = (
   return {
     subscriptionsDesigneSettingId:
       subscriptionsDesigneSetting.subscriptionsDesigneSettingId,
-    mode: subscriptionsDesigneSetting.designerMode.code,
+    mode: subscriptionsDesigneSetting.subscriptionDetailDesigneMode.designerMode
+      .code,
+    isPrimary:
+      subscriptionsDesigneSetting.subscriptionDetailDesigneMode.isPrimary,
     url: subscriptionsDesigneSetting.url,
     brandOne: subscriptionsDesigneSetting.brandOne,
     brandTwo: subscriptionsDesigneSetting.brandTwo,

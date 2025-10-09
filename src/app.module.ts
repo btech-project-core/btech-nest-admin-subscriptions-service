@@ -13,6 +13,8 @@ import { SubscriptionsDetailModule } from './subscriptions-detail/subscriptions-
 import { SubscriptionsFeaturesModule } from './subscriptions-features/subscriptions-features.module';
 import { SubscriptionsServicesModule } from './subscriptions-services/subscriptions-services.module';
 import { DesigneModeModule } from './designe-mode/designe-mode.module';
+import { SubscriptionDetailDesigneModeModule } from './subscription-detail-designe-mode/subscription-detail-designe-mode.module';
+import { SubscriberDesignePreferenceModule } from './subscriber-designe-preference/subscriber-designe-preference.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeOrmConfig),
@@ -28,6 +30,8 @@ import { DesigneModeModule } from './designe-mode/designe-mode.module';
     SubscriptionsFeaturesModule,
     SubscriptionsServicesModule,
     DesigneModeModule,
+    SubscriptionDetailDesigneModeModule,
+    SubscriberDesignePreferenceModule,
   ],
   controllers: [],
   providers: [],

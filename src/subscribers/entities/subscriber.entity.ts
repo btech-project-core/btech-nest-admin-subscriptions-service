@@ -5,12 +5,14 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-detail/entities/subscribers-subscription-detail.entity';
+import { SubscriberDesignePreference } from 'src/subscriber-designe-preference/entities/subscriber-designe-preference.entity';
 
 @Entity({ name: 'subscriber' })
 @Unique('UQ_subscriber_naturalperson_business', [
@@ -87,4 +89,10 @@ export class Subscriber extends Timestamped {
     { onDelete: 'CASCADE' },
   )
   subscribersSubscriptionDetails: SubscribersSubscriptionDetail[];
+
+  @OneToOne(
+    () => SubscriberDesignePreference,
+    (subscriberDesignePreference) => subscriberDesignePreference.subscriber,
+  )
+  subscriberDesignePreference: SubscriberDesignePreference;
 }

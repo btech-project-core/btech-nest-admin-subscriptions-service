@@ -142,10 +142,6 @@ export class SubscribersCustomService {
       )
       .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
       .leftJoinAndSelect(
-        'subscriptionDetail.subscriptionsDesigneSetting',
-        'subscriptionsDesigneSetting',
-      )
-      .leftJoinAndSelect(
         'subscriber.subscribersSubscriptionDetails',
         'subscribersSubscriptionDetails',
       )

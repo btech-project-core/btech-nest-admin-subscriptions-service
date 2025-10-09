@@ -90,14 +90,6 @@ export class SubscribersAuthService {
         'subscriptionsService',
       )
       .leftJoinAndSelect(
-        'subscriptionDetail.subscriptionsDesigneSetting',
-        'subscriptionsDesigneSetting',
-      )
-      .leftJoinAndSelect(
-        'subscriptionsDesigneSetting.designerMode',
-        'designerMode',
-      )
-      .leftJoinAndSelect(
         'subscriber.subscribersSubscriptionDetails',
         'subscribersSubscriptionDetails',
       )

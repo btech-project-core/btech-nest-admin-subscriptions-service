@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package subscriberDesignePreference;
+
+service SubscriberDesignePreferenceService {
+  rpc CreateOrUpdate(CreateOrUpdateSubscriberDesignePreferenceRequest) returns (CreateOrUpdateSubscriberDesignePreferenceResponse);
+  rpc ValidateDesign(ValidateSubscriberDesignRequest) returns (ValidateSubscriberDesignResponse);
+}
+
+// ===== REQUESTS =====
+message CreateOrUpdateSubscriberDesignePreferenceRequest {
+  string subscriberId = 1;
+  string subscriptionDetailDesigneModeId = 2;
+}
+
+message ValidateSubscriberDesignRequest {
+  string subscriberId = 1;
+}
+
+// ===== RESPONSES =====
+message CreateOrUpdateSubscriberDesignePreferenceResponse {
+  string subscriberDesignePreferenceId = 1;
+  string subscriberId = 2;
+  string subscriptionDetailDesigneModeId = 3;
+  string designCode = 4;
+}
+
+message ValidateSubscriberDesignResponse {
+  bool hasCustomDesign = 1;
+  optional string designCode = 2;
+}

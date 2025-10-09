@@ -138,27 +138,28 @@ message FindByDomainOrSubscriptionDetailIdRequest {
 }
 
 message FindByDomainOrSubscriptionDetailIdItem {
-  optional string subscriptionsDesigneSettingId = 1;
-  optional string mode = 2;
-  optional string url = 3;
-  optional string brandOne = 4;
-  optional string brandTwo = 5;
-  optional string brandThree = 6;
-  optional string brandFour = 7;
-  optional string primaryColor = 8;
-  optional string secondaryColor = 9;
-  optional string baseColor = 10;
-  optional string infoColor = 11;
-  optional string warningColor = 12;
-  optional string successColor = 13;
-  optional string errorColor = 14;
-  optional string backgroundColor = 15;
-  optional string surfaceColor = 16;
-  optional string onPrimaryColor = 17;
-  optional string onSecondaryColor = 18;
-  optional string onBackgroundColor = 19;
-  optional string onSurfaceColor = 20;
-  optional string letterFont = 21;
+  optional string subscriptionDetailDesigneModeId = 1;
+  string mode = 2;
+  bool isPrimary = 3;
+  optional string url = 4;
+  optional string brandOne = 5;
+  optional string brandTwo = 6;
+  optional string brandThree = 7;
+  optional string brandFour = 8;
+  optional string primaryColor = 9;
+  optional string secondaryColor = 10;
+  optional string baseColor = 11;
+  optional string infoColor = 12;
+  optional string warningColor = 13;
+  optional string successColor = 14;
+  optional string errorColor = 15;
+  optional string backgroundColor = 16;
+  optional string surfaceColor = 17;
+  optional string onPrimaryColor = 18;
+  optional string onSecondaryColor = 19;
+  optional string onBackgroundColor = 20;
+  optional string onSurfaceColor = 21;
+  optional string letterFont = 22;
 }
 
 message FindByDomainOrSubscriptionDetailIdResponse {

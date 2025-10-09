@@ -10,8 +10,8 @@ import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import { SubscriptionsService } from 'src/subscriptions-services/entities/subscriptions-service.entity';
 import { SubscriptionDetailFeatures } from './subscription-detail-features.entity';
-import { SubscriptionsDesigneSetting } from 'src/subscriptions-designe-settings/entities/subscriptions-designe-setting.entity';
 import { SubscribersSubscriptionDetail } from 'src/subscribers-subscription-detail/entities/subscribers-subscription-detail.entity';
+import { SubscriptionDetailDesigneMode } from 'src/subscription-detail-designe-mode/entities/subscription-detail-designe-mode.entity';
 
 @Entity({ name: 'subscriptionDetail' })
 export class SubscriptionDetail extends Timestamped {
@@ -52,11 +52,11 @@ export class SubscriptionDetail extends Timestamped {
   subscriptionDetailFeatures: SubscriptionDetailFeatures[];
 
   @OneToMany(
-    () => SubscriptionsDesigneSetting,
-    (subscriptionsDesigneSetting) =>
-      subscriptionsDesigneSetting.subscriptionDetail,
+    () => SubscriptionDetailDesigneMode,
+    (subscriptionDetailDesigneMode) =>
+      subscriptionDetailDesigneMode.subscriptionDetail,
   )
-  subscriptionsDesigneSetting: SubscriptionsDesigneSetting[];
+  subscriptionDetailDesigneModes: SubscriptionDetailDesigneMode[];
 
   @OneToMany(
     () => SubscribersSubscriptionDetail,

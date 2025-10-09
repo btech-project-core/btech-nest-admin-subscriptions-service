@@ -1,5 +1,5 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
-import { SubscriptionsDesigneSetting } from 'src/subscriptions-designe-settings/entities/subscriptions-designe-setting.entity';
+import { SubscriptionDetailDesigneMode } from 'src/subscription-detail-designe-mode/entities/subscription-detail-designe-mode.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'designerMode' })
@@ -30,8 +30,9 @@ export class DesignerMode extends Timestamped {
   isActive: boolean;
 
   @OneToMany(
-    () => SubscriptionsDesigneSetting,
-    (subscriptionsDesigneSetting) => subscriptionsDesigneSetting.designerMode,
+    () => SubscriptionDetailDesigneMode,
+    (subscriptionDetailDesigneMode) =>
+      subscriptionDetailDesigneMode.designerMode,
   )
-  subscriptionsDesigneSetting: SubscriptionsDesigneSetting[];
+  subscriptionDetailDesigneModes: SubscriptionDetailDesigneMode[];
 }

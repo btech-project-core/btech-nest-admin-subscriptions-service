@@ -9,6 +9,7 @@ export class FindByDomainOrSubscriptionDetailIdDto {
 export class FindByDomainOrSubscriptionDetailIdResponseDtoItem {
   subscriptionsDesigneSettingId: string | undefined;
   mode: string | undefined;
+  isPrimary: boolean | undefined;
   url: string | undefined;
   brandOne: string | undefined;
   brandTwo: string | undefined;
