@@ -52,7 +52,10 @@ export class SubscriptionDetailDesigneModeService {
     );
   }
 
-  async findByDomain(domain: string): Promise<FindByDomainResponseDto> {
-    return await this.customService.findByDomain(domain);
+  async findByDomain(
+    domain: string,
+    modeCode?: string,
+  ): Promise<FindByDomainResponseDto> {
+    return await this.customService.findByDomain(domain, modeCode);
   }
 }

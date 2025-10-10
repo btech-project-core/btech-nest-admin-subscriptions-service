@@ -19,7 +19,7 @@ export class SubscriptionDetailDesigneModeCustomService {
 
   async findByDomain(
     domain: string,
-    modeCode: string,
+    modeCode?: string,
   ): Promise<FindByDomainResponseDto> {
     const queryBuilder = this.subscriptionDetailDesigneModeRepository
       .createQueryBuilder('sddm')
