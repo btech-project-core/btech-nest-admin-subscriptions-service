@@ -37,7 +37,6 @@ export class SubscriptionDetailDesigneModeCustomService {
         'sddm.subscriptionsDesigneSetting',
         'subscriptionsDesigneSetting',
       )
-      .where('designerMode.code = :designerCode', { designerCode: 'CLA' })
       .andWhere(
         new Brackets((qb) => {
           qb.where('subscriptionDetail.subscriptionDetailId = :domain', {
