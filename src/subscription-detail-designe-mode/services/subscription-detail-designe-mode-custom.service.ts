@@ -51,7 +51,7 @@ export class SubscriptionDetailDesigneModeCustomService {
         }),
       );
     if (modeCode)
-      queryBuilder.andWhere('sddm.designerMode.code = :modeCode', {
+      queryBuilder.andWhere('designerMode.code = :modeCode', {
         modeCode,
       });
     const results = await queryBuilder.getMany();
