@@ -42,6 +42,7 @@ export class SubscriptionDetailDesigneModeController {
   async findByDomain(data: FindByDomainDto): Promise<FindByDomainResponseDto> {
     return await this.subscriptionDetailDesigneModeService.findByDomain(
       data.domain,
+      data.modeCode,
     );
   }
 }
