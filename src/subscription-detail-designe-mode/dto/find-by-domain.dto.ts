@@ -1,9 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class FindByDomainDto {
   @IsString({ message: 'El campo domain debe ser una cadena de caracteres.' })
   @IsNotEmpty({ message: 'El campo domain no puede estar vacío.' })
   domain: string;
+
+  @IsString({ message: 'El campo modeCode debe ser una cadena de caracteres.' })
+  @IsOptional()
+  modeCode?: string;
 }
 
 export class FindByDomainResponseItemDto {

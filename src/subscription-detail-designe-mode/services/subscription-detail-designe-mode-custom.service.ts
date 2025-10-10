@@ -17,7 +17,10 @@ export class SubscriptionDetailDesigneModeCustomService {
     private readonly subscriptionDetailDesigneModeRepository: Repository<SubscriptionDetailDesigneMode>,
   ) {}
 
-  async findByDomain(domain: string): Promise<FindByDomainResponseDto> {
+  async findByDomain(
+    domain: string,
+    modeCode: string,
+  ): Promise<FindByDomainResponseDto> {
     const queryBuilder = this.subscriptionDetailDesigneModeRepository
       .createQueryBuilder('sddm')
       .leftJoinAndSelect('sddm.designerMode', 'designerMode')
@@ -48,23 +51,22 @@ export class SubscriptionDetailDesigneModeCustomService {
           );
         }),
       );
-
+    if (modeCode)
+      queryBuilder.andWhere('sddm.designerMode.code = :modeCode', {
+        modeCode,
+      });
     const results = await queryBuilder.getMany();
-
     // Deduplicar por ID manualmente
     const uniqueResults = Array.from(
       new Map(
         results.map((item) => [item.subscriptionDetailDesigneModeId, item]),
       ).values(),
     );
-
-    if (!uniqueResults || uniqueResults.length === 0) {
+    if (!uniqueResults || uniqueResults.length === 0)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: `No se encontró la configuración para: ${domain}`,
       });
-    }
-
     const configurations = uniqueResults.map((item) =>
       formatFindByDomainResponse(item),
     );

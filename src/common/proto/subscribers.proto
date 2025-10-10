@@ -135,6 +135,7 @@ message UserProfileResponse {
 
 message FindByDomainOrSubscriptionDetailIdRequest {
   string domain = 1;
+  optional string modeCode = 2;
 }
 
 message FindByDomainOrSubscriptionDetailIdItem {
