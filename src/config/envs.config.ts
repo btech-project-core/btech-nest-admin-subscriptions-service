@@ -1,7 +1,16 @@
 import * as dotenv from 'dotenv';
 import * as joi from 'joi';
 
-dotenv.config();
+if (process.env.NODE_ENV === 'local') {
+  const envFile = '.env.local';
+  const result = dotenv.config({
+    path: `${process.cwd()}/${envFile}`,
+  });
+  if (result.error)
+    console.error(
+      `Error crítico al cargar el archivo .env.local: ${result.error.message}`,
+    );
+}
 
 interface EnvsVars {
   GRPC_PORT: number;
