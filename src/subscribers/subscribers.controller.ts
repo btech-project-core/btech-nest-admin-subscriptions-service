@@ -1,26 +1,25 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
-import { SubscribersService } from './services/subscribers.service';
+import { SubscribersService } from './services';
 import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateSubscriberRequest,
   FindSubscribersWithNaturalPersonsRequest,
   FindUserByIdRequest,
   FindUserByUsernameRequest,
-  GetSubscriberCompleteInfoRequest,
   UpdateUserRequest,
   SetPasswordRequest,
   ValidateSubscriberAlertLevelRequest,
   DeleteSubscriberRequest,
-} from 'src/common/dto/grpc-request.dto';
-import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
-import { FindOneUsernameResponseDto } from './dto/find-one-username.dto';
-import { FindOneSubscriberByIdResponseDto } from './dto/find-one-subscriber-by-id.dto';
-import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
-import {
+  UserProfileResponseDto,
   FindSubscribersWithNaturalPersonsResponseDto,
   ValidateSubscriberAlertLevelResponseDto,
-} from 'src/common/dto/grpc-response.dto';
-import { CreateSubscriberResponseDto } from './dto/create-subscriber.dto';
+  SubscriberInfoResponseDto,
+} from 'src/common/dto';
+import {
+  FindOneUsernameResponseDto,
+  FindOneSubscriberByIdResponseDto,
+  CreateSubscriberResponseDto,
+} from './dto';
 
 @Controller()
 export class SubscribersController {
@@ -77,11 +76,11 @@ export class SubscribersController {
     return await this.subscribersService.update(data.subscriberId, data);
   }
 
-  @GrpcMethod('SubscribersService', 'GetSubscriberCompleteInfo')
-  async getSubscriberCompleteInfo(
-    data: GetSubscriberCompleteInfoRequest,
-  ): Promise<SubscriberCompleteInfoResponseDto> {
-    return await this.subscribersService.getSubscriberCompleteInfo(
+  @GrpcMethod('SubscribersService', 'GetSubscriberInfo')
+  async getSubscribersInfo(
+    data: FindUserByIdRequest,
+  ): Promise<SubscriberInfoResponseDto> {
+    return await this.subscribersService.getSubscriberInfo(
       data.subscriberId,
       data.service,
     );

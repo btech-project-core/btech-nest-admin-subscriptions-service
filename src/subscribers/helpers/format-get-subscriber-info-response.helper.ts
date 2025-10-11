@@ -1,13 +1,15 @@
-import { Subscriber } from '../entities/subscriber.entity';
-import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
-import { PersonResponseDto } from 'src/common/dto/person.dto';
-import { NaturalPersonResponseDto } from 'src/common/dto/natural-person.dto';
+import { Subscriber } from '../entities';
+import {
+  NaturalPersonResponseDto,
+  SubscriberInfoResponseDto,
+  PersonResponseDto,
+} from 'src/common/dto';
 
-export const formatSubscriberCompleteInfoResponse = (
+export const formatSubscriberInfoResponse = (
   subscriber: Subscriber,
   naturalPerson: NaturalPersonResponseDto,
   subscriptionPersonData: PersonResponseDto,
-): SubscriberCompleteInfoResponseDto => {
+): SubscriberInfoResponseDto => {
   return {
     subscriberId: subscriber.subscriberId,
     username: subscriber.username,

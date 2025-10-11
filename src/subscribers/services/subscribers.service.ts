@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { Subscriber } from '../entities/subscriber.entity';
-import { UserProfileResponseDto } from 'src/common/dto/user-profile.dto';
-import { FindOneUsernameResponseDto } from '../dto/find-one-username.dto';
-import { FindOneSubscriberByIdResponseDto } from '../dto/find-one-subscriber-by-id.dto';
-import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
+import { Subscriber } from '../entities';
 import {
+  UserProfileResponseDto,
+  SubscriberInfoResponseDto,
+  PaginationResponseDto,
+} from 'src/common/dto';
+import {
+  FindOneSubscriberByIdResponseDto,
+  FindOneUsernameResponseDto,
   FindSubscribersWithNaturalPersonsDto,
   SubscriberWithNaturalPersonDto,
-} from '../dto/find-subscribers-with-natural-persons.dto';
-import { PaginationResponseDto } from 'src/common/dto/pagination.dto';
-import {
   CreateSubscriberDto,
   CreateSubscriberResponseDto,
-} from '../dto/create-subscriber.dto';
-import { CodeService } from 'src/common/enums/code-service.enum';
+} from '../dto';
+import { CodeService } from 'src/common/enums';
 import { SubscribersCoreService } from './subscribers-core.service';
 import { SubscribersAuthService } from './subscribers-auth.service';
 import { SubscribersValidateService } from './subscribers-validate.service';
 import { SubscribersCustomService } from './subscribers-custom.service';
 import { SubscribersBulkService } from './subscribers-bulk.service';
-import { SubscriberAlertLevelValidation } from '../interfaces/subscriber-alert-level.interface';
+import { SubscriberAlertLevelValidation } from '../interfaces';
 
 @Injectable()
 export class SubscribersService {
@@ -74,11 +74,11 @@ export class SubscribersService {
     );
   }
 
-  async getSubscriberCompleteInfo(
+  async getSubscriberInfo(
     subscriberId: string,
     service?: CodeService,
-  ): Promise<SubscriberCompleteInfoResponseDto> {
-    return await this.subscribersCustomService.getSubscriberCompleteInfo(
+  ): Promise<SubscriberInfoResponseDto> {
+    return await this.subscribersCustomService.getSubscriberInfo(
       subscriberId,
       service,
     );

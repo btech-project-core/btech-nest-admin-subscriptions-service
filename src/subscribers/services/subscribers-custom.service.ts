@@ -2,17 +2,15 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
-import { Subscriber } from '../entities/subscriber.entity';
-import { FindOneSubscriberByIdResponseDto } from '../dto/find-one-subscriber-by-id.dto';
-import { formatFindOneSubscriberIdResponse } from '../helpers/format-find-one-subscriber-id-response.helper';
-import { formatSubscriberCompleteInfoResponse } from '../helpers/format-get-subscriber-complete-info.helper';
-import { SubscriberCompleteInfoResponseDto } from 'src/common/dto/subscriber-complete-info.dto';
-import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
-import { CodeService } from 'src/common/enums/code-service.enum';
-import { SERVICE_NAME } from 'src/config/constants';
-import { AdminPersonsService } from 'src/common/services/admin-persons.service';
-import { envs } from 'src/config/envs.config';
-import { CodeFeatures } from 'src/common/enums/code-features.enum';
+import { Subscriber } from '../entities';
+import { FindOneSubscriberByIdResponseDto } from '../dto';
+import { formatFindOneSubscriberIdResponse } from '../helpers';
+import { StatusSubscription } from 'src/subscriptions/enums';
+import { AdminPersonsService } from 'src/common/services';
+import { envs, SERVICE_NAME } from 'src/config';
+import { CodeService, CodeFeatures } from 'src/common/enums';
+import { SubscriberInfoResponseDto } from 'src/common/dto';
+import { formatSubscriberInfoResponse } from '../helpers';
 
 @Injectable()
 export class SubscribersCustomService {
@@ -54,10 +52,10 @@ export class SubscribersCustomService {
     return formatFindOneSubscriberIdResponse(subscriber);
   }
 
-  async getSubscriberCompleteInfo(
+  async getSubscriberInfo(
     subscriberId: string,
     service?: CodeService,
-  ): Promise<SubscriberCompleteInfoResponseDto> {
+  ): Promise<SubscriberInfoResponseDto> {
     const queryBuilder =
       this.subscriberRepository.createQueryBuilder('subscriber');
 
@@ -113,7 +111,7 @@ export class SubscribersCustomService {
         subscriber.subscriptionsBussine.personId,
       );
 
-    return formatSubscriberCompleteInfoResponse(
+    return formatSubscriberInfoResponse(
       subscriber,
       subscriberNaturalPerson,
       subscriptionPersonData,

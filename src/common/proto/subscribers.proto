@@ -8,7 +8,7 @@ service SubscribersService {
   rpc FindUserProfile(FindUserByIdRequest) returns (UserProfileResponse);
   rpc UpdateUser(UpdateUserRequest) returns (UserProfileResponse);
   rpc FindByDomainOrSubscriptionDetailId(FindByDomainOrSubscriptionDetailIdRequest) returns (FindByDomainOrSubscriptionDetailIdResponse);
-  rpc GetSubscriberCompleteInfo(GetSubscriberCompleteInfoRequest) returns (SubscriberCompleteInfoResponse);
+  rpc GetSubscriberInfo(GetSubscriberInfoRequest) returns (SubscriberInfoResponse);
   rpc FindSubscribersWithNaturalPersons(FindSubscribersWithNaturalPersonsRequest) returns (FindSubscribersWithNaturalPersonsResponse);
   rpc RegisterSubscriber(RegisterSubscriberRequest) returns (RegisterSubscriberResponse);
   rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
@@ -48,7 +48,7 @@ message UpdateUserRequest {
   optional bool isTwoFactorEnabled = 3;
 }
 
-message GetSubscriberCompleteInfoRequest {
+message GetSubscriberInfoRequest {
   string subscriberId = 1;
   string service = 2;
 }
@@ -167,30 +167,19 @@ message FindByDomainOrSubscriptionDetailIdResponse {
   repeated FindByDomainOrSubscriptionDetailIdItem configurations = 1;
 }
 
-message NaturalPersonCompleteInfo {
-  string naturalPersonId = 1;
-  string personId = 2;
-  string fullName = 3;
-  string paternalSurname = 4;
-  string maternalSurname = 5;
-  string documentNumber = 6;
-  string documentType = 7;
-  repeated PersonInformation personInformation = 8;
-}
-
-message SubscriberCompleteInfoResponse {
+message SubscriberInfoResponse {
   string subscriberId = 1;
   string username = 2;
   bool isTwoFactorEnabled = 3;
   repeated string roles = 4;
-  NaturalPersonCompleteInfo naturalPerson = 5;
+  NaturalPerson naturalPerson = 5;
   SubscriptionInfo subscription = 6;
 }
 
 message SubscriberWithNaturalPersonData {
   string subscriberId = 1;
   string username = 2;
-  NaturalPersonCompleteInfo naturalPerson = 3;
+  NaturalPerson naturalPerson = 3;
 }
 
 message FindSubscribersWithNaturalPersonsResponse {

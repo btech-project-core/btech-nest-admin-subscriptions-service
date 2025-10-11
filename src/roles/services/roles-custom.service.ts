@@ -27,7 +27,10 @@ export class RolesCustomService {
     const relatedSubscribersCount = await this.roleRepository
       .createQueryBuilder('role')
       .innerJoin('role.subscriberRoles', 'subscriberRole')
-      .innerJoin('subscriberRole.subscribersSubscriptionDetail', 'subscribersSubscriptionDetail')
+      .innerJoin(
+        'subscriberRole.subscribersSubscriptionDetail',
+        'subscribersSubscriptionDetail',
+      )
       .innerJoin('subscribersSubscriptionDetail.subscriber', 'subscriber')
       .where('role.roleId = :roleId', {
         roleId,
