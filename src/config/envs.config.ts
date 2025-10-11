@@ -1,19 +1,9 @@
 import * as dotenv from 'dotenv';
 import * as joi from 'joi';
 
-if (process.env.NODE_ENV === 'local') {
-  const envFile = '.env.local';
-  const result = dotenv.config({
-    path: `${process.cwd()}/${envFile}`,
-  });
-  if (result.error)
-    console.error(
-      `Error crítico al cargar el archivo .env.local: ${result.error.message}`,
-    );
-}
+dotenv.config();
 
 interface EnvsVars {
-  SERVER_PORT: number;
   GRPC_PORT: number;
   NATS_SERVERS: string[];
   DB_HOST: string;
@@ -27,7 +17,6 @@ interface EnvsVars {
 
 const envsSchema = joi
   .object({
-    SERVER_PORT: joi.number().default(3000),
     GRPC_PORT: joi.number().default(50053),
     DB_HOST: joi.string().required(),
     DB_PORT: joi.number().required(),
@@ -51,9 +40,6 @@ if (validationResult.error)
 const envVars: EnvsVars = validationResult.value as EnvsVars;
 
 export const envs = {
-  server: {
-    port: envVars.SERVER_PORT,
-  },
   grpc: {
     port: envVars.GRPC_PORT,
   },
