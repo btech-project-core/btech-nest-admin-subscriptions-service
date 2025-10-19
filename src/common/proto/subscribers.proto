@@ -14,6 +14,7 @@ service SubscribersService {
   rpc SetPassword(SetPasswordRequest) returns (SetPasswordResponse);
   rpc ValidateSubscriberAlertLevel(ValidateSubscriberAlertLevelRequest) returns (ValidateSubscriberAlertLevelResponse);
   rpc DeleteSubscriber(DeleteSubscriberRequest) returns (DeleteSubscriberResponse);
+  rpc GetSubscribersByBusiness(GetSubscribersByBusinessRequest) returns (GetSubscribersByBusinessResponse);
 }
 
 // ===== REQUESTS =====
@@ -222,4 +223,31 @@ message DeleteSubscriberRequest {
 
 message DeleteSubscriberResponse {
   string message = 1;
+}
+
+message GetSubscribersByBusinessRequest {
+  string subscriptionBussineId = 1;
+  optional string service = 2;
+  optional int32 page = 3;
+  optional int32 limit = 4;
+}
+
+message SubscriberByBusiness {
+  string subscriberId = 1;
+  string role = 2;
+  string fullName = 3;
+  string paternalSurname = 4;
+  string maternalSurname = 5;
+  string documentNumber = 6;
+  string documentType = 7;
+  string createdAt = 8;
+  string updatedAt = 9;
+}
+
+message GetSubscribersByBusinessResponse {
+  repeated SubscriberByBusiness data = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+  int32 totalPages = 5;
 }
