@@ -9,11 +9,13 @@ import { SubscriptionsBussinesModule } from 'src/subscriptions-bussines/subscrip
 import { SubscriptionsServicesModule } from 'src/subscriptions-services/subscriptions-services.module';
 import { SubscriptionsDetailCoreService } from './services/subscriptions-detail-core.service';
 import { SubscriptionsDetailCustomService } from './services/subscriptions-detail-custom.service';
+import { SubscribersModule } from 'src/subscribers/subscribers.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([SubscriptionDetail, SubscriptionDetailFeatures]),
     forwardRef(() => SubscriptionsBussinesModule),
+    forwardRef(() => SubscribersModule),
     SubscriptionsServicesModule,
   ],
   controllers: [SubscriptionsDetailController],

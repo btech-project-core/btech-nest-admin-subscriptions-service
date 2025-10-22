@@ -39,6 +39,7 @@ export class SubscriptionsBussinesCoreService {
       savedSubscriptionsBussine,
       createSubscriptionsBussineDto.subscriptionDetails,
       subscriptionsServices,
+      createSubscriptionsBussineDto?.naturalPersons,
       queryRunner,
     );
 
