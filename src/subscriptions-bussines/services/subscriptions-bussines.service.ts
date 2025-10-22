@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { SubscriptionsBussinesValidateService } from './subscriptions-bussines-validate.service';
 import { SubscriptionsBussinesCustomService } from './subscriptions-bussines-custom.service';
+import {
+  CreateSubscriptionsBussineAlternalDto,
+  CreateSubscriptionsBussineAlternalResponseDto,
+} from '../dto';
 
 @Injectable()
 export class SubscriptionsBussinesService {
@@ -18,5 +22,13 @@ export class SubscriptionsBussinesService {
 
   async getClientPersonIds(): Promise<string[]> {
     return this.subscriptionsBussinesCustomService.getClientPersonIds();
+  }
+
+  async createAlternal(
+    createSubscriptionsBussineAlternalDto: CreateSubscriptionsBussineAlternalDto,
+  ): Promise<CreateSubscriptionsBussineAlternalResponseDto> {
+    return this.subscriptionsBussinesCustomService.createAlternal(
+      createSubscriptionsBussineAlternalDto,
+    );
   }
 }
