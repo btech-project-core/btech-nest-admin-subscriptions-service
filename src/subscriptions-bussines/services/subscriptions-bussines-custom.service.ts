@@ -92,15 +92,13 @@ export class SubscriptionsBussinesCustomService {
         subscriptionId: dto.subscriptionId,
       },
     });
-
     const subscriptionService =
       await this.subscriptionsServiceRepository.findOne({
         where: {
           subscriptionsServiceId: dto.subscriptionServiceId,
         },
       });
-
-    if (!subscription) {
+    if (!subscription)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: format(
@@ -108,9 +106,7 @@ export class SubscriptionsBussinesCustomService {
           dto.subscriptionId,
         ),
       });
-    }
-
-    if (!subscriptionService) {
+    if (!subscriptionService)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: format(
@@ -118,8 +114,6 @@ export class SubscriptionsBussinesCustomService {
           dto.subscriptionServiceId,
         ),
       });
-    }
-
     const subscriptionBussineDto = {
       personId: dto.personId,
       subscriptionDetails: [
@@ -131,7 +125,6 @@ export class SubscriptionsBussinesCustomService {
       ],
       naturalPersons: dto.naturalPersons,
     };
-
     return this.subscriptionsBussinesCoreService.create(
       subscription,
       subscriptionBussineDto,
