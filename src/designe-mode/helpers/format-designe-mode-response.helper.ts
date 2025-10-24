@@ -8,4 +8,5 @@ export const formatDesigneModeResponse = (
   description: designerMode.description,
   code: designerMode.code,
   isActive: designerMode.isActive,
+  subscriptionDetailId: designerMode.subscriptionDetailId,
 });

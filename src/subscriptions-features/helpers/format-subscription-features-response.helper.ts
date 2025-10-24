@@ -9,4 +9,5 @@ export const formatSubscriptionFeaturesResponse = (
   description: subscriptionFeatures.description,
   isRequired: subscriptionFeatures.isRequired,
   isActive: subscriptionFeatures.isActive,
+  subscriptionDetailId: subscriptionFeatures.subscriptionDetailId,
 });

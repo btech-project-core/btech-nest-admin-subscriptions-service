@@ -51,9 +51,12 @@ export class SubscriptionsFeaturesController {
   async findOne(
     @Payload('subscriptionFeaturesId', ParseUUIDPipe)
     subscriptionFeaturesId: string,
+    @Payload('subscriptionDetailId', ParseUUIDPipe)
+    subscriptionDetailId: string,
   ): Promise<FindOneSubscriptionFeaturesResponseDto> {
     return await this.subscriptionsFeaturesService.findOne(
       subscriptionFeaturesId,
+      subscriptionDetailId,
     );
   }
 

@@ -44,8 +44,14 @@ export class DesigneModeService {
     return await this.designeModeCoreService.findAll(findAllDesigneModeDto);
   }
 
-  async findOne(designerModeId: string): Promise<DesignerMode> {
-    return await this.designeModeCoreService.findOne(designerModeId);
+  async findOne(
+    designerModeId: string,
+    subscriptionDetailId: string,
+  ): Promise<DesignerMode> {
+    return await this.designeModeCoreService.findOne(
+      designerModeId,
+      subscriptionDetailId,
+    );
   }
 
   async update(

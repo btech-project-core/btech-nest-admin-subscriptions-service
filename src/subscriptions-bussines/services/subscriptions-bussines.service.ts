@@ -19,4 +19,12 @@ export class SubscriptionsBussinesService {
   async getClientPersonIds(): Promise<string[]> {
     return this.subscriptionsBussinesCustomService.getClientPersonIds();
   }
+
+  async findSubscriptionBussineIdBySubscriptionDetailId(
+    subscriptionDetailId: string,
+  ): Promise<string> {
+    return this.subscriptionsBussinesCustomService.findSubscriptionBussineIdBySubscriptionDetailId(
+      subscriptionDetailId,
+    );
+  }
 }

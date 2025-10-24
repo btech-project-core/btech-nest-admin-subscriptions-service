@@ -44,8 +44,13 @@ export class DesigneModeController {
   @MessagePattern('designeMode.findOne')
   async findOne(
     @Payload('designerModeId', ParseUUIDPipe) designerModeId: string,
+    @Payload('subscriptionDetailId', ParseUUIDPipe)
+    subscriptionDetailId: string,
   ): Promise<FindOneDesigneModeResponseDto> {
-    return await this.designeModeService.findOne(designerModeId);
+    return await this.designeModeService.findOne(
+      designerModeId,
+      subscriptionDetailId,
+    );
   }
 
   @MessagePattern('designeMode.update')

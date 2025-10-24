@@ -23,4 +23,16 @@ export class SubscriptionsBussinesController {
   async getClientPersonIds(): Promise<string[]> {
     return this.subscriptionsBussinesService.getClientPersonIds();
   }
+
+  @MessagePattern(
+    'subscriptionBussines.findSubscriptionBussineIdBySubscriptionDetailId',
+  )
+  async findSubscriptionBussineIdBySubscriptionDetailId(
+    @Payload('subscriptionDetailId', ParseUUIDPipe)
+    subscriptionDetailId: string,
+  ): Promise<string> {
+    return await this.subscriptionsBussinesService.findSubscriptionBussineIdBySubscriptionDetailId(
+      subscriptionDetailId,
+    );
+  }
 }

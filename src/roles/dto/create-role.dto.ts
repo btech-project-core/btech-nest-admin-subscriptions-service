@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { FindAllRoleResponseDto } from './find-all-role.dto';
+import { RoleLevel } from '../enums/role-level.enum';
 
 export class CreateRoleDto {
   @IsNotEmpty({
@@ -23,6 +24,20 @@ export class CreateRoleDto {
     message: 'La descripción del rol no puede exceder 25 caracteres',
   })
   description: string;
+
+  @IsNotEmpty({
+    message: 'El nivel del rol es un campo obligatorio',
+  })
+  @IsEnum(RoleLevel, {
+    message: 'El nivel del rol debe ser SERVICE o TENANT',
+  })
+  roleLevel: RoleLevel;
+
+  @IsOptional()
+  @IsString({
+    message: 'El ID del negocio de suscripción debe ser un texto válido',
+  })
+  subscriptionBussineId?: string;
 }
 
 export class CreateRoleResponseDto extends FindAllRoleResponseDto {}

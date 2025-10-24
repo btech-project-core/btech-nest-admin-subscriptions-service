@@ -52,6 +52,7 @@ export class SubscriptionsFeaturesCoreService {
       term,
       isRequired,
       isActive,
+      subscriptionDetailId,
       hasPagination = true,
       ...paginationDto
     } = findAllSubscriptionFeaturesDto;
@@ -72,6 +73,11 @@ export class SubscriptionsFeaturesCoreService {
       queryBuilder.andWhere('subscriptionFeatures.isActive = :isActive', {
         isActive,
       });
+    if (subscriptionDetailId)
+      queryBuilder.andWhere(
+        'subscriptionFeatures.subscriptionDetailId = :subscriptionDetailId',
+        { subscriptionDetailId },
+      );
     queryBuilder.orderBy('subscriptionFeatures.createdAt', 'DESC');
 
     if (hasPagination) {
@@ -90,10 +96,16 @@ export class SubscriptionsFeaturesCoreService {
     return subscriptionFeatures.map(formatSubscriptionFeaturesResponse);
   }
 
-  async findOne(subscriptionFeaturesId: string): Promise<SubscriptionFeatures> {
+  async findOne(
+    subscriptionFeaturesId: string,
+    subscriptionDetailId: string,
+  ): Promise<SubscriptionFeatures> {
     const subscriptionFeatures =
       await this.subscriptionFeaturesRepository.findOne({
-        where: { subscriptionFeaturesId: subscriptionFeaturesId.trim() },
+        where: {
+          subscriptionFeaturesId: subscriptionFeaturesId.trim(),
+          subscriptionDetailId: subscriptionDetailId.trim(),
+        },
       });
     if (!subscriptionFeatures)
       throw new RpcException({
@@ -106,9 +118,17 @@ export class SubscriptionsFeaturesCoreService {
   async update(
     updateSubscriptionFeaturesDto: UpdateSubscriptionFeaturesDto,
   ): Promise<UpdateSubscriptionFeaturesResponseDto> {
-    const { subscriptionFeaturesId, code, description, isRequired } =
-      updateSubscriptionFeaturesDto;
-    const subscriptionFeatures = await this.findOne(subscriptionFeaturesId);
+    const {
+      subscriptionFeaturesId,
+      code,
+      description,
+      isRequired,
+      subscriptionDetailId,
+    } = updateSubscriptionFeaturesDto;
+    const subscriptionFeatures = await this.findOne(
+      subscriptionFeaturesId,
+      subscriptionDetailId!,
+    );
 
     subscriptionFeatures.code = code ?? subscriptionFeatures.code;
     subscriptionFeatures.description =
@@ -123,10 +143,11 @@ export class SubscriptionsFeaturesCoreService {
   async updateStatus(
     updateSubscriptionFeaturesStatusDto: UpdateSubscriptionFeaturesStatusDto,
   ): Promise<UpdateSubscriptionFeaturesStatusResponseDto> {
-    const { subscriptionFeaturesId, isActive } =
+    const { subscriptionFeaturesId, isActive, subscriptionDetailId } =
       updateSubscriptionFeaturesStatusDto;
     const existingSubscriptionFeatures = await this.findOne(
       subscriptionFeaturesId,
+      subscriptionDetailId,
     );
     if (!isActive)
       await this.subscriptionsFeaturesCustomService.relatedSubscriptionDetails(

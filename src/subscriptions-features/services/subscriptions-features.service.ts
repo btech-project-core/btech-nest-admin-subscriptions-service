@@ -44,9 +44,13 @@ export class SubscriptionsFeaturesService {
     );
   }
 
-  async findOne(subscriptionFeaturesId: string): Promise<SubscriptionFeatures> {
+  async findOne(
+    subscriptionFeaturesId: string,
+    subscriptionDetailId: string,
+  ): Promise<SubscriptionFeatures> {
     return await this.subscriptionsFeaturesCoreService.findOne(
       subscriptionFeaturesId,
+      subscriptionDetailId,
     );
   }
 

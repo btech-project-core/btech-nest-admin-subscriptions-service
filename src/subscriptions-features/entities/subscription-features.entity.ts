@@ -1,8 +1,10 @@
 import { Timestamped } from 'src/common/entities/timestamped.entity';
 import { SubscriptionDetailFeatures } from 'src/subscriptions-detail/entities/subscription-detail-features.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity({ name: 'subscriptionFeatures' })
+@Unique(['code', 'subscriptionDetailId'])
+@Unique(['description', 'subscriptionDetailId'])
 export class SubscriptionFeatures extends Timestamped {
   @PrimaryGeneratedColumn('uuid')
   subscriptionFeaturesId: string;
@@ -11,7 +13,6 @@ export class SubscriptionFeatures extends Timestamped {
     type: 'varchar',
     length: 8,
     nullable: false,
-    unique: true,
   })
   code: string;
 
@@ -19,7 +20,6 @@ export class SubscriptionFeatures extends Timestamped {
     type: 'varchar',
     length: 65,
     nullable: false,
-    unique: true,
   })
   description: string;
 
@@ -36,6 +36,13 @@ export class SubscriptionFeatures extends Timestamped {
     nullable: false,
   })
   isActive: boolean;
+
+  @Column({
+    type: 'varchar',
+    nullable: false,
+    default: 'global',
+  })
+  subscriptionDetailId: string;
 
   @OneToMany(
     () => SubscriptionDetailFeatures,

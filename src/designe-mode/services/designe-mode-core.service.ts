@@ -50,6 +50,7 @@ export class DesigneModeCoreService {
     const {
       term,
       isActive,
+      subscriptionDetailId,
       hasPagination = true,
       ...paginationDto
     } = findAllDesigneModeDto;
@@ -65,6 +66,11 @@ export class DesigneModeCoreService {
       queryBuilder.andWhere('designerMode.isActive = :isActive', {
         isActive,
       });
+    if (subscriptionDetailId)
+      queryBuilder.andWhere(
+        'designerMode.subscriptionDetailId = :subscriptionDetailId',
+        { subscriptionDetailId },
+      );
     queryBuilder.orderBy('designerMode.createdAt', 'DESC');
 
     if (hasPagination) {
@@ -83,9 +89,15 @@ export class DesigneModeCoreService {
     return designerModes.map(formatDesigneModeResponse);
   }
 
-  async findOne(designerModeId: string): Promise<DesignerMode> {
+  async findOne(
+    designerModeId: string,
+    subscriptionDetailId: string,
+  ): Promise<DesignerMode> {
     const designerMode = await this.designerModeRepository.findOne({
-      where: { designerModeId: designerModeId.trim() },
+      where: {
+        designerModeId: designerModeId.trim(),
+        subscriptionDetailId: subscriptionDetailId.trim(),
+      },
     });
     if (!designerMode)
       throw new RpcException({
@@ -98,12 +110,14 @@ export class DesigneModeCoreService {
   async update(
     updateDesigneModeDto: UpdateDesigneModeDto,
   ): Promise<UpdateDesigneModeResponseDto> {
-    const { designerModeId, description, code } = updateDesigneModeDto;
-    const designerMode = await this.findOne(designerModeId);
-
+    const { designerModeId, description, code, subscriptionDetailId } =
+      updateDesigneModeDto;
+    const designerMode = await this.findOne(
+      designerModeId,
+      subscriptionDetailId!,
+    );
     designerMode.description = description ?? designerMode.description;
     designerMode.code = code ?? designerMode.code;
-
     await this.designerModeRepository.save(designerMode);
     return formatDesigneModeResponse(designerMode);
   }
@@ -111,8 +125,12 @@ export class DesigneModeCoreService {
   async updateStatus(
     updateDesigneModeStatusDto: UpdateDesigneModeStatusDto,
   ): Promise<UpdateDesigneModeStatusResponseDto> {
-    const { designerModeId, isActive } = updateDesigneModeStatusDto;
-    const existingDesignerMode = await this.findOne(designerModeId);
+    const { designerModeId, isActive, subscriptionDetailId } =
+      updateDesigneModeStatusDto;
+    const existingDesignerMode = await this.findOne(
+      designerModeId,
+      subscriptionDetailId,
+    );
     if (!isActive)
       await this.designeModeCustomService.relatedDesigneSettings(
         designerModeId,

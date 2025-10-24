@@ -23,6 +23,14 @@ export class CreateDesigneModeDto {
     message: 'El código del modo de diseño no puede exceder 8 caracteres',
   })
   code: string;
+
+  @IsNotEmpty({
+    message: 'El ID del detalle de suscripción es un campo obligatorio',
+  })
+  @IsString({
+    message: 'El ID del detalle de suscripción debe ser un texto válido',
+  })
+  subscriptionDetailId: string;
 }
 
 export class CreateDesigneModeResponseDto extends FindAllDesigneModeResponseDto {}

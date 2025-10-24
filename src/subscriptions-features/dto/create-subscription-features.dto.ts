@@ -34,6 +34,14 @@ export class CreateSubscriptionFeaturesDto {
   @IsBoolean({ message: 'El campo requerido es un campo booleano' })
   @IsOptional()
   isRequired?: boolean;
+
+  @IsNotEmpty({
+    message: 'El ID del detalle de suscripción es un campo obligatorio',
+  })
+  @IsString({
+    message: 'El ID del detalle de suscripción debe ser un texto válido',
+  })
+  subscriptionDetailId: string;
 }
 
 export class CreateSubscriptionFeaturesResponseDto extends FindAllSubscriptionFeaturesResponseDto {}

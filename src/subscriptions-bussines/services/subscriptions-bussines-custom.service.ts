@@ -49,4 +49,26 @@ export class SubscriptionsBussinesCustomService {
       });
     return result;
   }
+
+  async findSubscriptionBussineIdBySubscriptionDetailId(
+    subscriptionDetailId: string,
+  ): Promise<string> {
+    const result = await this.subscriptionsBussinesRepository
+      .createQueryBuilder('subscriptionBussine')
+      .innerJoin('subscriptionBussine.subscriptionDetail', 'subscriptionDetail')
+      .select('subscriptionBussine.subscriptionBussineId')
+      .where(
+        'subscriptionDetail.subscriptionDetailId = :subscriptionDetailId',
+        {
+          subscriptionDetailId: subscriptionDetailId.trim(),
+        },
+      )
+      .getOne();
+    if (!result)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `No se encontró el negocio de suscripción para el detalle de suscripción: ${subscriptionDetailId}`,
+      });
+    return result.subscriptionBussineId;
+  }
 }

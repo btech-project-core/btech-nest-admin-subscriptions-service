@@ -17,6 +17,12 @@ export class FindAllSubscriptionFeaturesDto extends PaginationDto {
   @IsOptional()
   @IsBoolean({ message: 'La paginación debe ser un valor booleano' })
   hasPagination?: boolean;
+
+  @IsOptional()
+  @IsString({
+    message: 'El ID del detalle de suscripción debe ser un texto válido',
+  })
+  subscriptionDetailId?: string;
 }
 
 export class FindAllSubscriptionFeaturesResponseDto {
@@ -25,4 +31,5 @@ export class FindAllSubscriptionFeaturesResponseDto {
   description: string;
   isRequired: boolean;
   isActive: boolean;
+  subscriptionDetailId: string;
 }
