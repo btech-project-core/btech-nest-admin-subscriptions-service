@@ -1,6 +1,10 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { SubscriptionsBussinesService } from './services/subscriptions-bussines.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  CreateSubscriptionsBussineAlternalDto,
+  CreateSubscriptionsBussineAlternalResponseDto,
+} from './dto';
 
 @Controller()
 export class SubscriptionsBussinesController {
@@ -34,5 +38,12 @@ export class SubscriptionsBussinesController {
     return await this.subscriptionsBussinesService.findSubscriptionBussineIdBySubscriptionDetailId(
       subscriptionDetailId,
     );
+  }
+
+  @MessagePattern('subscriptionBussines.createAlternal')
+  async createAlternal(
+    @Payload() dto: CreateSubscriptionsBussineAlternalDto,
+  ): Promise<CreateSubscriptionsBussineAlternalResponseDto> {
+    return this.subscriptionsBussinesService.createAlternal(dto);
   }
 }

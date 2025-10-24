@@ -5,6 +5,7 @@ import { CreateSubscriptionDetailDto } from '../dto/create-subscription-detail.d
 import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
 import { SubscriptionsService } from 'src/subscriptions-services/entities/subscriptions-service.entity';
 import { SubscriptionsDetailCoreService } from './subscriptions-detail-core.service';
+import { NaturalPersonForSubscriberDto } from 'src/subscriptions-bussines/dto';
 
 @Injectable()
 export class SubscriptionsDetailService {
@@ -15,12 +16,14 @@ export class SubscriptionsDetailService {
     subscriptionsBussine: SubscriptionsBussine,
     createSubscriptionDetailsDto: CreateSubscriptionDetailDto[],
     subscriptionsServices: SubscriptionsService[],
+    naturalPersonForSubscriberDto?: NaturalPersonForSubscriberDto[],
     queryRunner?: QueryRunner,
   ): Promise<SubscriptionDetail[]> {
     return this.subscriptionsDetailCoreService.create(
       subscriptionsBussine,
       createSubscriptionDetailsDto,
       subscriptionsServices,
+      naturalPersonForSubscriberDto,
       queryRunner,
     );
   }

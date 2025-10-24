@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SubscribersService } from './services/subscribers.service';
 import { SubscribersCoreService } from './services/subscribers-core.service';
 import { SubscribersAuthService } from './services/subscribers-auth.service';
@@ -21,10 +21,9 @@ import { SubscribersSubscriptionDetailModule } from 'src/subscribers-subscriptio
     TypeOrmModule.forFeature([Subscriber, SubscriberRole]),
     CommonModule,
     SubscriptionsBussinesModule,
-    SubscriptionsDetailModule,
+    forwardRef(() => SubscriptionsDetailModule),
     SubscribersSubscriptionDetailModule,
     RolesModule,
-    SubscriptionsDetailModule,
   ],
   controllers: [SubscribersController],
   providers: [
@@ -40,6 +39,8 @@ import { SubscribersSubscriptionDetailModule } from 'src/subscribers-subscriptio
     SubscribersService,
     SubscribersValidateService,
     SubscribersBulkService,
+    SubscribersCoreService,
+    SubscribersCustomService,
   ],
 })
 export class SubscribersModule {}

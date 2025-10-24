@@ -3,14 +3,31 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { Subscriber } from '../entities';
-import { FindOneSubscriberByIdResponseDto } from '../dto';
-import { formatFindOneSubscriberIdResponse } from '../helpers';
+import {
+  FindOneSubscriberByIdResponseDto,
+  GetSubscribersByBusinessDto,
+  GetSubscribersByBusinessResponseDto,
+  CreateSubscriberResponseDto,
+} from '../dto';
+import {
+  formatFindOneSubscriberIdResponse,
+  formatSubscribersByBusinessResponse,
+} from '../helpers';
 import { StatusSubscription } from 'src/subscriptions/enums';
 import { AdminPersonsService } from 'src/common/services';
 import { envs, SERVICE_NAME } from 'src/config';
 import { CodeService, CodeFeatures } from 'src/common/enums';
-import { SubscriberInfoResponseDto } from 'src/common/dto';
+import {
+  SubscriberInfoResponseDto,
+  PaginationResponseDto,
+} from 'src/common/dto';
 import { formatSubscriberInfoResponse } from '../helpers';
+import { SubscriptionsBussine } from 'src/subscriptions-bussines/entities/subscriptions-bussine.entity';
+import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscription-detail.entity';
+import { SubscribersSubscriptionDetailCoreService } from 'src/subscribers-subscription-detail/services/subscribers-subscription-detail-core.service';
+import { SubscriberRoleCoreService } from './subscriber-role-core.service';
+import { RolesCustomService } from 'src/roles/services/roles-custom.service';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class SubscribersCustomService {
@@ -18,6 +35,9 @@ export class SubscribersCustomService {
     @InjectRepository(Subscriber)
     private readonly subscriberRepository: Repository<Subscriber>,
     private readonly adminPersonsService: AdminPersonsService,
+    private readonly subscribersSubscriptionDetailCoreService: SubscribersSubscriptionDetailCoreService,
+    private readonly subscriberRoleCoreService: SubscriberRoleCoreService,
+    private readonly rolesCustomService: RolesCustomService,
   ) {}
 
   async findOneBySubscriberId(
@@ -213,6 +233,140 @@ export class SubscribersCustomService {
     await fs.writeFile(outputPath, JSON.stringify(usernames, null, 2));
     return {
       message: `Se encontraron ${subscribersSince30Sep.length} subscribers registrados desde el 30 de septiembre. Usernames guardados en: ${outputPath}`,
+    };
+  }
+
+  async getSubscribersByBusiness(
+    dto: GetSubscribersByBusinessDto,
+  ): Promise<PaginationResponseDto<GetSubscribersByBusinessResponseDto>> {
+    const { page = 1, limit = 10, ...filters } = dto;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.subscriberRepository
+      .createQueryBuilder('subscriber')
+      .leftJoinAndSelect(
+        'subscriber.subscriptionsBussine',
+        'subscriptionsBussine',
+      )
+      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .leftJoinAndSelect(
+        'subscriptionsBussine.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .leftJoinAndSelect(
+        'subscriber.subscribersSubscriptionDetails',
+        'subscribersSubscriptionDetails',
+      )
+      .leftJoinAndSelect(
+        'subscribersSubscriptionDetails.subscriberRoles',
+        'subscriberRoles',
+      )
+      .leftJoinAndSelect('subscriberRoles.role', 'role')
+      .where(
+        'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
+        { subscriptionBussineId: filters.subscriptionBussineId },
+      )
+      .andWhere('subscription.status = :status', {
+        status: StatusSubscription.ACTIVE,
+      })
+      .andWhere('subscribersSubscriptionDetails.isActive = :isActive', {
+        isActive: true,
+      })
+      .andWhere('subscriberRoles.isActive = :roleActive', { roleActive: true });
+
+    if (filters.service) {
+      queryBuilder.andWhere('subscriptionsService.code = :service', {
+        service: filters.service,
+      });
+    }
+
+    queryBuilder.orderBy('subscriber.createdAt', 'DESC');
+
+    const [subscribers, total] = await queryBuilder
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    if (subscribers.length === 0) {
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
+    }
+
+    const naturalPersonIds = subscribers.map((sub) => sub.naturalPersonId);
+    const naturalPersons =
+      await this.adminPersonsService.findMultipleNaturalPersonsByIds({
+        naturalPersonIds,
+      });
+
+    const naturalPersonsMap = new Map(
+      naturalPersons.map((np) => [np.naturalPersonId, np]),
+    );
+
+    const data = subscribers
+      .map((subscriber) => {
+        const naturalPerson = naturalPersonsMap.get(subscriber.naturalPersonId);
+        if (!naturalPerson) return null;
+        return formatSubscribersByBusinessResponse(subscriber, naturalPerson);
+      })
+      .filter(
+        (item): item is GetSubscribersByBusinessResponseDto => item !== null,
+      );
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async createSubscriberAlternal(
+    username: string,
+    password: string,
+    naturalPersonId: string,
+    subscriptionsBussine: SubscriptionsBussine,
+    subscriptionDetail: SubscriptionDetail,
+    roleCode?: string,
+  ): Promise<CreateSubscriberResponseDto> {
+    const role = await this.rolesCustomService.findOneByCode(
+      roleCode ? roleCode : 'CLI',
+    );
+
+    const subscriber = this.subscriberRepository.create({
+      username,
+      password: bcrypt.hashSync(password, 10),
+      isConfirm: true,
+      naturalPersonId,
+      subscriptionsBussine,
+    });
+    const subscriberSaved = await this.subscriberRepository.save(subscriber);
+
+    const subscribersSubscriptionDetail =
+      await this.subscribersSubscriptionDetailCoreService.create(
+        subscriberSaved,
+        subscriptionDetail,
+        true,
+      );
+
+    await this.subscriberRoleCoreService.create(
+      subscribersSubscriptionDetail,
+      role,
+      true,
+    );
+
+    return {
+      subscriberId: subscriberSaved.subscriberId,
+      username: subscriberSaved.username,
     };
   }
 }

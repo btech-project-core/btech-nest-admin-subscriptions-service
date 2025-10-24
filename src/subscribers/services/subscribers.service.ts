@@ -12,6 +12,8 @@ import {
   SubscriberWithNaturalPersonDto,
   CreateSubscriberDto,
   CreateSubscriberResponseDto,
+  GetSubscribersByBusinessDto,
+  GetSubscribersByBusinessResponseDto,
 } from '../dto';
 import { CodeService } from 'src/common/enums';
 import { SubscribersCoreService } from './subscribers-core.service';
@@ -126,5 +128,11 @@ export class SubscribersService {
 
   async deleteSubscriber(subscriberId: string): Promise<{ message: string }> {
     return await this.subscribersCoreService.delete(subscriberId);
+  }
+
+  async getSubscribersByBusiness(
+    dto: GetSubscribersByBusinessDto,
+  ): Promise<PaginationResponseDto<GetSubscribersByBusinessResponseDto>> {
+    return await this.subscribersCustomService.getSubscribersByBusiness(dto);
   }
 }

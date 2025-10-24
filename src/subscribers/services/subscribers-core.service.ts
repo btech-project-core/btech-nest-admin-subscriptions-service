@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
@@ -22,6 +22,7 @@ export class SubscribersCoreService {
     private readonly subscriberRepository: Repository<Subscriber>,
     private readonly subscriptionsBussinesCustomService: SubscriptionsBussinesCustomService,
     private readonly subscriberRoleCoreService: SubscriberRoleCoreService,
+    @Inject(forwardRef(() => SubscriptionsDetailCustomService))
     private readonly subscriptionsDetailCustomService: SubscriptionsDetailCustomService,
     private readonly subscribersSubscriptionDetailCoreService: SubscribersSubscriptionDetailCoreService,
     private readonly rolesCustomService: RolesCustomService,
