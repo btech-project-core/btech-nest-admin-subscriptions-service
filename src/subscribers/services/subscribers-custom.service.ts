@@ -28,6 +28,7 @@ import { SubscribersSubscriptionDetailCoreService } from 'src/subscribers-subscr
 import { SubscriberRoleCoreService } from './subscriber-role-core.service';
 import { RolesCustomService } from 'src/roles/services/roles-custom.service';
 import * as bcrypt from 'bcryptjs';
+import { StorageRepository } from '../providers/storage/storage.repository';
 
 @Injectable()
 export class SubscribersCustomService {
@@ -203,7 +204,10 @@ export class SubscribersCustomService {
         }),
       );
     }
-    return await queryBuilder.getOne();
+
+    const subscriber = await queryBuilder.getOne();
+    
+    return subscriber || null;
   }
 
   async deleteSubscribersAlternal(): Promise<{ message: string }> {

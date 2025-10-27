@@ -68,6 +68,7 @@ message LoginSubscriptionData {
   string subscriptionBussineId = 2;
   string subscriptionDetailId = 3;
   string status = 4;
+  optional string storageId = 5;
 }
 
 message LoginUserResponse {
