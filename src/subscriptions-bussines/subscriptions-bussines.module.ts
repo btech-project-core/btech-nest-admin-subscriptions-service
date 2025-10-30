@@ -9,6 +9,8 @@ import { SubscriptionsBussinesCustomService } from './services/subscriptions-bus
 import { SubscriptionsDetailModule } from 'src/subscriptions-detail/subscriptions-detail.module';
 import { Subscription } from 'src/subscriptions/entities/subscription.entity';
 import { SubscriptionsService } from 'src/subscriptions-services/entities/subscriptions-service.entity';
+import { CommonModule } from 'src/common/common.module';
+import { Subscriber } from 'src/subscribers/entities/subscriber.entity';
 
 @Module({
   imports: [
@@ -16,8 +18,10 @@ import { SubscriptionsService } from 'src/subscriptions-services/entities/subscr
       SubscriptionsBussine,
       Subscription,
       SubscriptionsService,
+      Subscriber,
     ]),
     forwardRef(() => SubscriptionsDetailModule),
+    CommonModule,
   ],
   controllers: [SubscriptionsBussinesController],
   providers: [

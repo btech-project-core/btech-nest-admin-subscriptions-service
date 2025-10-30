@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
@@ -8,6 +8,7 @@ import {
   GetSubscribersByBusinessDto,
   GetSubscribersByBusinessResponseDto,
   CreateSubscriberResponseDto,
+  CreateSubscriberDto,
 } from '../dto';
 import {
   formatFindOneSubscriberIdResponse,
@@ -27,6 +28,8 @@ import { SubscriptionDetail } from 'src/subscriptions-detail/entities/subscripti
 import { SubscribersSubscriptionDetailCoreService } from 'src/subscribers-subscription-detail/services/subscribers-subscription-detail-core.service';
 import { SubscriberRoleCoreService } from './subscriber-role-core.service';
 import { RolesCustomService } from 'src/roles/services/roles-custom.service';
+import { SubscriptionsBussinesCustomService } from 'src/subscriptions-bussines/services/subscriptions-bussines-custom.service';
+import { SubscriptionsDetailCustomService } from 'src/subscriptions-detail/services/subscriptions-detail-custom.service';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -38,6 +41,9 @@ export class SubscribersCustomService {
     private readonly subscribersSubscriptionDetailCoreService: SubscribersSubscriptionDetailCoreService,
     private readonly subscriberRoleCoreService: SubscriberRoleCoreService,
     private readonly rolesCustomService: RolesCustomService,
+    private readonly subscriptionsBussinesCustomService: SubscriptionsBussinesCustomService,
+    @Inject(forwardRef(() => SubscriptionsDetailCustomService))
+    private readonly subscriptionsDetailCustomService: SubscriptionsDetailCustomService,
   ) {}
 
   async findOneBySubscriberId(
@@ -330,6 +336,33 @@ export class SubscribersCustomService {
     };
   }
 
+  async registerSubscriberAlternal(
+    createSubscriberDto: CreateSubscriberDto,
+  ): Promise<CreateSubscriberResponseDto> {
+    const { username, password, naturalPersonId, domain, service } =
+      createSubscriberDto;
+
+    const subscriptionsBussine =
+      await this.subscriptionsBussinesCustomService.findOneByDomainOrTenantId(
+        domain,
+      );
+
+    const subscriptionDetail =
+      await this.subscriptionsDetailCustomService.findOneByBussineIdAndService(
+        subscriptionsBussine.subscriptionBussineId,
+        service,
+      );
+
+    return this.createSubscriberAlternal(
+      username,
+      password,
+      naturalPersonId,
+      subscriptionsBussine,
+      subscriptionDetail,
+      createSubscriberDto.role || 'CLI',
+    );
+  }
+
   async createSubscriberAlternal(
     username: string,
     password: string,
@@ -342,9 +375,11 @@ export class SubscribersCustomService {
       roleCode ? roleCode : 'CLI',
     );
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const subscriber = this.subscriberRepository.create({
       username,
-      password: bcrypt.hashSync(password, 10),
+      password: hashedPassword,
       isConfirm: true,
       naturalPersonId,
       subscriptionsBussine,

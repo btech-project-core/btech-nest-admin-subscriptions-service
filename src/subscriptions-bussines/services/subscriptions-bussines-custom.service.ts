@@ -7,8 +7,16 @@ import { Subscription } from 'src/subscriptions/entities/subscription.entity';
 import { SubscriptionsDetailService } from 'src/subscriptions-detail/services/subscriptions-detail.service';
 import { SubscriptionsService as SubscriptionsServiceEntity } from 'src/subscriptions-services/entities/subscriptions-service.entity';
 import { format } from 'util';
-import { CreateSubscriptionsBussineAlternalDto } from '../dto';
+import {
+  CreateSubscriptionsBussineAlternalDto,
+  GetClientBusinessesResponseDto,
+  ClientBusinessDto,
+  GetClientBusinessesDto,
+} from '../dto';
 import { SubscriptionsBussinesCoreService } from './subscriptions-bussines-core.service';
+import { AdminPersonsService } from 'src/common/services/admin-persons.service';
+import { StatusSubscription } from 'src/subscriptions/enums/status-subscription.enum';
+import { Subscriber } from 'src/subscribers/entities/subscriber.entity';
 
 @Injectable()
 export class SubscriptionsBussinesCustomService {
@@ -19,8 +27,11 @@ export class SubscriptionsBussinesCustomService {
     private readonly subscriptionsRepository: Repository<Subscription>,
     @InjectRepository(SubscriptionsServiceEntity)
     private readonly subscriptionsServiceRepository: Repository<SubscriptionsServiceEntity>,
+    @InjectRepository(Subscriber)
+    private readonly subscriberRepository: Repository<Subscriber>,
     private readonly subscriptionsDetailService: SubscriptionsDetailService,
     private readonly subscriptionsBussinesCoreService: SubscriptionsBussinesCoreService,
+    private readonly adminPersonsService: AdminPersonsService,
   ) {}
 
   async getClientPersonIds(): Promise<string[]> {
@@ -130,5 +141,100 @@ export class SubscriptionsBussinesCustomService {
       subscriptionBussineDto,
       [subscriptionService],
     );
+  }
+
+  async getClientBusinesses(
+    getClientBusinessDto: GetClientBusinessesDto,
+  ): Promise<GetClientBusinessesResponseDto> {
+    const parentBusiness = await this.subscriptionsBussinesRepository.findOne({
+      where: {
+        subscriptionBussineId: getClientBusinessDto.subscriptionBussineId,
+      },
+      relations: ['subscription'],
+    });
+
+    if (!parentBusiness)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: format(
+          'No se encontró la empresa con id: %s',
+          getClientBusinessDto.subscriptionBussineId,
+        ),
+      });
+
+    const subscriptionsBussines = await this.subscriptionsBussinesRepository
+      .createQueryBuilder('subscriptionBussine')
+      .leftJoinAndSelect('subscriptionBussine.subscription', 'subscription')
+      .leftJoinAndSelect(
+        'subscriptionBussine.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .where('subscription.status = :status', {
+        status: StatusSubscription.ACTIVE,
+      })
+      .andWhere('subscriptionsService.code = :service', { service: 'SUP' })
+
+      .andWhere('subscription.personId = :parentPersonId', {
+        parentPersonId: parentBusiness.personId,
+      })
+      .andWhere('subscriptionBussine.personId != :parentPersonId', {
+        parentPersonId: parentBusiness.personId,
+      })
+      .getMany();
+
+    const clientBusinesses: ClientBusinessDto[] = [];
+
+    for (const subscriptionBussine of subscriptionsBussines) {
+      // Obtener la información completa de la persona jurídica de la empresa cliente
+      const juridicalPersonData =
+        await this.adminPersonsService.findOneJuridicalPersonByPersonId({
+          personId: subscriptionBussine.personId,
+        });
+
+      // Contar los subscribers activos de esta empresa cliente
+      const subscribersCount = await this.subscriberRepository
+        .createQueryBuilder('subscriber')
+        .innerJoin('subscriber.subscriptionsBussine', 'subscriptionsBussine')
+        .innerJoin(
+          'subscriptionsBussine.subscriptionDetail',
+          'subscriptionDetail',
+        )
+        .innerJoin(
+          'subscriptionDetail.subscriptionsService',
+          'subscriptionsService',
+        )
+        .innerJoin(
+          'subscriber.subscribersSubscriptionDetails',
+          'subscribersSubscriptionDetails',
+        )
+        .where(
+          'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
+          {
+            subscriptionBussineId: subscriptionBussine.subscriptionBussineId,
+          },
+        )
+        .andWhere('subscriptionsService.code = :service', { service: 'SUP' })
+        .andWhere('subscribersSubscriptionDetails.isActive = :isActive', {
+          isActive: true,
+        })
+        .getCount();
+
+      clientBusinesses.push({
+        subscriptionBussineId: subscriptionBussine.subscriptionBussineId,
+        personId: subscriptionBussine.personId,
+        businessName:
+          juridicalPersonData.comercialName || juridicalPersonData.legalName,
+        juridicalPerson: juridicalPersonData,
+        subscribersCount,
+        createdAt: subscriptionBussine.createdAt.toISOString(),
+        updatedAt: subscriptionBussine.updatedAt.toISOString(),
+      });
+    }
+
+    return { clientBusinesses };
   }
 }

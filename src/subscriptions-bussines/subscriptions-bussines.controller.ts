@@ -4,6 +4,8 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateSubscriptionsBussineAlternalDto,
   CreateSubscriptionsBussineAlternalResponseDto,
+  GetClientBusinessesDto,
+  GetClientBusinessesResponseDto,
 } from './dto';
 
 @Controller()
@@ -45,5 +47,15 @@ export class SubscriptionsBussinesController {
     @Payload() dto: CreateSubscriptionsBussineAlternalDto,
   ): Promise<CreateSubscriptionsBussineAlternalResponseDto> {
     return this.subscriptionsBussinesService.createAlternal(dto);
+  }
+
+  @MessagePattern('subscriptionBussines.getClientBusinesses')
+  async getClientBusinesses(
+    @Payload()
+    getClientBusinessesDto: GetClientBusinessesDto,
+  ): Promise<GetClientBusinessesResponseDto> {
+    return this.subscriptionsBussinesService.getClientBusinesses(
+      getClientBusinessesDto,
+    );
   }
 }

@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, Length, IsEnum } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  Length,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 import { CodeService } from 'src/common/enums/code-service.enum';
 
 export class CreateSubscriberDto {
@@ -27,6 +33,13 @@ export class CreateSubscriberDto {
   @IsEnum(CodeService, { message: 'El campo service debe ser: VDI, STO, SUP' })
   @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })
   service: CodeService;
+
+  @IsOptional()
+  @IsString({ message: 'El rol debe ser un string' })
+  @Length(1, 35, {
+    message: 'El rol debe tener entre 1 y 35 caracteres',
+  })
+  role?: string;
 }
 
 export class CreateSubscriberResponseDto {

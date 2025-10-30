@@ -10,6 +10,10 @@ import {
   FindMultipleNaturalPersonsDto,
   FindMultipleNaturalPersonsResponseDto,
 } from '../dto/find-multiple-natural-persons.dto';
+import {
+  FindJuridicalPersonByPersonIdDto,
+  FindJuridicalPersonByPersonIdResponseDto,
+} from '../dto';
 
 @Injectable()
 export class AdminPersonsService {
@@ -64,5 +68,15 @@ export class AdminPersonsService {
 
   async findAllNaturalPersonIds(): Promise<string[]> {
     return this.client.send('naturalPersons.findAllNaturalPersonIds', {});
+  }
+
+  async findOneJuridicalPersonByPersonId(
+    findJuridicalPersonByPersonIdDto: FindJuridicalPersonByPersonIdDto,
+  ): Promise<FindJuridicalPersonByPersonIdResponseDto> {
+    console.log(findJuridicalPersonByPersonIdDto);
+    return this.client.send(
+      'juridicalPersons.findByPersonId',
+      findJuridicalPersonByPersonIdDto,
+    );
   }
 }

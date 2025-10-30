@@ -4,6 +4,8 @@ import { SubscriptionsBussinesCustomService } from './subscriptions-bussines-cus
 import {
   CreateSubscriptionsBussineAlternalDto,
   CreateSubscriptionsBussineAlternalResponseDto,
+  GetClientBusinessesDto,
+  GetClientBusinessesResponseDto,
 } from '../dto';
 
 @Injectable()
@@ -37,6 +39,14 @@ export class SubscriptionsBussinesService {
   ): Promise<CreateSubscriptionsBussineAlternalResponseDto> {
     return this.subscriptionsBussinesCustomService.createAlternal(
       createSubscriptionsBussineAlternalDto,
+    );
+  }
+
+  async getClientBusinesses(
+    getClientBusinessDto: GetClientBusinessesDto,
+  ): Promise<GetClientBusinessesResponseDto> {
+    return this.subscriptionsBussinesCustomService.getClientBusinesses(
+      getClientBusinessDto,
     );
   }
 }

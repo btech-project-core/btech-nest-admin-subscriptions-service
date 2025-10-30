@@ -135,4 +135,10 @@ export class SubscribersService {
   ): Promise<PaginationResponseDto<GetSubscribersByBusinessResponseDto>> {
     return await this.subscribersCustomService.getSubscribersByBusiness(dto);
   }
+
+  async registerSubscriberAlternal(
+    dto: CreateSubscriberDto,
+  ): Promise<CreateSubscriberResponseDto> {
+    return await this.subscribersCustomService.registerSubscriberAlternal(dto);
+  }
 }

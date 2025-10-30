@@ -134,6 +134,10 @@ export class CreateSubscriberRequest {
   @IsEnum(CodeService, { message: 'El campo service debe ser: VDI, STO, SUP' })
   @IsNotEmpty({ message: 'El campo service no puede estar vacío.' })
   service: CodeService;
+
+  @IsOptional()
+  @IsString({ message: 'El campo role debe ser una cadena de caracteres.' })
+  role?: string;
 }
 
 export class SetPasswordRequest {

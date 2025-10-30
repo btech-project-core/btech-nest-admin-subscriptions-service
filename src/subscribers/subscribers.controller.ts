@@ -137,4 +137,9 @@ export class SubscribersController {
   async getSubscribersByBusiness(data: GetSubscribersByBusinessDto) {
     return await this.subscribersService.getSubscribersByBusiness(data);
   }
+
+  @GrpcMethod('SubscribersService', 'RegisterSubscriberAlternal')
+  async registerSubscriberAlternal(data: CreateSubscriberRequest) {
+    return await this.subscribersService.registerSubscriberAlternal(data);
+  }
 }
