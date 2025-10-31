@@ -48,7 +48,6 @@ async function bootstrap() {
           'subscribers',
           'subscriptionDetailFeatures',
           'subscriberDesignePreference',
-          // 'storage.v1',
         ],
         protoPath: [
           join(process.cwd(), 'src/common/proto/subscribers.proto'),
@@ -60,9 +59,7 @@ async function bootstrap() {
             process.cwd(),
             'src/common/proto/subscriber-designe-preference.proto',
           ),
-          // join(process.cwd(), 'src/common/proto/storage.proto'),
         ],
-
         url: `0.0.0.0:${envs.grpc.port}`,
       },
     },
