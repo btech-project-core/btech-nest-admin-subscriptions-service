@@ -31,6 +31,7 @@ import { RolesCustomService } from 'src/roles/services/roles-custom.service';
 import { SubscriptionsBussinesCustomService } from 'src/subscriptions-bussines/services/subscriptions-bussines-custom.service';
 import { SubscriptionsDetailCustomService } from 'src/subscriptions-detail/services/subscriptions-detail-custom.service';
 import * as bcrypt from 'bcryptjs';
+import { StorageRepository } from '../providers/storage/storage.repository';
 
 @Injectable()
 export class SubscribersCustomService {
@@ -209,7 +210,10 @@ export class SubscribersCustomService {
         }),
       );
     }
-    return await queryBuilder.getOne();
+
+    const subscriber = await queryBuilder.getOne();
+    
+    return subscriber || null;
   }
 
   async deleteSubscribersAlternal(): Promise<{ message: string }> {

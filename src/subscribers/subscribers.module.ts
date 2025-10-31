@@ -15,6 +15,7 @@ import { SubscriptionsBussinesModule } from 'src/subscriptions-bussines/subscrip
 import { RolesModule } from 'src/roles/roles.module';
 import { SubscriptionsDetailModule } from 'src/subscriptions-detail/subscriptions-detail.module';
 import { SubscribersSubscriptionDetailModule } from 'src/subscribers-subscription-detail/subscribers-subscription-detail.module';
+import { StorageModule } from './providers/storage/storage.module';
 
 @Module({
   imports: [
@@ -24,6 +25,8 @@ import { SubscribersSubscriptionDetailModule } from 'src/subscribers-subscriptio
     forwardRef(() => SubscriptionsDetailModule),
     SubscribersSubscriptionDetailModule,
     RolesModule,
+    SubscriptionsDetailModule,
+    StorageModule
   ],
   controllers: [SubscribersController],
   providers: [

@@ -17,4 +17,5 @@ export class FindOneUsernameSubscriptionResponsDto {
   subscriptionBussineId: string;
   subscriptionDetailId: string;
   status: StatusSubscription;
+  storageId?: string;
 }

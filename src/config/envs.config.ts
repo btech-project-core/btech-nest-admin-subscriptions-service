@@ -66,4 +66,8 @@ export const envs = {
   domain: {
     principal: envVars.DOMAIN_PRINCIPAL,
   },
+  storage_service: {
+    grpc_port: process.env.STORAGE_CLIENT_ADMIN_GRPC_PORT || '51001',
+    grpc_host: process.env.STORAGE_CLIENT_ADMIN_GRPC_HOST || '0.0.0.0',
+  },
 };
