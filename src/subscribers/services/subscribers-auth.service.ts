@@ -13,8 +13,6 @@ import { AdminPersonsService } from 'src/common/services/admin-persons.service';
 import { SubscriptionsDetailFeaturesService } from 'src/subscriptions-detail/services/subscriptions-detail-features.service';
 import { SubscribersCustomService } from './subscribers-custom.service';
 import { SubscribersValidateService } from './subscribers-validate.service';
-import { StorageRepository } from '../providers/storage/storage.repository';
-import { StorageResponse } from '../providers/storage/interfaces/storage';
 
 @Injectable()
 export class SubscribersAuthService {
@@ -25,7 +23,6 @@ export class SubscribersAuthService {
     private readonly subscriptionsDetailFeaturesService: SubscriptionsDetailFeaturesService,
     private readonly subscribersCustomService: SubscribersCustomService,
     private readonly subscribersValidateService: SubscribersValidateService,
-    private readonly storageRepository: StorageRepository
   ) {}
 
   async findOneByUsername(
@@ -39,16 +36,14 @@ export class SubscribersAuthService {
         domain,
         service,
       );
-
     if (!subscriber) {
       const isValidWithDocumentNumber =
         await this.adminPersonsService.isValidDocumentNumberForUser(username);
-      
-       const newUsername =
+      const newUsername =
         await this.subscribersValidateService.isValidByNaturalPersonId(
           isValidWithDocumentNumber.naturalPersonId,
         );
-
+      console.log(`newUsername: ${newUsername}`);
       subscriber =
         await this.subscribersCustomService.querySubscriberByUsername(
           newUsername,
@@ -56,52 +51,21 @@ export class SubscribersAuthService {
           service,
         );
     }
-
-    if (!subscriber) {
+    if (!subscriber)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: `El usuario con el código de acceso: ${username} no existe`,
       });
-    }
-
     if (
       subscriber.subscriptionsBussine.subscription.status !==
       StatusSubscription.ACTIVE
-    ) {
+    )
       throw new RpcException({
         status: HttpStatus.UNAUTHORIZED,
         message: 'El usuario se encuentra sin suscripción activa',
       });
-    }
 
-    /**
-     * Storage Service
-     */
-    let storage: StorageResponse | undefined = undefined;
-    if (service === CodeService.STO) {
-      try {
-        const subscriptionDetails =
-          subscriber.subscriptionsBussine.subscriptionDetail;
-
-        const storageSubscriptionDetail = subscriptionDetails.find((detail) =>
-          detail.subscriptionsService.code === CodeService.STO,
-        );
-
-        if (storageSubscriptionDetail) {
-          storage = await this.storageRepository.findBySubscriptionDetailId(
-            storageSubscriptionDetail.subscriptionDetailId
-          );
-        }
-      } catch (error) {
-        throw new RpcException({
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message:
-            'Error al obtener la información del servicio de almacenamiento',
-        });
-      }
-    }
-
-    return formatFindOneUsernameResponse(subscriber, storage);
+    return formatFindOneUsernameResponse(subscriber);
   }
 
   async findOneBySubscriberIdWithLogin(

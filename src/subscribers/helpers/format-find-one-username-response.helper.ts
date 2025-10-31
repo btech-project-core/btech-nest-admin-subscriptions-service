@@ -1,11 +1,9 @@
 import { CodeService } from 'src/common/enums/code-service.enum';
 import { FindOneUsernameResponseDto } from '../dto/find-one-username.dto';
 import { Subscriber } from '../entities/subscriber.entity';
-import { StorageResponse } from '../providers/storage/interfaces/storage';
 
 export const formatFindOneUsernameResponse = (
   subscriber: Subscriber,
-  storage?: StorageResponse,
 ): FindOneUsernameResponseDto => {
   return {
     subscriberId: subscriber.subscriberId,
@@ -29,7 +27,6 @@ export const formatFindOneUsernameResponse = (
         subscriber.subscriptionsBussine.subscriptionDetail[0]
           .subscriptionDetailId,
       status: subscriber.subscriptionsBussine.subscription.status,
-      storageId: storage ? storage.id : undefined,
     },
   };
 };
