@@ -130,6 +130,10 @@ export class SubscribersValidateService {
         'subscriptionsBussine',
       )
       .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .leftJoinAndSelect(
+        'subscription.subscriptionsBussine',
+        'parentSubscriptionsBussine',
+      )
       .where(
         'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
         { subscriptionBussineId },
@@ -143,6 +147,14 @@ export class SubscribersValidateService {
     const isParentCompanyUser =
       subscriber.subscriptionsBussine.personId ===
       subscriber.subscriptionsBussine.subscription.personId;
-    return { isParentCompanyUser };
+
+    // Obtener el subscriptionBussineId del padre
+    const parentSubscriptionBussineId =
+      subscriber.subscriptionsBussine.subscription.subscriptionsBussine.find(
+        (sb) =>
+          sb.personId === subscriber.subscriptionsBussine.subscription.personId,
+      )?.subscriptionBussineId || null;
+
+    return { isParentCompanyUser, parentSubscriptionBussineId };
   }
 }

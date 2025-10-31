@@ -273,4 +273,5 @@ message ValidateParentCompanyUserRequest {
 
 message ValidateParentCompanyUserResponse {
   bool isParentCompanyUser = 1;
+  optional string parentSubscriptionBussineId = 2;
 }

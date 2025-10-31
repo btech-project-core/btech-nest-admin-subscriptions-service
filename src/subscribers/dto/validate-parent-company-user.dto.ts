@@ -8,4 +8,5 @@ export class ValidateParentCompanyUserDto {
 
 export class ValidateParentCompanyUserResponseDto {
   isParentCompanyUser: boolean;
+  parentSubscriptionBussineId: string | null;
 }
