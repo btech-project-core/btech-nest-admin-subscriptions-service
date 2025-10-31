@@ -16,6 +16,7 @@ service SubscribersService {
   rpc ValidateSubscriberAlertLevel(ValidateSubscriberAlertLevelRequest) returns (ValidateSubscriberAlertLevelResponse);
   rpc DeleteSubscriber(DeleteSubscriberRequest) returns (DeleteSubscriberResponse);
   rpc GetSubscribersByBusiness(GetSubscribersByBusinessRequest) returns (GetSubscribersByBusinessResponse);
+  rpc ValidateParentCompanyUser(ValidateParentCompanyUserRequest) returns (ValidateParentCompanyUserResponse);
 }
 
 // ===== REQUESTS =====
@@ -264,4 +265,13 @@ message GetSubscribersByBusinessResponse {
   int32 page = 3;
   int32 limit = 4;
   int32 totalPages = 5;
+}
+
+message ValidateParentCompanyUserRequest {
+  string personId = 1;
+  string subscriptionBussineId = 2;
+}
+
+message ValidateParentCompanyUserResponse {
+  bool isParentCompanyUser = 1;
 }

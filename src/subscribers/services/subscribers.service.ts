@@ -14,6 +14,8 @@ import {
   CreateSubscriberResponseDto,
   GetSubscribersByBusinessDto,
   GetSubscribersByBusinessResponseDto,
+  ValidateParentCompanyUserDto,
+  ValidateParentCompanyUserResponseDto,
 } from '../dto';
 import { CodeService } from 'src/common/enums';
 import { SubscribersCoreService } from './subscribers-core.service';
@@ -140,5 +142,11 @@ export class SubscribersService {
     dto: CreateSubscriberDto,
   ): Promise<CreateSubscriberResponseDto> {
     return await this.subscribersCustomService.registerSubscriberAlternal(dto);
+  }
+
+  async validateParentCompanyUser(
+    dto: ValidateParentCompanyUserDto,
+  ): Promise<ValidateParentCompanyUserResponseDto> {
+    return await this.subscribersValidateService.validateParentCompanyUser(dto);
   }
 }

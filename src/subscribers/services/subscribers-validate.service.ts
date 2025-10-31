@@ -8,6 +8,10 @@ import {
   SubscriberAlertLevelValidation,
   SubscriberAlertLevelRaw,
 } from '../interfaces/subscriber-alert-level.interface';
+import {
+  ValidateParentCompanyUserDto,
+  ValidateParentCompanyUserResponseDto,
+} from '../dto';
 
 @Injectable()
 export class SubscribersValidateService {
@@ -112,5 +116,34 @@ export class SubscribersValidateService {
       alertMinutesBefore: row.value ? parseInt(row.value, 10) : undefined,
       subscriptionDetailId: row.subscriptionDetailId,
     }));
+  }
+
+  async validateParentCompanyUser(
+    validateParentCompanyUserDto: ValidateParentCompanyUserDto,
+  ): Promise<ValidateParentCompanyUserResponseDto> {
+    const { personId, subscriptionBussineId } = validateParentCompanyUserDto;
+    const queryBuilder =
+      this.subscriberRepository.createQueryBuilder('subscriber');
+    queryBuilder
+      .leftJoinAndSelect(
+        'subscriber.subscriptionsBussine',
+        'subscriptionsBussine',
+      )
+      .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
+      .where(
+        'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
+        { subscriptionBussineId },
+      )
+      .andWhere('subscriptionsBussine.personId = :personId', { personId });
+    const subscriber = await queryBuilder.getOne();
+    if (!subscriber)
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: 'El usuario no se encuentra registrado en esta empresa',
+      });
+    const isParentCompanyUser =
+      subscriber.subscriptionsBussine.personId ===
+      subscriber.subscriptionsBussine.subscription.personId;
+    return { isParentCompanyUser };
   }
 }
