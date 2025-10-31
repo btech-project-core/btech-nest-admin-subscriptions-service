@@ -121,7 +121,7 @@ export class SubscribersValidateService {
   async validateParentCompanyUser(
     validateParentCompanyUserDto: ValidateParentCompanyUserDto,
   ): Promise<ValidateParentCompanyUserResponseDto> {
-    const { personId, subscriptionBussineId } = validateParentCompanyUserDto;
+    const { subscriptionBussineId } = validateParentCompanyUserDto;
     const queryBuilder =
       this.subscriberRepository.createQueryBuilder('subscriber');
     queryBuilder
@@ -133,8 +133,7 @@ export class SubscribersValidateService {
       .where(
         'subscriptionsBussine.subscriptionBussineId = :subscriptionBussineId',
         { subscriptionBussineId },
-      )
-      .andWhere('subscriptionsBussine.personId = :personId', { personId });
+      );
     const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
