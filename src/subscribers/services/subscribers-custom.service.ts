@@ -156,13 +156,24 @@ export class SubscribersCustomService {
         'subscriber.subscriptionsBussine',
         'subscriptionsBussine',
       )
-      .leftJoinAndSelect(
+      .innerJoin(
         'subscriptionsBussine.subscriptionDetail',
         'subscriptionDetail',
       )
-      .leftJoinAndSelect(
+      .innerJoin(
         'subscriptionDetail.subscriptionsService',
         'subscriptionsService',
+        'subscriptionsService.code = :service',
+        { service },
+      )
+      .leftJoinAndSelect(
+        'subscriptionsBussine.subscriptionDetail',
+        'subscriptionDetailLoaded',
+        'subscriptionDetailLoaded.subscriptionDetailId = subscriptionDetail.subscriptionDetailId',
+      )
+      .leftJoinAndSelect(
+        'subscriptionDetailLoaded.subscriptionsService',
+        'subscriptionsServiceLoaded',
       )
       .leftJoinAndSelect('subscriptionsBussine.subscription', 'subscription')
       .leftJoinAndSelect(
@@ -175,7 +186,6 @@ export class SubscribersCustomService {
       )
       .leftJoinAndSelect('subscriberRoles.role', 'role')
       .where('subscriber.username = :username', { username })
-      .andWhere('subscriptionsService.code = :service', { service })
       .andWhere(
         'subscribersSubscriptionDetails.subscriptionDetail = subscriptionDetail.subscriptionDetailId',
       )
@@ -184,10 +194,10 @@ export class SubscribersCustomService {
       })
       .andWhere('subscriberRoles.isActive = :roleActive', { roleActive: true });
 
-    if (service === CodeService.VDI && domain !== envs.domain.principal) {
+    if (domain !== envs.domain.principal) {
       queryBuilder
         .leftJoinAndSelect(
-          'subscriptionDetail.subscriptionDetailFeatures',
+          'subscriptionDetailLoaded.subscriptionDetailFeatures',
           'subscriptionDetailFeatures',
         )
         .leftJoinAndSelect(
