@@ -55,14 +55,35 @@ export class SubscribersValidateService {
     return true;
   }
 
-  async isValidByNaturalPersonId(naturalPersonId: string): Promise<string> {
-    const subscriber = await this.subscriberRepository.findOne({
-      where: { naturalPersonId },
-    });
+  async isValidByNaturalPersonId(
+    naturalPersonIds: string[],
+    service: string,
+  ): Promise<string> {
+    const queryBuilder =
+      this.subscriberRepository.createQueryBuilder('subscriber');
+    queryBuilder
+      .innerJoin(
+        'subscriber.subscribersSubscriptionDetails',
+        'subscribersSubscriptionDetail',
+      )
+      .innerJoin(
+        'subscribersSubscriptionDetail.subscriptionDetail',
+        'subscriptionDetail',
+      )
+      .innerJoin(
+        'subscriptionDetail.subscriptionsService',
+        'subscriptionsService',
+      )
+      .where('subscriber.naturalPersonId IN (:...naturalPersonIds)', {
+        naturalPersonIds,
+      })
+      .andWhere('subscriptionsService.code = :service', { service });
+
+    const subscriber = await queryBuilder.getOne();
     if (!subscriber)
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `No se encuentra el usuario con el código de acceso: ${naturalPersonId}`,
+        message: `El usuario ingresado no se encuentra registrado`,
       });
     return subscriber.username;
   }

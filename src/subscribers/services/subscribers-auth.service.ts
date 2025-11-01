@@ -41,7 +41,8 @@ export class SubscribersAuthService {
         await this.adminPersonsService.isValidDocumentNumberForUser(username);
       const newUsername =
         await this.subscribersValidateService.isValidByNaturalPersonId(
-          isValidWithDocumentNumber.naturalPersonId,
+          isValidWithDocumentNumber.naturalPersonIds,
+          service,
         );
       console.log(`newUsername: ${newUsername}`);
       subscriber =

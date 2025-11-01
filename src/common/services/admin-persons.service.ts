@@ -60,7 +60,7 @@ export class AdminPersonsService {
 
   async isValidDocumentNumberForUser(
     documentNumber: string,
-  ): Promise<{ naturalPersonId: string }> {
+  ): Promise<{ naturalPersonIds: string[] }> {
     return this.client.send('person.isValidDocumentNumberForUser', {
       documentNumber,
     });
