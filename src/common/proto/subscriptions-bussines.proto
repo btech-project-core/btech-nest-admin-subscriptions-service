@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package subscriptions_bussines;
+
+service SubscriptionsBussinesService {
+  rpc CreateAlternal(CreateAlternalRequest) returns (CreateAlternalResponse);
+}
+
+// ===== REQUESTS =====
+message NaturalPersonForSubscriber {
+  string naturalPersonId = 1;
+  string documentNumber = 2;
+}
+
+message CreateAlternalRequest {
+  string subscriptionId = 1;
+  string personId = 2;
+  string subscriptionServiceId = 3;
+  repeated NaturalPersonForSubscriber naturalPersons = 4;
+}
+
+// ===== RESPONSES =====
+message SubscriptionData {
+  string subscriptionId = 1;
+  string initialDate = 2;
+  string finalDate = 3;
+  string contractSigningDate = 4;
+  optional string url = 5;
+  string personId = 6;
+  string status = 7;
+}
+
+message CreateAlternalResponse {
+  string subscriptionBussineId = 1;
+  string personId = 2;
+  int32 numberAccounts = 3;
+  SubscriptionData subscription = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+}

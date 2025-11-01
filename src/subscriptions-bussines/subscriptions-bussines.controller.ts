@@ -1,6 +1,6 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { SubscriptionsBussinesService } from './services/subscriptions-bussines.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import {
   CreateSubscriptionsBussineAlternalDto,
   CreateSubscriptionsBussineAlternalResponseDto,
@@ -42,9 +42,9 @@ export class SubscriptionsBussinesController {
     );
   }
 
-  @MessagePattern('subscriptionBussines.createAlternal')
+  @GrpcMethod('SubscriptionsBussinesService', 'CreateAlternal')
   async createAlternal(
-    @Payload() dto: CreateSubscriptionsBussineAlternalDto,
+    dto: CreateSubscriptionsBussineAlternalDto,
   ): Promise<CreateSubscriptionsBussineAlternalResponseDto> {
     return this.subscriptionsBussinesService.createAlternal(dto);
   }
